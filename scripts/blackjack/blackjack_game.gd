@@ -32,6 +32,18 @@ func start_round(bet: int) -> bool:
         _resolve_payout()
     return true
 
+func hit() -> void:
+    if state != State.PLAYER_TURN:
+        return
+    player_hand.add_card(deck.draw_card())
+    if player_hand.is_bust():
+        state = State.ROUND_OVER
+
+func stand() -> void:
+    if state != State.PLAYER_TURN:
+        return
+    _finish_dealer_turn()
+
 func _finish_dealer_turn() -> void:
     state = State.DEALER_TURN
     if not player_hand.is_bust():
