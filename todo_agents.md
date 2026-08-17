@@ -38,19 +38,22 @@ Prompt a pegar en la sesión nueva:
 
 **Estado: BLOQUEADO hasta que Agente 1 termine y pushee**
 **Rama:** `main`
+**Plan ya escrito:** `docs/superpowers/plans/2026-08-17-steam-lobbies.md` (la sesión pilar
+ya lo redactó y verificó la API real de GodotSteam contra su documentación —
+el agente solo tiene que ejecutarlo, no escribirlo).
 
 Prompt a pegar (cuando toque):
 
 > Trabaja en el repo del casino multijugador, rama `main`, haz `git pull`
-> primero. Lee la spec en `docs/superpowers/specs/2026-08-17-casino-multiplayer-design.md`
-> y el código ya construido en `scripts/` y `scenes/` (Blackjack en
-> solitario, Plan 1, ya mergeado). Usa el skill `superpowers:writing-plans`
-> para crear el Plan 2: integración de GodotSteam (addon), creación/unión
-> a lobbies de Steam, e invitación vía overlay — sin lógica de juego
-> todavía, solo conexión de jugadores. Guárdalo como
-> `docs/superpowers/plans/<fecha>-steam-lobbies.md`. Cuando yo apruebe el
-> plan, ejecútalo con `superpowers:executing-plans`, con commits y push
-> frecuentes.
+> primero. Ejecuta el plan `docs/superpowers/plans/2026-08-17-steam-lobbies.md`
+> tarea por tarea con `superpowers:executing-plans` (o
+> `superpowers:subagent-driven-development` si prefieres delegar cada
+> tarea). Importante: este plan depende de un cliente de Steam real
+> abierto y con sesión iniciada — necesitarás dos cuentas de Steam
+> distintas para las verificaciones manuales de lobby (no son tests
+> automáticos de GUT como en Plan 1, léelo con atención). Haz `git push`
+> al terminar cada task. Al acabar, confírmame qué verificaste
+> manualmente y con qué resultado.
 
 ---
 
