@@ -1,0 +1,60 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/blackjack_table.gd" id="1"]
+
+[node name="BlackjackTable" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="BalanceLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 300.0
+offset_bottom = 44.0
+text = "Fichas: 0"
+
+[node name="PlayerLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 60.0
+offset_right = 300.0
+offset_bottom = 84.0
+text = "Jugador: 0"
+
+[node name="DealerLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 100.0
+offset_right = 300.0
+offset_bottom = 124.0
+text = "Banca: 0"
+
+[node name="BetButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 160.0
+offset_right = 160.0
+offset_bottom = 196.0
+text = "Apostar 50"
+
+[node name="HitButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 160.0
+offset_right = 280.0
+offset_bottom = 196.0
+text = "Pedir"
+
+[node name="StandButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 160.0
+offset_right = 420.0
+offset_bottom = 196.0
+text = "Plantarse"
