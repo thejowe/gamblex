@@ -11,13 +11,11 @@ extends Control
 var my_seat_index: int = -1
 var _last_seats: Array = []
 
-# SteamMultiplayerPeer usa el AccountID de 32 bits como unique_id de red, no el
-# SteamID64 completo. Hay que reconstruirlo para poder pedirle el nombre a Steam.
-const _STEAM_ID64_BASE: int = 76561197960265728
-
 func _display_name(peer_id: int) -> String:
-    var steam_id64 := peer_id if peer_id >= _STEAM_ID64_BASE else _STEAM_ID64_BASE + peer_id
-    var name := Steam.getFriendPersonaName(steam_id64)
+    var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
+    if steam_id == 0:
+        return "jugador %d" % peer_id
+    var name := Steam.getFriendPersonaName(steam_id)
     return name if not name.is_empty() else "jugador %d" % peer_id
 
 func _ready() -> void:
@@ -26,6 +24,7 @@ func _ready() -> void:
     bet_button.pressed.connect(_on_bet_pressed)
     hit_button.pressed.connect(_on_hit_pressed)
     stand_button.pressed.connect(_on_stand_pressed)
+    NetworkManager.identities_changed.connect(_refresh_seats_label)
     # El host actúa localmente (sin RPC), pero un cliente recién llegado a esta
     # escena puede que aún no tenga el SteamMultiplayerPeer en CONNECTED —
     # bloquear "Sentarse" hasta entonces evita el rpc_id() fallido.
@@ -58,9 +57,14 @@ func _on_stand_pressed() -> void:
 func _on_state_changed(state: Dictionary) -> void:
     _last_seats = state["seats"]
     dealer_label.text = "Banca: %d" % state["dealer_value"]
+    _refresh_seats_label()
+    if my_seat_index >= 0 and my_seat_index < _last_seats.size() and _last_seats[my_seat_index] != null:
+        bet_button.disabled = _last_seats[my_seat_index]["bet"] > 0
+
+func _refresh_seats_label() -> void:
     var lines: Array[String] = []
-    for i in range(state["seats"].size()):
-        var seat = state["seats"][i]
+    for i in range(_last_seats.size()):
+        var seat = _last_seats[i]
         if seat == null:
             lines.append("Asiento %d: libre" % i)
         else:
@@ -68,5 +72,3 @@ func _on_state_changed(state: Dictionary) -> void:
                 i, _display_name(seat["player_id"]), seat["balance"], seat["bet"], seat["hand_value"]
             ])
     seats_label.text = "\n".join(lines)
-    if my_seat_index >= 0 and my_seat_index < _last_seats.size() and _last_seats[my_seat_index] != null:
-        bet_button.disabled = _last_seats[my_seat_index]["bet"] > 0
