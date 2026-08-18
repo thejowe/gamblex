@@ -1,7 +1,22 @@
 # Todo Agents — Casino Multijugador
 
-Cómo funciona: esta sesión ("pilar") define qué hace cada agente y en qué
-orden. Cada agente tiene su definición completa (rol, contexto, plan a
+## Sesiones pilar
+
+Este documento lo mantiene una **sesión pilar**: la sesión orquestadora que
+decide qué agente toca, verifica lo entregado contra el repo real, y le da
+al usuario el prompt exacto para cada sesión de agente. Su rol completo
+está en `.claude/agents/pilar.md`. Si necesitas abrir otra sesión pilar
+(nueva ventana, o porque esta se cerró), el prompt para arrancarla es:
+
+> Actúa como la sesión pilar del proyecto de casino multijugador — lee y
+> sigue al pie de la letra `.claude/agents/pilar.md`, y luego revisa
+> `todo_agents.md` y el estado real del repo (`git pull`, `git log
+> --oneline -20`) antes de decirme nada.
+
+## Cómo funciona
+
+La sesión pilar define qué hace cada agente y en qué orden. Cada agente
+tiene su definición completa (rol, contexto, plan a
 ejecutar o a escribir, rama, formato de reporte) en `.claude/agents/`, así
 que el prompt que pegas en la sesión nueva es siempre el mismo formato corto:
 
