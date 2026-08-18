@@ -43,5 +43,9 @@ func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response:
 	if response != Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
 		lobby_join_failed.emit("No se pudo unir al lobby (código %d)" % response)
 		return
+	if lobby_id == current_lobby_id:
+		# Steamworks dispara lobby_joined también para quien acaba de crear la lobby
+		# (crearla implica entrar en ella) — _on_lobby_created ya emitió lobby_ready.
+		return
 	current_lobby_id = lobby_id
 	lobby_ready.emit(lobby_id, Steam.getLobbyOwner(lobby_id) == steam_id)
