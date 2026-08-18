@@ -55,7 +55,10 @@ func _on_state_changed(state: Dictionary) -> void:
         if seat == null:
             lines.append("Asiento %d: libre" % i)
         else:
-            lines.append("Asiento %d: jugador %d — fichas %d — apuesta %d — mano %d" % [
-                i, seat["player_id"], seat["balance"], seat["bet"], seat["hand_value"]
+            var display_name: String = Steam.getFriendPersonaName(seat["player_id"])
+            lines.append("Asiento %d: %s — fichas %d — apuesta %d — mano %d" % [
+                i, display_name, seat["balance"], seat["bet"], seat["hand_value"]
             ])
     seats_label.text = "\n".join(lines)
+    if my_seat_index >= 0 and my_seat_index < _last_seats.size() and _last_seats[my_seat_index] != null:
+        bet_button.disabled = _last_seats[my_seat_index]["bet"] > 0
