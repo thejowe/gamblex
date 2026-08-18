@@ -15,6 +15,20 @@ func _ready() -> void:
     bet_button.pressed.connect(_new_round)
     hit_button.pressed.connect(_on_hit)
     stand_button.pressed.connect(_on_stand)
+    # TEMP verificación manual Task 3 (Plan 2) — borrar antes de commitear.
+    SteamManager.lobby_ready.connect(func(id, is_owner): print("Lobby listo: %d (owner=%s)" % [id, is_owner]))
+    SteamManager.lobby_join_failed.connect(func(reason): print("Fallo de lobby: %s" % reason))
+
+func _unhandled_key_input(event: InputEvent) -> void:
+    if not event.is_pressed() or event.echo:
+        return
+    if event is InputEventKey and event.keycode == KEY_C:
+        print("Creando lobby...")
+        SteamManager.create_lobby(4)
+    elif event is InputEventKey and event.keycode == KEY_J:
+        var id_str := DisplayServer.clipboard_get().strip_edges()
+        print("Uniendo a lobby %s (desde portapapeles)..." % id_str)
+        SteamManager.join_lobby(int(id_str))
 
 func _new_round() -> void:
     var deck = Deck.new()

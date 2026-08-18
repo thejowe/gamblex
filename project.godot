@@ -21,6 +21,7 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 [autoload]
 
 SteamManager="*res://autoloads/steam_manager.gd"
+NetworkManager="*res://autoloads/network_manager.gd"
 
 [editor_plugins]
 
