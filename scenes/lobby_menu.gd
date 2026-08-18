@@ -11,6 +11,7 @@ func _ready() -> void:
 	invite_button.pressed.connect(_on_invite_pressed)
 	invite_button.disabled = true
 	SteamManager.lobby_ready.connect(_on_lobby_ready)
+	SteamManager.lobby_join_failed.connect(_on_lobby_join_failed)
 	Steam.lobby_chat_update.connect(_on_lobby_chat_update)
 
 func _on_create_pressed() -> void:
@@ -27,6 +28,9 @@ func _on_lobby_ready(lobby_id: int, is_owner: bool) -> void:
 	if not is_owner:
 		# El invitado ya llega acompañado del host, pasa directo a la mesa.
 		_go_to_casino_floor()
+
+func _on_lobby_join_failed(reason: String) -> void:
+	push_error("LobbyMenu: %s" % reason)
 
 func _on_lobby_chat_update(_lobby_id: int, _change_id: int, _making_change_id: int, _chat_state: int) -> void:
 	_refresh_members()

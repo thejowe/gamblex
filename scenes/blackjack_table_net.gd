@@ -9,6 +9,7 @@ extends Control
 @onready var stand_button: Button = $StandButton
 
 var my_seat_index: int = -1
+var _last_seats: Array = []
 
 func _ready() -> void:
     table_controller.state_changed.connect(_on_state_changed)
@@ -18,11 +19,15 @@ func _ready() -> void:
     stand_button.pressed.connect(_on_stand_pressed)
 
 func _on_sit_pressed() -> void:
-    # Sentarse siempre en el primer asiento libre visible en pantalla; suficiente para
-    # la verificación manual de este plan — un selector de asiento por UI queda fuera
-    # de alcance aquí.
-    table_controller.sit(0)
-    my_seat_index = 0
+    # Sentarse en el primer asiento libre según el último estado conocido; un
+    # selector de asiento por UI queda fuera de alcance de este plan.
+    var seat_index := 0
+    for i in range(_last_seats.size()):
+        if _last_seats[i] == null:
+            seat_index = i
+            break
+    table_controller.sit(seat_index)
+    my_seat_index = seat_index
 
 func _on_bet_pressed() -> void:
     table_controller.bet(my_seat_index, 50)
@@ -34,6 +39,7 @@ func _on_stand_pressed() -> void:
     table_controller.stand(my_seat_index)
 
 func _on_state_changed(state: Dictionary) -> void:
+    _last_seats = state["seats"]
     dealer_label.text = "Banca: %d" % state["dealer_value"]
     var lines: Array[String] = []
     for i in range(state["seats"].size()):

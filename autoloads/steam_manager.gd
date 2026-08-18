@@ -34,6 +34,7 @@ func join_lobby(lobby_id: int) -> void:
 func _on_join_requested(lobby_id: int, _steam_id: int) -> void:
 	# Disparado por Steam (overlay/notificación/lista de amigos) cuando el
 	# usuario pulsa "Unirse" a una partida de un amigo — la app no se une sola.
+	print("SteamManager: join_requested recibido para lobby %d" % lobby_id)
 	join_lobby(lobby_id)
 
 func _on_lobby_created(connect_result: int, lobby_id: int) -> void:
