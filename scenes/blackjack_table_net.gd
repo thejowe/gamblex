@@ -11,6 +11,15 @@ extends Control
 var my_seat_index: int = -1
 var _last_seats: Array = []
 
+# SteamMultiplayerPeer usa el AccountID de 32 bits como unique_id de red, no el
+# SteamID64 completo. Hay que reconstruirlo para poder pedirle el nombre a Steam.
+const _STEAM_ID64_BASE: int = 76561197960265728
+
+func _display_name(peer_id: int) -> String:
+    var steam_id64 := peer_id if peer_id >= _STEAM_ID64_BASE else _STEAM_ID64_BASE + peer_id
+    var name := Steam.getFriendPersonaName(steam_id64)
+    return name if not name.is_empty() else "jugador %d" % peer_id
+
 func _ready() -> void:
     table_controller.state_changed.connect(_on_state_changed)
     sit_button.pressed.connect(_on_sit_pressed)
@@ -55,9 +64,8 @@ func _on_state_changed(state: Dictionary) -> void:
         if seat == null:
             lines.append("Asiento %d: libre" % i)
         else:
-            var display_name: String = Steam.getFriendPersonaName(seat["player_id"])
             lines.append("Asiento %d: %s — fichas %d — apuesta %d — mano %d" % [
-                i, display_name, seat["balance"], seat["bet"], seat["hand_value"]
+                i, _display_name(seat["player_id"]), seat["balance"], seat["bet"], seat["hand_value"]
             ])
     seats_label.text = "\n".join(lines)
     if my_seat_index >= 0 and my_seat_index < _last_seats.size() and _last_seats[my_seat_index] != null:
