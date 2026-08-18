@@ -11,6 +11,7 @@ var current_lobby_id: int = 0
 func _ready() -> void:
 	Steam.lobby_created.connect(_on_lobby_created)
 	Steam.lobby_joined.connect(_on_lobby_joined)
+	Steam.join_requested.connect(_on_join_requested)
 	var init_result: Dictionary = Steam.steamInitEx()
 	var ok: bool = init_result["status"] == 0
 	if not ok:
@@ -29,6 +30,11 @@ func create_lobby(max_members: int) -> void:
 
 func join_lobby(lobby_id: int) -> void:
 	Steam.joinLobby(lobby_id)
+
+func _on_join_requested(lobby_id: int, _steam_id: int) -> void:
+	# Disparado por Steam (overlay/notificación/lista de amigos) cuando el
+	# usuario pulsa "Unirse" a una partida de un amigo — la app no se une sola.
+	join_lobby(lobby_id)
 
 func _on_lobby_created(connect_result: int, lobby_id: int) -> void:
 	# connect_result usa los códigos EResult de Steamworks: 1 = k_EResultOK.
