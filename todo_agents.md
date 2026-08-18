@@ -33,7 +33,7 @@ sesión pilar para evitar conflictos entre ramas.
 |---|---|---|---|---|
 | 1 | `plan1-blackjack` | Base del proyecto + Blackjack en solitario | `main` | ✅ Completado |
 | 2 | `plan2-steam` | GodotSteam: init, lobbies, invitaciones, SteamMultiplayerPeer | `main` | 🟢 Listo para arrancar |
-| 3 | `plan3-casinofloor` | CasinoFloor compartido + Blackjack multijugador | `main` | 🔒 Bloqueado por #2 |
+| 3 | `plan3-casinofloor` | CasinoFloor compartido + Blackjack multijugador (plan ya escrito) | `main` | 🔒 Bloqueado por #2 |
 | 4 | `plan4-battle` | Modo batalla: equipos, pozo compartido, MatchRules | `feature/battle-mode` | 🔒 Bloqueado por #3 |
 | 5 | `plan5-roulette` | Módulo Ruleta | `feature/roulette` | 🔒 Bloqueado por #3 |
 | 6 | `plan6-poker` | Módulo Póker | `feature/poker` | 🔒 Bloqueado por #3 |
