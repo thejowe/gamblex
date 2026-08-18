@@ -4,6 +4,8 @@ extends Control
 @onready var invite_button: Button = $InviteButton
 @onready var members_label: Label = $MembersLabel
 
+var _transitioned: bool = false
+
 func _ready() -> void:
 	create_button.pressed.connect(_on_create_pressed)
 	invite_button.pressed.connect(_on_invite_pressed)
@@ -18,13 +20,25 @@ func _on_create_pressed() -> void:
 func _on_invite_pressed() -> void:
 	Steam.activateGameOverlayInviteDialog(SteamManager.current_lobby_id)
 
-func _on_lobby_ready(_lobby_id: int, _is_owner: bool) -> void:
+func _on_lobby_ready(lobby_id: int, is_owner: bool) -> void:
 	invite_button.disabled = false
 	_refresh_members()
-	get_tree().change_scene_to_file("res://scenes/casino_floor.tscn")
+	print("LobbyMenu: lobby lista, id %d (compártelo si el overlay de invitar no sirve)" % lobby_id)
+	if not is_owner:
+		# El invitado ya llega acompañado del host, pasa directo a la mesa.
+		_go_to_casino_floor()
 
 func _on_lobby_chat_update(_lobby_id: int, _change_id: int, _making_change_id: int, _chat_state: int) -> void:
 	_refresh_members()
+	# El host espera aquí (con el botón de invitar visible) hasta que se una alguien más.
+	if Steam.getNumLobbyMembers(SteamManager.current_lobby_id) >= 2:
+		_go_to_casino_floor()
+
+func _go_to_casino_floor() -> void:
+	if _transitioned:
+		return
+	_transitioned = true
+	get_tree().change_scene_to_file("res://scenes/casino_floor.tscn")
 
 func _refresh_members() -> void:
 	var lobby_id := SteamManager.current_lobby_id
