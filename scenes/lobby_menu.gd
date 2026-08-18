@@ -21,6 +21,7 @@ func _on_invite_pressed() -> void:
 func _on_lobby_ready(_lobby_id: int, _is_owner: bool) -> void:
 	invite_button.disabled = false
 	_refresh_members()
+	get_tree().change_scene_to_file("res://scenes/casino_floor.tscn")
 
 func _on_lobby_chat_update(_lobby_id: int, _change_id: int, _making_change_id: int, _chat_state: int) -> void:
 	_refresh_members()
