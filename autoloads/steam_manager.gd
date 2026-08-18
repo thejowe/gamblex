@@ -1,11 +1,16 @@
 extends Node
 
 signal steam_ready(success: bool)
+signal lobby_ready(lobby_id: int, is_owner: bool)
+signal lobby_join_failed(reason: String)
 
 var steam_id: int = 0
 var steam_username: String = ""
+var current_lobby_id: int = 0
 
 func _ready() -> void:
+	Steam.lobby_created.connect(_on_lobby_created)
+	Steam.lobby_joined.connect(_on_lobby_joined)
 	var init_result: Dictionary = Steam.steamInitEx()
 	var ok: bool = init_result["status"] == 0
 	if not ok:
@@ -18,3 +23,27 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	Steam.run_callbacks()
+
+func create_lobby(max_members: int) -> void:
+	Steam.createLobby(Steam.LOBBY_TYPE_FRIENDS_ONLY, max_members)
+
+func join_lobby(lobby_id: int) -> void:
+	Steam.joinLobby(lobby_id)
+
+func _on_lobby_created(connect_result: int, lobby_id: int) -> void:
+	# connect_result usa los códigos EResult de Steamworks: 1 = k_EResultOK.
+	# Ojo: es una escala distinta a la de steamInitEx (donde 0 = éxito).
+	if connect_result != 1:
+		lobby_join_failed.emit("No se pudo crear el lobby (código %d)" % connect_result)
+		return
+	current_lobby_id = lobby_id
+	lobby_ready.emit(lobby_id, true)
+
+func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response: int) -> void:
+	if response != Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
+		lobby_join_failed.emit("No se pudo unir al lobby (código %d)" % response)
+		return
+	current_lobby_id = lobby_id
+	var owner_id: int = Steam.getLobbyOwner(lobby_id)
+	print("DEBUG owner_id=%d steam_id=%d" % [owner_id, steam_id])
+	lobby_ready.emit(lobby_id, owner_id == steam_id)
