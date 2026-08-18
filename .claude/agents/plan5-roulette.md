@@ -35,6 +35,12 @@ e interfaces, no inventes un patrón distinto.
 - Referencia de patrón: `scripts/blackjack/` (Plan 1) y el `TableController`
   de Plan 3 (léelo antes de diseñar el tuyo — la mesa de Ruleta debe
   sincronizarse igual que la de Blackjack).
+- Gotcha ya encontrado y arreglado en Plan 3, no lo repitas: `rpc_id(1, ...)`
+  con modo `call_remote` falla si quien llama ya es el peer 1 (el host actuando
+  sobre su propia mesa) — Godot rechaza los RPC dirigidos a uno mismo en ese
+  modo. `TableController` resuelve esto con métodos wrapper que, en el host,
+  aplican la acción directamente al estado en vez de hacerse un RPC a sí
+  mismo; los clientes sí pasan por el RPC. Sigue ese mismo patrón.
 
 ## Cómo trabajas
 

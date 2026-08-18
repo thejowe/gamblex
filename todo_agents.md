@@ -47,12 +47,17 @@ sesión pilar para evitar conflictos entre ramas.
 | # | Agente (`.claude/agents/…`) | Encargo | Rama | Estado |
 |---|---|---|---|---|
 | 1 | `plan1-blackjack` | Base del proyecto + Blackjack en solitario | `main` | ✅ Completado |
-| 2 | `plan2-steam` | GodotSteam: init, lobbies, invitaciones, SteamMultiplayerPeer | `main` | 🟢 Listo para arrancar |
-| 3 | `plan3-casinofloor` | CasinoFloor compartido + Blackjack multijugador (plan ya escrito) | `main` | 🔒 Bloqueado por #2 |
-| 4 | `plan4-battle` | Modo batalla: equipos, pozo compartido, MatchRules | `feature/battle-mode` | 🔒 Bloqueado por #3 |
-| 5 | `plan5-roulette` | Módulo Ruleta | `feature/roulette` | 🔒 Bloqueado por #3 |
-| 6 | `plan6-poker` | Módulo Póker | `feature/poker` | 🔒 Bloqueado por #3 |
-| 7 | `plan7-freemode` | Modo libre: meta colectiva de grupo | `feature/free-mode` | 🔒 Bloqueado por #3 |
+| 2 | `plan2-steam` | GodotSteam: init, lobbies, invitaciones, SteamMultiplayerPeer | `main` | ✅ Completado |
+| 3 | `plan3-casinofloor` | CasinoFloor compartido + Blackjack multijugador | `main` | ✅ Completado |
+| 4 | `plan4-battle` | Modo batalla: equipos, pozo compartido, MatchRules | `feature/battle-mode` | 🟢 Listo para arrancar |
+| 5 | `plan5-roulette` | Módulo Ruleta | `feature/roulette` | 🟢 Listo para arrancar |
+| 6 | `plan6-poker` | Módulo Póker | `feature/poker` | 🟢 Listo para arrancar |
+| 7 | `plan7-freemode` | Modo libre: meta colectiva de grupo | `feature/free-mode` | 🟢 Listo para arrancar |
+
+Los cuatro (#4-#7) pueden arrancar **a la vez**, cada uno en su propia
+sesión y su propia rama — no dependen entre sí, solo de #3 (ya mergeado).
+Ninguno mergea a `main` por su cuenta; avisan a la sesión pilar cuando
+terminan.
 
 Cada archivo `.claude/agents/planN-*.md` ya contiene: qué construye
 exactamente, si el plan detallado ya está escrito (Plan 1 y 2) o si el

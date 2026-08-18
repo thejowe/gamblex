@@ -42,6 +42,13 @@ Aún no existe un plan escrito para esto — es tu primer paso. Usa el skill
   (sección "Modo batalla (1v1 / 2v2 / 4v4)")
 - Código sobre el que construyes: `ChipLedger` (Plan 1), `CasinoFloor`/
   `TableController` (Plan 3)
+- Gotcha ya encontrado y arreglado en Plan 3, no lo repitas: si tu
+  `MatchRules` acaba necesitando RPCs propios, ten en cuenta que
+  `rpc_id(1, ...)` con modo `call_remote` falla si quien llama ya es el
+  peer 1 (el host actuando sobre su propio estado) — Godot rechaza RPCs
+  dirigidos a uno mismo en ese modo. `TableController` lo resuelve con
+  métodos wrapper que en el host aplican la acción directamente en vez de
+  auto-llamarse por RPC.
 
 ## Cómo trabajas
 
