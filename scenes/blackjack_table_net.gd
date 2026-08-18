@@ -17,6 +17,14 @@ func _ready() -> void:
     bet_button.pressed.connect(_on_bet_pressed)
     hit_button.pressed.connect(_on_hit_pressed)
     stand_button.pressed.connect(_on_stand_pressed)
+    # El host actúa localmente (sin RPC), pero un cliente recién llegado a esta
+    # escena puede que aún no tenga el SteamMultiplayerPeer en CONNECTED —
+    # bloquear "Sentarse" hasta entonces evita el rpc_id() fallido.
+    if not multiplayer.is_server():
+        var peer := multiplayer.multiplayer_peer
+        if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+            sit_button.disabled = true
+            multiplayer.connected_to_server.connect(func(): sit_button.disabled = false)
 
 func _on_sit_pressed() -> void:
     # Sentarse en el primer asiento libre según el último estado conocido; un
