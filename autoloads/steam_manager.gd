@@ -44,6 +44,4 @@ func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response:
 		lobby_join_failed.emit("No se pudo unir al lobby (código %d)" % response)
 		return
 	current_lobby_id = lobby_id
-	var owner_id: int = Steam.getLobbyOwner(lobby_id)
-	print("DEBUG owner_id=%d steam_id=%d" % [owner_id, steam_id])
-	lobby_ready.emit(lobby_id, owner_id == steam_id)
+	lobby_ready.emit(lobby_id, Steam.getLobbyOwner(lobby_id) == steam_id)
