@@ -23,6 +23,7 @@ func bet(seat_index: int, amount: int) -> void:
     if multiplayer.is_server():
         _apply_bet(seat_index, amount, multiplayer.get_unique_id())
     else:
+        print("TableController: cliente pide apostar seat=%d amount=%d" % [seat_index, amount])
         request_bet.rpc_id(1, seat_index, amount)
 
 func hit(seat_index: int) -> void:
@@ -47,7 +48,9 @@ func request_sit(seat_index: int) -> void:
 func request_bet(seat_index: int, amount: int) -> void:
     if not multiplayer.is_server():
         return
-    _apply_bet(seat_index, amount, multiplayer.get_remote_sender_id())
+    var sender_id := multiplayer.get_remote_sender_id()
+    print("TableController: host recibió apuesta de peer=%d seat=%d amount=%d" % [sender_id, seat_index, amount])
+    _apply_bet(seat_index, amount, sender_id)
 
 @rpc("any_peer", "call_remote", "reliable")
 func request_hit(seat_index: int) -> void:
@@ -66,7 +69,9 @@ func _apply_sit(seat_index: int, player_id: int) -> void:
         _broadcast_state()
 
 func _apply_bet(seat_index: int, amount: int, player_id: int) -> void:
-    if table_state.place_bet(seat_index, player_id, amount):
+    var ok := table_state.place_bet(seat_index, player_id, amount)
+    print("TableController: place_bet seat=%d player=%d amount=%d resultado=%s" % [seat_index, player_id, amount, ok])
+    if ok:
         _broadcast_state()
 
 func _apply_hit(seat_index: int, player_id: int) -> void:
