@@ -30,8 +30,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		print("Uniendo a lobby %s (desde portapapeles)..." % id_str)
 		SteamManager.join_lobby(int(id_str))
 
-func _on_lobby_ready(_lobby_id: int, _is_owner: bool) -> void:
+func _on_lobby_ready(lobby_id: int, _is_owner: bool) -> void:
 	invite_button.disabled = false
+	print("Lobby listo: %d" % lobby_id)  # TEMP verificación manual Task 4 — borrar antes de commitear.
 	_refresh_members()
 
 func _on_lobby_chat_update(_lobby_id: int, _change_id: int, _making_change_id: int, _chat_state: int) -> void:
