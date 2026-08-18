@@ -21,17 +21,17 @@ func _on_sit_pressed() -> void:
     # Sentarse siempre en el primer asiento libre visible en pantalla; suficiente para
     # la verificación manual de este plan — un selector de asiento por UI queda fuera
     # de alcance aquí.
-    table_controller.request_sit.rpc_id(1, 0)
+    table_controller.sit(0)
     my_seat_index = 0
 
 func _on_bet_pressed() -> void:
-    table_controller.request_bet.rpc_id(1, my_seat_index, 50)
+    table_controller.bet(my_seat_index, 50)
 
 func _on_hit_pressed() -> void:
-    table_controller.request_hit.rpc_id(1, my_seat_index)
+    table_controller.hit(my_seat_index)
 
 func _on_stand_pressed() -> void:
-    table_controller.request_stand.rpc_id(1, my_seat_index)
+    table_controller.stand(my_seat_index)
 
 func _on_state_changed(state: Dictionary) -> void:
     dealer_label.text = "Banca: %d" % state["dealer_value"]
