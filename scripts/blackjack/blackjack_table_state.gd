@@ -91,3 +91,77 @@ func _first_seated_index() -> int:
         if seats[i] != null:
             return i
     return -1
+
+func hit(seat_index: int, player_id: int) -> bool:
+    var seat = _seat_for(seat_index, player_id)
+    if seat == null or not round_active or active_seat_index != seat_index:
+        return false
+    seat.hand.add_card(deck.draw_card())
+    if seat.hand.is_bust():
+        seat.has_acted = true
+        _advance_turn()
+    return true
+
+func stand(seat_index: int, player_id: int) -> bool:
+    var seat = _seat_for(seat_index, player_id)
+    if seat == null or not round_active or active_seat_index != seat_index:
+        return false
+    seat.has_acted = true
+    _advance_turn()
+    return true
+
+func _advance_turn() -> void:
+    var next := active_seat_index + 1
+    while next < SEAT_COUNT and seats[next] == null:
+        next += 1
+    if next < SEAT_COUNT:
+        active_seat_index = next
+    else:
+        active_seat_index = -1
+        _resolve_round()
+
+func _resolve_round() -> void:
+    var any_seat_not_bust := false
+    for seat in seats:
+        if seat != null and not seat.hand.is_bust():
+            any_seat_not_bust = true
+            break
+    if any_seat_not_bust:
+        while dealer_hand.value() < 17:
+            dealer_hand.add_card(deck.draw_card())
+    for seat in seats:
+        if seat == null:
+            continue
+        _resolve_seat_payout(seat)
+        seat.current_bet = 0
+    round_active = false
+
+func _resolve_seat_payout(seat) -> void:
+    if seat.hand.is_bust():
+        return
+    if dealer_hand.is_bust():
+        seat.ledger.payout(seat.current_bet * 2)
+        return
+    if seat.hand.value() > dealer_hand.value():
+        seat.ledger.payout(seat.current_bet * 2)
+    elif seat.hand.value() == dealer_hand.value():
+        seat.ledger.payout(seat.current_bet)
+
+func to_dict() -> Dictionary:
+    var seats_data := []
+    for seat in seats:
+        if seat == null:
+            seats_data.append(null)
+        else:
+            seats_data.append({
+                "player_id": seat.player_id,
+                "balance": seat.ledger.balance,
+                "bet": seat.current_bet,
+                "hand_value": seat.hand.value() if seat.hand else 0,
+            })
+    return {
+        "seats": seats_data,
+        "dealer_value": dealer_hand.value() if dealer_hand else 0,
+        "active_seat_index": active_seat_index,
+        "round_active": round_active,
+    }

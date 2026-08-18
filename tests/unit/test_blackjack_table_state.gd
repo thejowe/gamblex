@@ -38,3 +38,70 @@ func test_place_bet_fails_for_unseated_or_wrong_player():
     var ok = table.place_bet(0, 999, 100)
     assert_false(ok)
     assert_false(table.round_active)
+
+func _stub_deck(draw_order: Array) -> Deck:
+    var deck = Deck.new()
+    var ordered: Array[Card] = []
+    for card in draw_order:
+        ordered.append(card)
+    ordered.reverse()
+    deck.cards = ordered
+    return deck
+
+func test_full_round_multiple_seats_resolve_independently():
+    var deck = _stub_deck([
+        Card.new(10, Card.Suit.HEARTS),   # seat0 card1
+        Card.new(10, Card.Suit.DIAMONDS), # seat1 card1
+        Card.new(9, Card.Suit.HEARTS),    # dealer card1
+        Card.new(10, Card.Suit.SPADES),   # seat0 card2 -> seat0 = 20
+        Card.new(9, Card.Suit.SPADES),    # seat1 card2 -> seat1 = 19
+        Card.new(8, Card.Suit.SPADES),    # dealer card2 -> dealer = 17
+        Card.new(5, Card.Suit.CLUBS),     # seat1 hit -> 24 bust
+    ])
+    var table = BlackjackTableState.new(deck)
+    table.sit(0, 111)
+    table.sit(1, 222)
+    table.place_bet(0, 111, 100)
+    table.place_bet(1, 222, 50)
+    assert_true(table.round_active)
+    assert_eq(table.active_seat_index, 0)
+
+    assert_true(table.stand(0, 111))
+    assert_eq(table.active_seat_index, 1)
+
+    assert_true(table.hit(1, 222))
+    assert_false(table.round_active) # los dos asientos se resolvieron, ronda cerrada
+
+    assert_eq(table.seats[0].ledger.balance, 600) # 500 - 100 + 200 (gana 20 vs 17)
+    assert_eq(table.seats[1].ledger.balance, 450) # 500 - 50, bust, sin pago
+
+func test_actions_rejected_when_not_your_turn_or_not_your_seat():
+    var deck = _stub_deck([
+        Card.new(10, Card.Suit.HEARTS),
+        Card.new(6, Card.Suit.SPADES),
+        Card.new(9, Card.Suit.HEARTS),
+        Card.new(9, Card.Suit.SPADES),
+        Card.new(7, Card.Suit.SPADES),
+        Card.new(8, Card.Suit.SPADES),
+    ])
+    var table = BlackjackTableState.new(deck)
+    table.sit(0, 111)
+    table.sit(1, 222)
+    table.place_bet(0, 111, 100)
+    table.place_bet(1, 222, 100)
+    # el turno activo es el asiento 0 (jugador 111); el asiento 1 intenta jugar fuera de turno
+    var ok = table.hit(1, 222)
+    assert_false(ok)
+    assert_eq(table.active_seat_index, 0)
+    # alguien que no ocupa el asiento 0 intenta actuar en su nombre
+    var ok2 = table.stand(0, 999)
+    assert_false(ok2)
+    assert_eq(table.active_seat_index, 0)
+
+func test_to_dict_reflects_seat_and_dealer_state():
+    var table = BlackjackTableState.new()
+    table.sit(0, 111)
+    var data = table.to_dict()
+    assert_eq(data["seats"][0]["player_id"], 111)
+    assert_eq(data["seats"][1], null)
+    assert_eq(data["round_active"], false)
