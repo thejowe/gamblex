@@ -145,3 +145,22 @@ func test_chips_won_not_emitted_on_tie():
 
     assert_signal_not_emitted(table, "chips_won")
     assert_eq(table.seats[0].ledger.balance, 500) # -100 + 100 (empate, ganancia neta 0)
+
+func test_chips_won_emitted_when_dealer_busts():
+    var deck = _stub_deck([
+        Card.new(10, Card.Suit.HEARTS),  # seat0 card1
+        Card.new(2, Card.Suit.HEARTS),   # dealer card1
+        Card.new(8, Card.Suit.SPADES),   # seat0 card2 -> seat0 = 18
+        Card.new(2, Card.Suit.SPADES),   # dealer card2 -> dealer = 4 (< 17, must keep drawing)
+        Card.new(10, Card.Suit.CLUBS),   # dealer draw -> 14 (still < 17)
+        Card.new(10, Card.Suit.DIAMONDS),# dealer draw -> 24 (>= 17, stop; bust)
+    ])
+    var table = BlackjackTableState.new(deck)
+    table.sit(0, 111)
+    table.place_bet(0, 111, 100)
+    watch_signals(table)
+
+    table.stand(0, 111) # only seat occupied, resolves the round immediately
+
+    assert_signal_emitted_with_parameters(table, "chips_won", [111, 100])
+    assert_eq(table.seats[0].ledger.balance, 600) # 500 - 100 + 200 (dealer bust, full payout)
