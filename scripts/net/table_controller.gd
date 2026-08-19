@@ -37,6 +37,21 @@ func stand(seat_index: int) -> void:
     else:
         request_stand.rpc_id(1, seat_index)
 
+# Un cliente que entra a la mesa después de que ya hubo cambios (alguien
+# sentado, apuestas hechas) no recibe nada por su cuenta: el host solo
+# retransmite _receive_state cuando algo cambia, nunca al conectar. Sin este
+# pedido explícito el cliente se queda con el estado en blanco para siempre.
+func request_state() -> void:
+    if multiplayer.is_server():
+        return
+    _request_state.rpc_id(1)
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_state() -> void:
+    if not multiplayer.is_server():
+        return
+    _receive_state.rpc_id(multiplayer.get_remote_sender_id(), table_state.to_dict())
+
 @rpc("any_peer", "call_remote", "reliable")
 func request_sit(seat_index: int) -> void:
     if not multiplayer.is_server():

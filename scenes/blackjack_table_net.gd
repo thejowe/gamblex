@@ -15,8 +15,8 @@ func _display_name(peer_id: int) -> String:
     var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
     if steam_id == 0:
         return "jugador %d" % peer_id
-    var name := Steam.getFriendPersonaName(steam_id)
-    return name if not name.is_empty() else "jugador %d" % peer_id
+    var persona_name := Steam.getFriendPersonaName(steam_id)
+    return persona_name if not persona_name.is_empty() else "jugador %d" % peer_id
 
 func _ready() -> void:
     table_controller.state_changed.connect(_on_state_changed)
@@ -32,7 +32,12 @@ func _ready() -> void:
         var peer := multiplayer.multiplayer_peer
         if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
             sit_button.disabled = true
-            multiplayer.connected_to_server.connect(func(): sit_button.disabled = false)
+            multiplayer.connected_to_server.connect(func():
+                sit_button.disabled = false
+                table_controller.request_state()
+            )
+        else:
+            table_controller.request_state()
 
 func _on_sit_pressed() -> void:
     # Sentarse en el primer asiento libre según el último estado conocido; un
