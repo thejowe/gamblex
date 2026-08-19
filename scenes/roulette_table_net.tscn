@@ -1,0 +1,88 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/roulette_table_net.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/net/roulette_table_controller.gd" id="2"]
+
+[node name="RouletteTableNet" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="TableController" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="SeatsLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 500.0
+offset_bottom = 164.0
+text = "Asiento 0: libre"
+
+[node name="ResultLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 176.0
+offset_right = 400.0
+offset_bottom = 200.0
+text = "Último número: -1"
+
+[node name="SitButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 220.0
+offset_right = 150.0
+offset_bottom = 256.0
+text = "Sentarse"
+
+[node name="BetRedButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 160.0
+offset_top = 220.0
+offset_right = 290.0
+offset_bottom = 256.0
+text = "Apostar Rojo 50"
+
+[node name="BetBlackButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 220.0
+offset_right = 430.0
+offset_bottom = 256.0
+text = "Apostar Negro 50"
+
+[node name="BetEvenButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 440.0
+offset_top = 220.0
+offset_right = 570.0
+offset_bottom = 256.0
+text = "Apostar Par 50"
+
+[node name="BetOddButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 580.0
+offset_top = 220.0
+offset_right = 710.0
+offset_bottom = 256.0
+text = "Apostar Impar 50"
+
+[node name="BetStraightButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 720.0
+offset_top = 220.0
+offset_right = 850.0
+offset_bottom = 256.0
+text = "Apostar Pleno 7 (100)"
+
+[node name="SpinButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 860.0
+offset_top = 220.0
+offset_right = 990.0
+offset_bottom = 256.0
+text = "Girar"
