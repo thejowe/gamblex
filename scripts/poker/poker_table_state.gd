@@ -144,3 +144,153 @@ func start_hand() -> bool:
     hand_active = true
     active_seat_index = _next_active_seat_index(bb_index)
     return true
+
+func _validate_turn(seat_index: int, player_id: int):
+    var seat = _seat_for(seat_index, player_id)
+    if seat == null or not hand_active or active_seat_index != seat_index or seat.folded:
+        return null
+    return seat
+
+func fold(seat_index: int, player_id: int) -> bool:
+    var seat = _validate_turn(seat_index, player_id)
+    if seat == null:
+        return false
+    seat.folded = true
+    seat.has_acted = true
+    _after_action()
+    return true
+
+func check(seat_index: int, player_id: int) -> bool:
+    var seat = _validate_turn(seat_index, player_id)
+    if seat == null or seat.current_bet != current_bet:
+        return false
+    seat.has_acted = true
+    _after_action()
+    return true
+
+func call_bet(seat_index: int, player_id: int) -> bool:
+    var seat = _validate_turn(seat_index, player_id)
+    if seat == null:
+        return false
+    var amount_to_call: int = current_bet - seat.current_bet
+    if amount_to_call <= 0:
+        return false
+    if not seat.ledger.place_bet(amount_to_call):
+        return false
+    seat.current_bet += amount_to_call
+    pot += amount_to_call
+    seat.has_acted = true
+    _after_action()
+    return true
+
+func raise_bet(seat_index: int, player_id: int, raise_to: int) -> bool:
+    var seat = _validate_turn(seat_index, player_id)
+    if seat == null:
+        return false
+    var increment := raise_to - current_bet
+    if increment < min_raise:
+        return false
+    var amount_needed: int = raise_to - seat.current_bet
+    if not seat.ledger.place_bet(amount_needed):
+        return false
+    seat.current_bet = raise_to
+    pot += amount_needed
+    current_bet = raise_to
+    min_raise = increment
+    seat.has_acted = true
+    for i in range(SEAT_COUNT):
+        var other = seats[i]
+        if other != null and other != seat and not other.folded:
+            other.has_acted = false
+    _after_action()
+    return true
+
+func _active_seat_count() -> int:
+    var count := 0
+    for seat in seats:
+        if seat != null and not seat.folded:
+            count += 1
+    return count
+
+func _is_betting_round_complete() -> bool:
+    for seat in seats:
+        if seat == null or seat.folded:
+            continue
+        if not seat.has_acted or seat.current_bet != current_bet:
+            return false
+    return true
+
+func _after_action() -> void:
+    if _active_seat_count() <= 1:
+        _award_pot_uncontested()
+        return
+    if _is_betting_round_complete():
+        _advance_betting_round()
+    else:
+        active_seat_index = _next_active_seat_index(active_seat_index)
+
+func _advance_betting_round() -> void:
+    for seat in seats:
+        if seat != null:
+            seat.current_bet = 0
+            seat.has_acted = false
+    current_bet = 0
+    min_raise = BIG_BLIND
+    match betting_round:
+        BettingRound.PREFLOP:
+            community_cards.append(deck.draw_card())
+            community_cards.append(deck.draw_card())
+            community_cards.append(deck.draw_card())
+            betting_round = BettingRound.FLOP
+        BettingRound.FLOP:
+            community_cards.append(deck.draw_card())
+            betting_round = BettingRound.TURN
+        BettingRound.TURN:
+            community_cards.append(deck.draw_card())
+            betting_round = BettingRound.RIVER
+        BettingRound.RIVER:
+            betting_round = BettingRound.SHOWDOWN
+            _resolve_showdown()
+            return
+    active_seat_index = _next_active_seat_index(dealer_button_index)
+
+func _award_pot_uncontested() -> void:
+    var winner_index := -1
+    for i in range(SEAT_COUNT):
+        var seat = seats[i]
+        if seat != null and not seat.folded:
+            winner_index = i
+            break
+    if winner_index != -1:
+        seats[winner_index].ledger.payout(pot)
+        last_winner_seats = [winner_index]
+    pot = 0
+    hand_active = false
+
+func _resolve_showdown() -> void:
+    var best_hand = null
+    var winners: Array = []
+    for i in range(SEAT_COUNT):
+        var seat = seats[i]
+        if seat == null or seat.folded:
+            continue
+        var seven: Array[Card] = seat.hole_cards + community_cards
+        var hand = PokerHandEvaluator.best_hand(seven)
+        if best_hand == null or PokerHandEvaluator.compare(hand, best_hand) > 0:
+            best_hand = hand
+            winners = [i]
+        elif PokerHandEvaluator.compare(hand, best_hand) == 0:
+            winners.append(i)
+    _split_pot(winners)
+    last_winner_seats = winners
+    hand_active = false
+
+func _split_pot(winners: Array) -> void:
+    var share := pot / winners.size()
+    var remainder := pot % winners.size()
+    for idx in range(winners.size()):
+        var amount := share
+        if idx == 0:
+            amount += remainder
+        seats[winners[idx]].ledger.payout(amount)
+    pot = 0
