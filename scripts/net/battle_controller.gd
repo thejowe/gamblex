@@ -33,8 +33,28 @@ func request_join() -> void:
 	_apply_join(multiplayer.get_remote_sender_id())
 
 func _apply_join(player_id: int) -> void:
-	assignment.join(player_id)
-	_broadcast_teams()
+	if assignment.join(player_id) != -1:
+		_broadcast_teams()
+
+# Un cliente que entra a CasinoFloor después de que ya hubo un broadcast (el
+# caso normal en 2v2/4v4, y a menudo también en 1v1) no recibe nada por su
+# cuenta: el host solo retransmite _receive_teams/_receive_match_state cuando
+# algo cambia, nunca al conectar. Sin este pedido explícito el cliente se
+# queda con el estado en blanco para siempre (mismo patrón que TableController).
+func request_state() -> void:
+	if multiplayer.is_server():
+		return
+	_request_state.rpc_id(1)
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_state() -> void:
+	if not multiplayer.is_server():
+		return
+	if assignment == null or rules == null:
+		return
+	var sender_id := multiplayer.get_remote_sender_id()
+	_receive_teams.rpc_id(sender_id, assignment.teams)
+	_receive_match_state.rpc_id(sender_id, _state_dict())
 
 func apply_bet(team_id: int, amount: int) -> bool:
 	if not multiplayer.is_server():

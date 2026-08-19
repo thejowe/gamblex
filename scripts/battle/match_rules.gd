@@ -37,10 +37,19 @@ func advance_time(delta: float) -> bool:
 	return true
 
 func _check_bankruptcy() -> bool:
+	var bankrupt_pools: Array = []
 	for pool in pools:
 		if pool.is_bankrupt():
-			_finish(1 - pool.team_id, "bankruptcy")
-			return true
+			bankrupt_pools.append(pool)
+	if bankrupt_pools.size() == 2:
+		# Bancarrota simultánea de ambos equipos: ninguno gana, es un empate
+		# análogo al empate por timeout — reason distinto porque código río
+		# abajo puede hacer pattern-match sobre el string exacto.
+		_finish(-1, "bankruptcy_draw")
+		return true
+	if bankrupt_pools.size() == 1:
+		_finish(1 - bankrupt_pools[0].team_id, "bankruptcy")
+		return true
 	return false
 
 func _check_goal() -> bool:

@@ -43,6 +43,17 @@ func test_bankruptcy_takes_priority_over_simultaneous_goal():
 	assert_eq(rules.winning_team, 1)
 	assert_eq(rules.reason, "bankruptcy")
 
+func test_simultaneous_double_bankruptcy_is_a_draw():
+	# Ambos pozos llegan a bancarrota en el mismo instante — ningún equipo
+	# tiene fichas, así que no hay "el otro equipo" que gane: es un empate,
+	# igual que el empate por timeout, pero con su propio reason.
+	var pools := [TeamChipPool.new(0, 0), TeamChipPool.new(1, 0)]
+	var rules := MatchRules.new(pools, 1000, 600.0)
+	assert_true(rules.on_balance_changed())
+	assert_true(rules.finished)
+	assert_eq(rules.winning_team, -1)
+	assert_eq(rules.reason, "bankruptcy_draw")
+
 func test_no_ops_once_finished():
 	var pools := [TeamChipPool.new(0, 1000), TeamChipPool.new(1, 500)]
 	var rules := MatchRules.new(pools, 1000, 60.0)
