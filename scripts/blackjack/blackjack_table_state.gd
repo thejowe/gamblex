@@ -1,6 +1,8 @@
 class_name BlackjackTableState
 extends RefCounted
 
+signal chips_won(player_id: int, amount: int)
+
 const SEAT_COUNT := 4
 
 class Seat:
@@ -141,9 +143,11 @@ func _resolve_seat_payout(seat) -> void:
         return
     if dealer_hand.is_bust():
         seat.ledger.payout(seat.current_bet * 2)
+        chips_won.emit(seat.player_id, seat.current_bet)
         return
     if seat.hand.value() > dealer_hand.value():
         seat.ledger.payout(seat.current_bet * 2)
+        chips_won.emit(seat.player_id, seat.current_bet)
     elif seat.hand.value() == dealer_hand.value():
         seat.ledger.payout(seat.current_bet)
 

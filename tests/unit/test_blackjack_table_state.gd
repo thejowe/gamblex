@@ -105,3 +105,43 @@ func test_to_dict_reflects_seat_and_dealer_state():
     assert_eq(data["seats"][0]["player_id"], 111)
     assert_eq(data["seats"][1], null)
     assert_eq(data["round_active"], false)
+
+func test_chips_won_emitted_only_for_winning_seat():
+    var deck = _stub_deck([
+        Card.new(10, Card.Suit.HEARTS),   # seat0 card1
+        Card.new(10, Card.Suit.DIAMONDS), # seat1 card1
+        Card.new(9, Card.Suit.HEARTS),    # dealer card1
+        Card.new(10, Card.Suit.SPADES),   # seat0 card2 -> seat0 = 20
+        Card.new(9, Card.Suit.SPADES),    # seat1 card2 -> seat1 = 19
+        Card.new(8, Card.Suit.SPADES),    # dealer card2 -> dealer = 17
+        Card.new(5, Card.Suit.CLUBS),     # seat1 hit -> 24 bust
+    ])
+    var table = BlackjackTableState.new(deck)
+    table.sit(0, 111)
+    table.sit(1, 222)
+    table.place_bet(0, 111, 100)
+    table.place_bet(1, 222, 50)
+    watch_signals(table)
+
+    table.stand(0, 111)
+    table.hit(1, 222) # bust, resuelve la ronda
+
+    assert_signal_emitted_with_parameters(table, "chips_won", [111, 100])
+    assert_signal_emit_count(table, "chips_won", 1) # seat1 quebró, no emite
+
+func test_chips_won_not_emitted_on_tie():
+    var deck = _stub_deck([
+        Card.new(10, Card.Suit.HEARTS), # seat0 card1
+        Card.new(9, Card.Suit.HEARTS),  # dealer card1
+        Card.new(7, Card.Suit.SPADES),  # seat0 card2 -> 17
+        Card.new(8, Card.Suit.SPADES),  # dealer card2 -> 17 (empate)
+    ])
+    var table = BlackjackTableState.new(deck)
+    table.sit(0, 111)
+    table.place_bet(0, 111, 100)
+    watch_signals(table)
+
+    table.stand(0, 111) # única silla ocupada, resuelve la ronda
+
+    assert_signal_not_emitted(table, "chips_won")
+    assert_eq(table.seats[0].ledger.balance, 500) # -100 + 100 (empate, ganancia neta 0)
