@@ -35,6 +35,8 @@ func _init(p_deck: Deck = null) -> void:
         seats.append(null)
 
 func sit(seat_index: int, player_id: int) -> bool:
+    if hand_active:
+        return false
     if seat_index < 0 or seat_index >= SEAT_COUNT:
         return false
     if seats[seat_index] != null:
@@ -321,6 +323,7 @@ func to_dict(viewer_player_id: int) -> Dictionary:
         "community_cards": community_data,
         "pot": pot,
         "current_bet": current_bet,
+        "min_raise": min_raise,
         "active_seat_index": active_seat_index,
         "betting_round": betting_round,
         "hand_active": hand_active,

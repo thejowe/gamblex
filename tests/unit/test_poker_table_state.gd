@@ -27,6 +27,15 @@ func test_sit_fails_if_player_already_seated_elsewhere():
     var ok = table.sit(1, 111)
     assert_false(ok)
 
+func test_sit_fails_mid_hand():
+    var table = PokerTableState.new()
+    table.sit(0, 111)
+    table.sit(1, 222)
+    table.start_hand()
+    var ok = table.sit(2, 333)
+    assert_false(ok)
+    assert_null(table.seats[2])
+
 func test_start_hand_fails_with_fewer_than_two_seated():
     var table = PokerTableState.new()
     table.sit(0, 111)

@@ -4,6 +4,7 @@ extends Control
 @onready var seats_label: Label = $SeatsLabel
 @onready var community_label: Label = $CommunityLabel
 @onready var pot_label: Label = $PotLabel
+@onready var status_label: Label = $StatusLabel
 @onready var sit_button: Button = $SitButton
 @onready var start_hand_button: Button = $StartHandButton
 @onready var fold_button: Button = $FoldButton
@@ -54,7 +55,6 @@ func _on_sit_pressed() -> void:
 			seat_index = i
 			break
 	table_controller.sit(seat_index)
-	my_seat_index = seat_index
 
 func _on_start_hand_pressed() -> void:
 	table_controller.start_hand()
@@ -70,11 +70,24 @@ func _on_call_pressed() -> void:
 
 func _on_raise_pressed() -> void:
 	var current_bet: int = _last_state.get("current_bet", 0)
-	var min_raise_increment := 20 # subida fija minima de la UI de este plan (2x la ciega grande)
+	var min_raise_increment: int = _last_state.get("min_raise", 10)
 	table_controller.raise_bet(my_seat_index, current_bet + min_raise_increment)
 
 func _on_state_changed(state: Dictionary) -> void:
 	_last_state = state
+
+	# La fuente de verdad de mi asiento es el estado autoritativo del host, no
+	# la asignacion optimista de _on_sit_pressed (que puede perder una carrera
+	# por el mismo asiento contra otro cliente).
+	var seats: Array = state.get("seats", [])
+	var my_id := multiplayer.get_unique_id()
+	my_seat_index = -1
+	for i in range(seats.size()):
+		var seat = seats[i]
+		if seat != null and seat["player_id"] == my_id:
+			my_seat_index = i
+			break
+
 	_refresh_seats_label()
 	var community: Array = state.get("community_cards", [])
 	var community_names: Array[String] = []
@@ -82,6 +95,29 @@ func _on_state_changed(state: Dictionary) -> void:
 		community_names.append(_card_name(card))
 	community_label.text = "Mesa: %s" % ", ".join(community_names)
 	pot_label.text = "Bote: %d" % state.get("pot", 0)
+
+	var hand_active: bool = state.get("hand_active", false)
+	var active_seat_index: int = state.get("active_seat_index", -1)
+	if hand_active:
+		var turn_text := "Asiento %d" % active_seat_index
+		if active_seat_index >= 0 and active_seat_index < seats.size() and seats[active_seat_index] != null:
+			turn_text = _display_name(seats[active_seat_index]["player_id"])
+		status_label.text = "Turno: %s" % turn_text
+	else:
+		var winners: Array = state.get("last_winner_seats", [])
+		if winners.size() > 0:
+			var winner_strs: Array[String] = []
+			for w in winners:
+				winner_strs.append(str(w))
+			status_label.text = "Ganador: Asiento %s" % ", ".join(winner_strs)
+		else:
+			status_label.text = "Esperando reparto"
+
+	var is_my_turn: bool = my_seat_index != -1 and hand_active and active_seat_index == my_seat_index
+	fold_button.disabled = not is_my_turn
+	check_button.disabled = not is_my_turn
+	call_button.disabled = not is_my_turn
+	raise_button.disabled = not is_my_turn
 
 func _refresh_seats_label() -> void:
 	var seats: Array = _last_state.get("seats", [])

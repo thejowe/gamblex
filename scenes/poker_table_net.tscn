@@ -31,6 +31,14 @@ offset_right = 300.0
 offset_bottom = 80.0
 text = "Bote: 0"
 
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 320.0
+offset_top = 56.0
+offset_right = 700.0
+offset_bottom = 80.0
+text = "Esperando reparto"
+
 [node name="SeatsLabel" type="Label" parent="."]
 layout_mode = 0
 offset_left = 20.0
