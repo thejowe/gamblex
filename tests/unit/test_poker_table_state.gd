@@ -213,3 +213,42 @@ func test_full_hand_to_showdown_awards_pot_to_best_hand():
     # gana entero: aporto 10 en total (500-10+20=510); seat1 aporto 10 y pierde (500-10=490)
     assert_eq(table.seats[0].ledger.balance, 510)
     assert_eq(table.seats[1].ledger.balance, 490)
+
+func test_to_dict_hides_other_players_hole_cards_before_showdown():
+    var table = PokerTableState.new()
+    table.sit(0, 111)
+    table.sit(1, 222)
+    table.start_hand()
+    var data_for_111 = table.to_dict(111)
+    var data_for_222 = table.to_dict(222)
+    assert_eq(data_for_111["seats"][0]["hole_cards"].size(), 2) # su propia mano
+    assert_eq(data_for_111["seats"][1]["hole_cards"].size(), 0) # mano ajena oculta
+    assert_eq(data_for_222["seats"][0]["hole_cards"].size(), 0)
+    assert_eq(data_for_222["seats"][1]["hole_cards"].size(), 2)
+
+func test_to_dict_reveals_non_folded_hands_at_showdown():
+    var table = PokerTableState.new()
+    table.sit(0, 111)
+    table.sit(1, 222)
+    table.start_hand()
+    table.call_bet(0, 111)
+    table.check(1, 222) # flop
+    table.check(1, 222)
+    table.check(0, 111) # turn
+    table.check(1, 222)
+    table.check(0, 111) # river
+    table.check(1, 222)
+    table.check(0, 111) # showdown
+
+    var data = table.to_dict(999) # espectador ajeno a la mano
+    assert_eq(data["seats"][0]["hole_cards"].size(), 2)
+    assert_eq(data["seats"][1]["hole_cards"].size(), 2)
+
+func test_to_dict_never_reveals_folded_hand():
+    var table = PokerTableState.new()
+    table.sit(0, 111)
+    table.sit(1, 222)
+    table.start_hand()
+    table.fold(0, 111)
+    var data = table.to_dict(999)
+    assert_eq(data["seats"][0]["hole_cards"].size(), 0)

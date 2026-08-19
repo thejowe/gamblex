@@ -294,3 +294,36 @@ func _split_pot(winners: Array) -> void:
             amount += remainder
         seats[winners[idx]].ledger.payout(amount)
     pot = 0
+
+func to_dict(viewer_player_id: int) -> Dictionary:
+    var seats_data := []
+    for seat in seats:
+        if seat == null:
+            seats_data.append(null)
+            continue
+        var reveal: bool = seat.player_id == viewer_player_id or (betting_round == BettingRound.SHOWDOWN and not seat.folded)
+        var hole_data := []
+        if reveal:
+            for card in seat.hole_cards:
+                hole_data.append({"rank": card.rank, "suit": card.suit})
+        seats_data.append({
+            "player_id": seat.player_id,
+            "balance": seat.ledger.balance,
+            "current_bet": seat.current_bet,
+            "folded": seat.folded,
+            "hole_cards": hole_data,
+        })
+    var community_data := []
+    for card in community_cards:
+        community_data.append({"rank": card.rank, "suit": card.suit})
+    return {
+        "seats": seats_data,
+        "community_cards": community_data,
+        "pot": pot,
+        "current_bet": current_bet,
+        "active_seat_index": active_seat_index,
+        "betting_round": betting_round,
+        "hand_active": hand_active,
+        "dealer_button_index": dealer_button_index,
+        "last_winner_seats": last_winner_seats,
+    }
