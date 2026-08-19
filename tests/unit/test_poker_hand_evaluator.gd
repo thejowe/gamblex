@@ -147,3 +147,43 @@ func test_compare_identical_hands_ties():
     var a = {"category": PokerHandEvaluator.Category.STRAIGHT, "tiebreakers": [9]}
     var b = {"category": PokerHandEvaluator.Category.STRAIGHT, "tiebreakers": [9]}
     assert_eq(PokerHandEvaluator.compare(a, b), 0)
+
+func test_best_hand_picks_quads_over_board_pair_using_both_hole_cards():
+    var seven: Array[Card] = [
+        Card.new(1, Card.Suit.SPADES),   # hole: As de picas
+        Card.new(1, Card.Suit.HEARTS),   # hole: As de corazones
+        Card.new(1, Card.Suit.DIAMONDS), # board: As de diamantes
+        Card.new(1, Card.Suit.CLUBS),    # board: As de treboles
+        Card.new(13, Card.Suit.SPADES),  # board: Rey
+        Card.new(7, Card.Suit.HEARTS),   # board
+        Card.new(2, Card.Suit.CLUBS),    # board
+    ]
+    var hand = PokerHandEvaluator.best_hand(seven)
+    assert_eq(hand["category"], PokerHandEvaluator.Category.FOUR_OF_A_KIND)
+    assert_eq(hand["tiebreakers"], [14, 13])
+
+func test_best_hand_finds_straight_across_hole_and_board():
+    var seven: Array[Card] = [
+        Card.new(9, Card.Suit.SPADES),   # hole
+        Card.new(8, Card.Suit.HEARTS),   # hole
+        Card.new(7, Card.Suit.DIAMONDS), # board
+        Card.new(6, Card.Suit.CLUBS),    # board
+        Card.new(5, Card.Suit.SPADES),   # board
+        Card.new(13, Card.Suit.HEARTS),  # board (no participa)
+        Card.new(3, Card.Suit.CLUBS),    # board (no participa)
+    ]
+    var hand = PokerHandEvaluator.best_hand(seven)
+    assert_eq(hand["category"], PokerHandEvaluator.Category.STRAIGHT)
+    assert_eq(hand["tiebreakers"], [9])
+
+func test_best_hand_with_exactly_five_cards():
+    var five: Array[Card] = [
+        Card.new(10, Card.Suit.HEARTS),
+        Card.new(8, Card.Suit.DIAMONDS),
+        Card.new(6, Card.Suit.CLUBS),
+        Card.new(4, Card.Suit.SPADES),
+        Card.new(2, Card.Suit.HEARTS),
+    ]
+    var hand = PokerHandEvaluator.best_hand(five)
+    assert_eq(hand["category"], PokerHandEvaluator.Category.HIGH_CARD)
+    assert_eq(hand["tiebreakers"], [10, 8, 6, 4, 2])

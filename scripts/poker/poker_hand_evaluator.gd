@@ -123,3 +123,28 @@ static func compare(a: Dictionary, b: Dictionary) -> int:
         if ta[i] != tb[i]:
             return 1 if ta[i] > tb[i] else -1
     return 0
+
+static func best_hand(cards: Array[Card]) -> Dictionary:
+    var indices := range(cards.size())
+    var best = null
+    for combo in _combinations(indices, 5):
+        var five: Array[Card] = []
+        for i in combo:
+            five.append(cards[i])
+        var hand := evaluate_five(five)
+        if best == null or compare(hand, best) > 0:
+            best = hand
+    return best
+
+static func _combinations(items: Array, k: int) -> Array:
+    if k == 0:
+        return [[]]
+    if items.size() < k:
+        return []
+    var result := []
+    var first = items[0]
+    var rest = items.slice(1)
+    for combo in _combinations(rest, k - 1):
+        result.append([first] + combo)
+    result.append_array(_combinations(rest, k))
+    return result
