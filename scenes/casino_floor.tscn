@@ -1,7 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/poker_table_net.tscn" id="2"]
 
 [node name="CasinoFloor" type="Node2D"]
 
 [node name="BlackjackTableNet" parent="." instance=ExtResource("1")]
+
+[node name="PokerTableNet" parent="." instance=ExtResource("2")]
