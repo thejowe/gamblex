@@ -71,3 +71,79 @@ func test_high_card():
     var hand = PokerHandEvaluator.evaluate_five(cards)
     assert_eq(hand["category"], PokerHandEvaluator.Category.HIGH_CARD)
     assert_eq(hand["tiebreakers"], [10, 8, 6, 4, 2])
+
+func test_flush_not_straight():
+    var cards: Array[Card] = [
+        Card.new(13, Card.Suit.SPADES),
+        Card.new(11, Card.Suit.SPADES),
+        Card.new(9, Card.Suit.SPADES),
+        Card.new(5, Card.Suit.SPADES),
+        Card.new(2, Card.Suit.SPADES),
+    ]
+    var hand = PokerHandEvaluator.evaluate_five(cards)
+    assert_eq(hand["category"], PokerHandEvaluator.Category.FLUSH)
+    assert_eq(hand["tiebreakers"], [13, 11, 9, 5, 2])
+
+func test_straight_not_flush():
+    var cards: Array[Card] = [
+        Card.new(9, Card.Suit.HEARTS),
+        Card.new(8, Card.Suit.SPADES),
+        Card.new(7, Card.Suit.HEARTS),
+        Card.new(6, Card.Suit.CLUBS),
+        Card.new(5, Card.Suit.DIAMONDS),
+    ]
+    var hand = PokerHandEvaluator.evaluate_five(cards)
+    assert_eq(hand["category"], PokerHandEvaluator.Category.STRAIGHT)
+    assert_eq(hand["tiebreakers"], [9])
+
+func test_straight_flush():
+    var cards: Array[Card] = [
+        Card.new(9, Card.Suit.HEARTS),
+        Card.new(8, Card.Suit.HEARTS),
+        Card.new(7, Card.Suit.HEARTS),
+        Card.new(6, Card.Suit.HEARTS),
+        Card.new(5, Card.Suit.HEARTS),
+    ]
+    var hand = PokerHandEvaluator.evaluate_five(cards)
+    assert_eq(hand["category"], PokerHandEvaluator.Category.STRAIGHT_FLUSH)
+    assert_eq(hand["tiebreakers"], [9])
+
+func test_wheel_straight_ace_low():
+    var cards: Array[Card] = [
+        Card.new(1, Card.Suit.HEARTS),
+        Card.new(2, Card.Suit.SPADES),
+        Card.new(3, Card.Suit.HEARTS),
+        Card.new(4, Card.Suit.CLUBS),
+        Card.new(5, Card.Suit.DIAMONDS),
+    ]
+    var hand = PokerHandEvaluator.evaluate_five(cards)
+    assert_eq(hand["category"], PokerHandEvaluator.Category.STRAIGHT)
+    assert_eq(hand["tiebreakers"], [5])
+
+func test_broadway_straight_ace_high():
+    var cards: Array[Card] = [
+        Card.new(1, Card.Suit.HEARTS),
+        Card.new(13, Card.Suit.SPADES),
+        Card.new(12, Card.Suit.HEARTS),
+        Card.new(11, Card.Suit.CLUBS),
+        Card.new(10, Card.Suit.DIAMONDS),
+    ]
+    var hand = PokerHandEvaluator.evaluate_five(cards)
+    assert_eq(hand["category"], PokerHandEvaluator.Category.STRAIGHT)
+    assert_eq(hand["tiebreakers"], [14])
+
+func test_compare_different_categories():
+    var four_kind = {"category": PokerHandEvaluator.Category.FOUR_OF_A_KIND, "tiebreakers": [2, 3]}
+    var full_house = {"category": PokerHandEvaluator.Category.FULL_HOUSE, "tiebreakers": [13, 12]}
+    assert_eq(PokerHandEvaluator.compare(four_kind, full_house), 1)
+    assert_eq(PokerHandEvaluator.compare(full_house, four_kind), -1)
+
+func test_compare_same_category_by_tiebreakers():
+    var pair_of_kings = {"category": PokerHandEvaluator.Category.PAIR, "tiebreakers": [13, 9, 7, 3]}
+    var pair_of_queens = {"category": PokerHandEvaluator.Category.PAIR, "tiebreakers": [12, 10, 8, 4]}
+    assert_eq(PokerHandEvaluator.compare(pair_of_kings, pair_of_queens), 1)
+
+func test_compare_identical_hands_ties():
+    var a = {"category": PokerHandEvaluator.Category.STRAIGHT, "tiebreakers": [9]}
+    var b = {"category": PokerHandEvaluator.Category.STRAIGHT, "tiebreakers": [9]}
+    assert_eq(PokerHandEvaluator.compare(a, b), 0)
