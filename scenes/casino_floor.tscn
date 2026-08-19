@@ -11,3 +11,4 @@ anchor_right = 0.5
 [node name="RouletteTableNet" parent="." instance=ExtResource("2")]
 anchor_left = 0.5
 anchor_right = 1.0
+offset_left = 34.0
