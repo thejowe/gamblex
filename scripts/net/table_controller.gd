@@ -2,12 +2,14 @@ class_name TableController
 extends Node
 
 signal state_changed(state: Dictionary)
+signal chips_won(player_id: int, amount: int)
 
 var table_state: BlackjackTableState
 
 func _ready() -> void:
     if multiplayer.is_server():
         table_state = BlackjackTableState.new()
+        table_state.chips_won.connect(_on_table_chips_won)
 
 # Puntos de entrada para la UI local (host o cliente). El host actúa directo
 # sobre table_state; un rpc_id(1, ...) a sí mismo lo rechaza el MultiplayerAPI
@@ -98,3 +100,6 @@ func _broadcast_state() -> void:
 @rpc("authority", "call_local", "reliable")
 func _receive_state(state: Dictionary) -> void:
     state_changed.emit(state)
+
+func _on_table_chips_won(player_id: int, amount: int) -> void:
+    chips_won.emit(player_id, amount)
