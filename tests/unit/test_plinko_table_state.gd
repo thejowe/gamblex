@@ -24,3 +24,92 @@ func test_slot_multiplier_expected_return_is_99_percent():
 func test_players_starts_empty():
 	var table = PlinkoTableState.new()
 	assert_eq(table.players.size(), 0)
+
+func test_roll_fails_on_rows_out_of_range():
+	var table = PlinkoTableState.new()
+	assert_false(table.roll(111, 7, 50))
+	assert_false(table.roll(111, 17, 50))
+
+func test_roll_fails_on_insufficient_balance():
+	var table = PlinkoTableState.new()
+	var ok = table.roll(111, 12, 5000)
+	assert_false(ok)
+	# _player_for crea la entrada perezosa (balance 500) antes de intentar el
+	# place_bet de 5000; el jugador queda creado pero intacto, no se descuenta.
+	assert_eq(table.players[111].ledger.balance, 500)
+
+func test_roll_wins_edge_slot_pays_large_multiplier():
+	var roller = PlinkoRoller.new()
+	var bounces: Array[bool] = [true, true, true, true, true, true, true, true, true, true, true, true]
+	roller.results = [bounces]
+	var table = PlinkoTableState.new(roller)
+	var ok = table.roll(111, 12, 100)
+	assert_true(ok)
+	# slot 12, multiplicador 0.99*4096/13/1 = 311.9261... -> payout int(100*311.9261...) = 31192
+	assert_eq(table.players[111].ledger.balance, 500 - 100 + 31192)
+	assert_true(table.players[111].last_round["win"])
+
+func test_roll_loses_center_slot_partial_payout():
+	var roller = PlinkoRoller.new()
+	var bounces: Array[bool] = [true, false, true, false, true, false, true, false, true, false, true, false]
+	roller.results = [bounces]
+	var table = PlinkoTableState.new(roller)
+	var ok = table.roll(111, 12, 100)
+	assert_true(ok)
+	# slot 6, multiplicador 0.99*4096/13/924 = 0.337582... -> payout int(100*0.337582...) = 33
+	assert_eq(table.players[111].ledger.balance, 500 - 100 + 33)
+	assert_false(table.players[111].last_round["win"])
+
+func test_roll_emits_chips_won_with_net_profit_on_win():
+	var roller = PlinkoRoller.new()
+	var bounces: Array[bool] = [true, true, true, true, true, true, true, true, true, true, true, true]
+	roller.results = [bounces]
+	var table = PlinkoTableState.new(roller)
+	watch_signals(table)
+	table.roll(111, 12, 100)
+	assert_signal_emitted_with_parameters(table, "chips_won", [111, 31092]) # 31192 payout - 100 apuesta
+
+func test_roll_does_not_emit_chips_won_on_loss():
+	var roller = PlinkoRoller.new()
+	var bounces: Array[bool] = [true, false, true, false, true, false, true, false, true, false, true, false]
+	roller.results = [bounces]
+	var table = PlinkoTableState.new(roller)
+	watch_signals(table)
+	table.roll(111, 12, 100)
+	assert_signal_not_emitted(table, "chips_won")
+
+func test_roll_records_last_round_for_player():
+	var roller = PlinkoRoller.new()
+	var bounces: Array[bool] = [true, true, true, true, true, true, true, true, true, true, true, true]
+	roller.results = [bounces]
+	var table = PlinkoTableState.new(roller)
+	table.roll(111, 12, 100)
+	var last_round = table.players[111].last_round
+	assert_eq(last_round["rows"], 12)
+	assert_eq(last_round["amount"], 100)
+	assert_eq(last_round["bounces"], bounces)
+	assert_eq(last_round["slot"], 12)
+	assert_eq(last_round["payout"], 31192)
+	assert_true(last_round["win"])
+
+func test_roll_independent_per_player():
+	var roller = PlinkoRoller.new()
+	var edge_bounces: Array[bool] = [true, true, true, true, true, true, true, true, true, true, true, true]
+	var center_bounces: Array[bool] = [true, false, true, false, true, false, true, false, true, false, true, false]
+	roller.results = [edge_bounces, center_bounces]
+	var table = PlinkoTableState.new(roller)
+	table.roll(111, 12, 100) # gana grande
+	table.roll(222, 12, 100) # pierde parcial
+	assert_eq(table.players[111].ledger.balance, 31592)
+	assert_eq(table.players[222].ledger.balance, 433)
+
+func test_to_dict_reflects_players_and_last_round():
+	var roller = PlinkoRoller.new()
+	var bounces: Array[bool] = [true, true, true, true, true, true, true, true, true, true, true, true]
+	roller.results = [bounces]
+	var table = PlinkoTableState.new(roller)
+	table.roll(111, 12, 100)
+	var data = table.to_dict()
+	assert_eq(data["players"][111]["player_id"], 111)
+	assert_eq(data["players"][111]["balance"], 31592)
+	assert_eq(data["players"][111]["last_round"]["win"], true)

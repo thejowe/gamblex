@@ -39,3 +39,42 @@ func _player_for(player_id: int) -> Player:
 		player.ledger = ChipLedger.new(STARTING_BALANCE)
 		players[player_id] = player
 	return players[player_id]
+
+func roll(player_id: int, rows: int, amount: int) -> bool:
+	if rows < MIN_ROWS or rows > MAX_ROWS:
+		return false
+	var player := _player_for(player_id)
+	if not player.ledger.place_bet(amount):
+		return false
+	var bounces: Array = roller.roll(rows)
+	var slot := 0
+	for bounced_right in bounces:
+		if bounced_right:
+			slot += 1
+	var mult := slot_multiplier(rows, slot)
+	var payout := int(amount * mult)
+	var win := payout > amount
+	player.ledger.payout(payout)
+	if win:
+		chips_won.emit(player_id, payout - amount)
+	player.last_round = {
+		"rows": rows,
+		"amount": amount,
+		"bounces": bounces,
+		"slot": slot,
+		"multiplier": mult,
+		"payout": payout,
+		"win": win,
+	}
+	return true
+
+func to_dict() -> Dictionary:
+	var players_data := {}
+	for player_id in players:
+		var player = players[player_id]
+		players_data[player_id] = {
+			"player_id": player.player_id,
+			"balance": player.ledger.balance,
+			"last_round": player.last_round,
+		}
+	return {"players": players_data}
