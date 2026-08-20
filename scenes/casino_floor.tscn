@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/net/casino_floor.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/roulette_table_net.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/poker_table_net.tscn" id="4"]
 [ext_resource type="Script" path="res://scripts/net/battle_controller.gd" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/dice_table_net.tscn" id="6"]
 
 [node name="CasinoFloor" type="Node2D"]
 script = ExtResource("2")
@@ -28,24 +29,29 @@ offset_top = 660.0
 offset_right = 900.0
 offset_bottom = 1080.0
 
+[node name="DiceTableNet" parent="." instance=ExtResource("6")]
+anchor_bottom = 0.0
+offset_top = 1100.0
+offset_bottom = 1400.0
+
 [node name="GoalLabel" type="Label" parent="."]
 offset_left = 20.0
-offset_top = 1100.0
+offset_top = 1420.0
 offset_right = 700.0
-offset_bottom = 1124.0
+offset_bottom = 1444.0
 text = "Meta colectiva: 0 / 1000 fichas"
 
 [node name="UnlockedBanner" type="Label" parent="."]
 offset_left = 20.0
-offset_top = 1136.0
+offset_top = 1456.0
 offset_right = 700.0
-offset_bottom = 1170.0
+offset_bottom = 1490.0
 text = "¡Meta colectiva alcanzada! Nueva mesa desbloqueada."
 visible = false
 
 [node name="BattleStatusLabel" type="Label" parent="."]
 offset_left = 20.0
-offset_top = 1100.0
+offset_top = 1420.0
 offset_right = 700.0
-offset_bottom = 1170.0
+offset_bottom = 1490.0
 text = "Equipos: —"

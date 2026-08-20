@@ -31,6 +31,8 @@ func _ready() -> void:
 			goal = CollectiveGoal.new(GOAL_TARGET)
 			for controller in find_children("*", "TableController", true, false):
 				controller.chips_won.connect(_on_chips_won)
+			for controller in find_children("*", "DiceTableController", true, false):
+				controller.chips_won.connect(_on_chips_won)
 			_broadcast_goal_state()
 	else:
 		var peer := multiplayer.multiplayer_peer

@@ -1,0 +1,61 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/dice_table_net.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/net/dice_table_controller.gd" id="2"]
+
+[node name="DiceTableNet" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="TableController" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="PlayersLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 700.0
+offset_bottom = 140.0
+text = "Nadie ha tirado todavía."
+
+[node name="ThresholdSpinBox" type="SpinBox" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 160.0
+offset_right = 160.0
+offset_bottom = 196.0
+min_value = 1.0
+max_value = 99.0
+value = 50.0
+
+[node name="AmountSpinBox" type="SpinBox" parent="."]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 160.0
+offset_right = 320.0
+offset_bottom = 196.0
+min_value = 1.0
+max_value = 500.0
+step = 10.0
+value = 50.0
+
+[node name="BetOverButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 340.0
+offset_top = 160.0
+offset_right = 580.0
+offset_bottom = 196.0
+text = "Apostar Mayor que"
+
+[node name="BetUnderButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 590.0
+offset_top = 160.0
+offset_right = 830.0
+offset_bottom = 196.0
+text = "Apostar Menor que"
