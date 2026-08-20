@@ -33,6 +33,8 @@ func _ready() -> void:
 				controller.chips_won.connect(_on_chips_won)
 			for controller in find_children("*", "DiceTableController", true, false):
 				controller.chips_won.connect(_on_chips_won)
+			for controller in find_children("*", "MinesTableController", true, false):
+				controller.chips_won.connect(_on_chips_won)
 			_broadcast_goal_state()
 	else:
 		var peer := multiplayer.multiplayer_peer
