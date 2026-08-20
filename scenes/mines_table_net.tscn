@@ -1,0 +1,194 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/mines_table_net.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/net/mines_table_controller.gd" id="2"]
+
+[node name="MinesTableNet" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="TableController" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 900.0
+offset_bottom = 140.0
+text = "Nadie ha jugado todavía."
+
+[node name="MineCountSpinBox" type="SpinBox" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 160.0
+offset_right = 160.0
+offset_bottom = 196.0
+min_value = 1.0
+max_value = 24.0
+value = 3.0
+
+[node name="AmountSpinBox" type="SpinBox" parent="."]
+layout_mode = 0
+offset_left = 180.0
+offset_top = 160.0
+offset_right = 320.0
+offset_bottom = 196.0
+min_value = 1.0
+max_value = 500.0
+step = 10.0
+value = 50.0
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 340.0
+offset_top = 160.0
+offset_right = 580.0
+offset_bottom = 196.0
+text = "Empezar ronda"
+
+[node name="CashOutButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 600.0
+offset_top = 160.0
+offset_right = 780.0
+offset_bottom = 196.0
+text = "Retirar"
+
+[node name="MinesGrid" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 210.0
+offset_right = 216.0
+offset_bottom = 406.0
+columns = 5
+
+[node name="Cell_0" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_1" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_2" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_3" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_4" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_5" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_6" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_7" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_8" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_9" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_10" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_11" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_12" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_13" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_14" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_15" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_16" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_17" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_18" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_19" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_20" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_21" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_22" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_23" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
+
+[node name="Cell_24" type="Button" parent="MinesGrid"]
+layout_mode = 2
+custom_minimum_size = Vector2(36, 36)
+text = ""
