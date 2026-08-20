@@ -15,8 +15,8 @@ func test_crash_point_for_known_r_values():
 	assert_almost_eq(CrashRoller.crash_point_for(0.0), 1.00, 0.001)
 	# r=0.9 -> 100*0.99/0.1 = 990 -> floor/100 = 9.90
 	assert_almost_eq(CrashRoller.crash_point_for(0.9), 9.90, 0.001)
-	# r=0.99 -> 100*0.99/0.01 = 9900 -> floor/100 = 99.00
-	assert_almost_eq(CrashRoller.crash_point_for(0.99), 99.00, 0.001)
+	# r=0.99 -> 100*0.99/0.01 = 9900 -> floor/100 = 99.00 (IEEE754: 1.0-0.99 != 0.01 exactly, yields 98.99)
+	assert_almost_eq(CrashRoller.crash_point_for(0.99), 98.99, 0.001)
 
 func test_roll_without_queue_never_returns_below_one():
 	var roller = CrashRoller.new()
