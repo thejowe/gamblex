@@ -126,7 +126,7 @@ Si no se retira antes de que la ronda "explote", pierde la apuesta.
 
 - Punto de explosión decidido por el host al arrancar la ronda (no
   incremental/adivinable):
-  `r = randf()` (uniforme 0-1, evitar r=0);
+  `r = randf()` (uniforme 0-1, evitar r=0 y r=1: r=1 anula el divisor 1-r, r=0 es inofensivo, el propio max() lo recorta a 1.00);
   `crash_point = max(1.00, floor(100 * 0.99 / (1 - r)) / 100)`.
 - Curva de subida: `multiplicador_actual(t) = 1.00 + growth_rate * t^2` (t en
   segundos desde el inicio de la ronda); `growth_rate` es una constante de
