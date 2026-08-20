@@ -2,7 +2,8 @@ extends GutTest
 
 func test_roll_returns_queued_result_in_order():
     var roller = DiceRoller.new()
-    roller.results = [12.5, 87.3, 50.0]
+    var queued: Array[float] = [12.5, 87.3, 50.0]
+    roller.results = queued
     assert_eq(roller.roll(), 12.5)
     assert_eq(roller.roll(), 87.3)
     assert_eq(roller.roll(), 50.0)
