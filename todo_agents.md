@@ -53,7 +53,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 5 | `plan5-roulette` | Módulo Ruleta | `feature/roulette` (mergeado) | ✅ Completado, mergeado a `main` |
 | 6 | `plan6-poker` | Módulo Póker | `feature/poker` (mergeado) | ✅ Completado, mergeado a `main` |
 | 7 | `plan7-freemode` | Modo libre: meta colectiva de grupo | `main` (directo, sin rama) | ✅ Completado, ya en `main` |
-| 8 | `plan8-dice` | Dice + define la interfaz base de "ronda independiente por jugador" | `feature/dice` | 🟢 Listo para arrancar |
+| 8 | `plan8-dice` | Dice + define la interfaz base de "ronda independiente por jugador" | `feature/dice` (pusheada, sin mergear) | ✅ Completado en rama, pendiente de merge a `main` |
 | 9 | `plan9-crash` | Crash: multiplicador creciente + cash-out | `feature/crash` | 🔴 Bloqueado hasta que #8 esté en `main` |
 | 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` | 🔴 Bloqueado hasta que #8 esté en `main` |
 | 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` | 🔴 Bloqueado hasta que #8 esté en `main` |
@@ -121,11 +121,66 @@ del reporte que te tiene que dar al terminar.
 2. ~~Agente `plan3-casinofloor`~~ ✅
 3. ~~Agentes `plan4-battle`, `plan5-roulette`, `plan6-poker`,
    `plan7-freemode` en paralelo~~ ✅ — mergeados, ver arriba.
-4. Agente `plan8-dice` (siguiente, ya desbloqueado) — define la interfaz de
-   ronda independiente por jugador que reutilizan los siguientes tres.
+4. ~~Agente `plan8-dice`~~ ✅ código completo en `feature/dice` (5 tasks,
+   commits `5caebf2`…`f3e4b4a`), pusheada a origin. **Pendiente: merge a
+   `main` decidido por el usuario** (ver nota abajo).
 5. Agentes `plan9-crash`, `plan10-mines`, `plan11-plinko` en paralelo, cada
    uno en su rama (cuando #8 esté en `main`) — vuelve a esta sesión pilar
    cuando cada uno termine para que te diga cómo mergear sin conflictos.
+
+## Verificación de Agente 8 — Dice (2026-08-20, hecha por esta sesión pilar)
+
+Encontrado ya terminado al arrancar esta sesión: 9 commits en `feature/dice`
+local, working tree limpio, **no pusheado todavía** (esta sesión lo pusheó).
+`todo_agents.md` seguía diciendo "listo para arrancar" — desfasado, corregido
+arriba. El agente tampoco dejó un reporte explícito a pilar; el veredicto de
+abajo sale de revisar el repo directamente, no de lo que dijo el agente.
+
+Revisado contra `docs/superpowers/plans/2026-08-19-dice.md` archivo por
+archivo — implementación calca el plan tal cual (mismo código, mismos
+nombres):
+- `scripts/dice/dice_roller.gd` — `DiceRoller`, cola `results` inyectable.
+- `scripts/dice/dice_table_state.gd` — `DiceTableState`, jugadores
+  perezosos, `win_chance`/`multiplier` con margen de casa 1% (`99 /
+  win_chance`), `roll()`/`to_dict()`. Verificado a mano: umbral 50 "mayor
+  que" → 99/50 = 1.98x ✓; umbral 10 "mayor que" → 99/90 = 1.1x ✓ (coincide
+  con los casos de ejemplo del plan).
+- `scripts/net/dice_table_controller.gd` — mismo patrón host-autoridad que
+  `RouletteTableController`, wrapper que evita el self-RPC en el host,
+  broadcast a todos los presentes (no solo a quien tiró).
+- `scenes/dice_table_net.tscn`/`.gd` + `scenes/casino_floor.tscn` — mesa
+  añadida en su propia franja (1100-1400), resto de labels recorridos hacia
+  abajo sin pisar a Blackjack/Ruleta/Póker.
+- `scripts/net/casino_floor.gd` — hook de `chips_won` de
+  `DiceTableController` a la meta colectiva, en el bloque correcto (modo
+  libre, no batalla) — coherente con que TableController tampoco se conecta
+  en modo batalla.
+- Tests: `tests/unit/test_dice_roller.gd`, `tests/unit/test_dice_table_state.gd`
+  presentes y calcan los casos del plan (incluye los de multiplicador
+  conocido, jugadores independientes, `chips_won` con ganancia neta).
+
+**Actualización 2026-08-20 (sesión `plan8-dice`):** se encontró binario
+Godot 4.5.1 (build GodotSteam) en
+`/tmp/mp_dl/extracted/godotsteam.multiplayerpeer.451.editor.win64.console.exe`
+— con eso sí se corrió GUT headless:
+`140/140 tests passed` en todo el proyecto, incluidos
+`test_dice_roller.gd` (2/2) y `test_dice_table_state.gd` (16/16). Casos de
+multiplicador conocidos confirmados por test (umbral 50 mayor-que → 1.98x,
+umbral 10 mayor-que / 90 menor-que → 1.1x), no solo a mano.
+
+**Sigue sin verificar:** la prueba manual con dos cuentas Steam (Task 4
+Step 2 y Task 5 Step 4 del plan) — necesita dos instancias en red, no se
+puede hacer sin cuentas Steam en vivo. Checkboxes correspondientes en
+`docs/superpowers/plans/2026-08-19-dice.md` quedaron marcados `[ ]` con
+nota `⚠️ no confirmado esta sesión` a propósito.
+
+**Merge a `main`:** no lo hace esta sesión sin que el usuario lo confirme
+(regla de `.claude/agents/pilar.md`). Si el usuario da el visto bueno, el
+merge debería ser trivial — `feature/dice` solo toca archivos nuevos
+(`scripts/dice/*`, `scripts/net/dice_table_controller.gd`,
+`scenes/dice_table_net.*`) más ediciones acotadas a `casino_floor.tscn`/`.gd`
+que no tocan las franjas de Blackjack/Ruleta/Póker/Batalla — bajo riesgo de
+conflicto real, a diferencia del merge de Planes 4-7.
 
 ## Ampliación v1.1: Dice/Crash/Mines/Plinko (2026-08-19)
 
