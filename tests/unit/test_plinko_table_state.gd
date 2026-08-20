@@ -30,6 +30,15 @@ func test_roll_fails_on_rows_out_of_range():
 	assert_false(table.roll(111, 7, 50))
 	assert_false(table.roll(111, 17, 50))
 
+func test_roll_succeeds_at_rows_boundaries():
+	var roller = PlinkoRoller.new()
+	var bounces_8: Array[bool] = [true, true, true, true, true, true, true, true]
+	var bounces_16: Array[bool] = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
+	roller.results = [bounces_8, bounces_16]
+	var table = PlinkoTableState.new(roller)
+	assert_true(table.roll(111, 8, 100))
+	assert_true(table.roll(111, 16, 100))
+
 func test_roll_fails_on_insufficient_balance():
 	var table = PlinkoTableState.new()
 	var ok = table.roll(111, 12, 5000)
@@ -45,8 +54,8 @@ func test_roll_wins_edge_slot_pays_large_multiplier():
 	var table = PlinkoTableState.new(roller)
 	var ok = table.roll(111, 12, 100)
 	assert_true(ok)
-	# slot 12, multiplicador 0.99*4096/13/1 = 311.9261... -> payout int(100*311.9261...) = 31192
-	assert_eq(table.players[111].ledger.balance, 500 - 100 + 31192)
+	# slot 12, multiplicador 0.99*4096/13/1 = 311.9261... -> payout roundi(100*311.9261...) = 31193
+	assert_eq(table.players[111].ledger.balance, 500 - 100 + 31193)
 	assert_true(table.players[111].last_round["win"])
 
 func test_roll_loses_center_slot_partial_payout():
@@ -56,8 +65,8 @@ func test_roll_loses_center_slot_partial_payout():
 	var table = PlinkoTableState.new(roller)
 	var ok = table.roll(111, 12, 100)
 	assert_true(ok)
-	# slot 6, multiplicador 0.99*4096/13/924 = 0.337582... -> payout int(100*0.337582...) = 33
-	assert_eq(table.players[111].ledger.balance, 500 - 100 + 33)
+	# slot 6, multiplicador 0.99*4096/13/924 = 0.337588... -> payout roundi(100*0.337588...) = 34
+	assert_eq(table.players[111].ledger.balance, 500 - 100 + 34)
 	assert_false(table.players[111].last_round["win"])
 
 func test_roll_emits_chips_won_with_net_profit_on_win():
@@ -67,7 +76,7 @@ func test_roll_emits_chips_won_with_net_profit_on_win():
 	var table = PlinkoTableState.new(roller)
 	watch_signals(table)
 	table.roll(111, 12, 100)
-	assert_signal_emitted_with_parameters(table, "chips_won", [111, 31092]) # 31192 payout - 100 apuesta
+	assert_signal_emitted_with_parameters(table, "chips_won", [111, 31093]) # 31193 payout - 100 apuesta
 
 func test_roll_does_not_emit_chips_won_on_loss():
 	var roller = PlinkoRoller.new()
@@ -89,7 +98,7 @@ func test_roll_records_last_round_for_player():
 	assert_eq(last_round["amount"], 100)
 	assert_eq(last_round["bounces"], bounces)
 	assert_eq(last_round["slot"], 12)
-	assert_eq(last_round["payout"], 31192)
+	assert_eq(last_round["payout"], 31193)
 	assert_true(last_round["win"])
 
 func test_roll_independent_per_player():
@@ -100,8 +109,8 @@ func test_roll_independent_per_player():
 	var table = PlinkoTableState.new(roller)
 	table.roll(111, 12, 100) # gana grande
 	table.roll(222, 12, 100) # pierde parcial
-	assert_eq(table.players[111].ledger.balance, 31592)
-	assert_eq(table.players[222].ledger.balance, 433)
+	assert_eq(table.players[111].ledger.balance, 31593)
+	assert_eq(table.players[222].ledger.balance, 434)
 
 func test_to_dict_reflects_players_and_last_round():
 	var roller = PlinkoRoller.new()
@@ -111,5 +120,25 @@ func test_to_dict_reflects_players_and_last_round():
 	table.roll(111, 12, 100)
 	var data = table.to_dict()
 	assert_eq(data["players"][111]["player_id"], 111)
-	assert_eq(data["players"][111]["balance"], 31592)
+	assert_eq(data["players"][111]["balance"], 31593)
 	assert_eq(data["players"][111]["last_round"]["win"], true)
+
+func test_roll_realized_rtp_is_close_to_99_percent_through_payout_path():
+	var rows := 12
+	var amount := 50
+	var expected_return := 0.0
+	var total_outcomes: float = pow(2.0, rows)
+	for slot in range(rows + 1):
+		var bounces: Array[bool] = []
+		for i in range(slot):
+			bounces.append(true)
+		for i in range(rows - slot):
+			bounces.append(false)
+		var roller = PlinkoRoller.new()
+		roller.results = [bounces]
+		var table = PlinkoTableState.new(roller)
+		table.roll(111, rows, amount)
+		var payout: int = table.players[111].last_round["payout"]
+		var probability: float = PlinkoTableState._comb(rows, slot) / total_outcomes
+		expected_return += probability * (float(payout) / amount)
+	assert_almost_eq(expected_return, 0.99, 0.02)

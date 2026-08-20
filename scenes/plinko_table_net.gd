@@ -16,6 +16,9 @@ func _display_name(peer_id: int) -> String:
 	return persona_name if not persona_name.is_empty() else "jugador %d" % peer_id
 
 func _ready() -> void:
+	rows_spinbox.min_value = PlinkoTableState.MIN_ROWS
+	rows_spinbox.max_value = PlinkoTableState.MAX_ROWS
+	rows_spinbox.value = PlinkoTableState.DEFAULT_ROWS
 	table_controller.state_changed.connect(_on_state_changed)
 	drop_button.pressed.connect(_drop)
 	NetworkManager.identities_changed.connect(_refresh_players_label)

@@ -47,12 +47,13 @@ func roll(player_id: int, rows: int, amount: int) -> bool:
 	if not player.ledger.place_bet(amount):
 		return false
 	var bounces: Array = roller.roll(rows)
+	assert(bounces.size() == rows, "PlinkoRoller.roll() must return exactly `rows` bounces")
 	var slot := 0
 	for bounced_right in bounces:
 		if bounced_right:
 			slot += 1
 	var mult := slot_multiplier(rows, slot)
-	var payout := int(amount * mult)
+	var payout := roundi(amount * mult)
 	var win := payout > amount
 	player.ledger.payout(payout)
 	if win:
