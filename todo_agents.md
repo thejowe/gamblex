@@ -57,6 +57,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 9 | `plan9-crash` | Crash: multiplicador creciente + cash-out | `feature/crash` (mergeado) | ✅ Completado, mergeado a `main` |
 | 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` (mergeado) | ✅ Completado, mergeado a `main` |
 | 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` (mergeado) | ✅ Completado, mergeado a `main` |
+| 12 | `plan12-lobby` | Lobby de selección de juego: rejilla de 7 tarjetas, sala aislada por jugador, HUD persistente | `feature/lobby` | 🟢 Desbloqueado, listo para arrancar |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -231,12 +232,32 @@ list`, solo queda basura física en
 cierre lo que lo tenga bloqueado.
 
 **Estado del roadmap:** con esto, los Planes 1-11 (toda la "Ampliación
-v1.1" incluida) están mergeados en `main`. No hay más agentes definidos en
-este documento — si el usuario quiere ampliar el casino más allá de Dice/
-Crash/Mines/Plinko, hace falta decidir el alcance antes de crear un Plan
-12. Pendiente de siempre (no es nuevo): la DLL de GodotSteam rota en esta
-máquina sigue bloqueando probar una partida real con Steam multijugador —
-ver sección "Bloqueador de entorno" arriba.
+v1.1" incluida) están mergeados en `main`. Pendiente de siempre (no es
+nuevo): la DLL de GodotSteam rota en esta máquina sigue bloqueando probar
+una partida real con Steam multijugador — ver sección "Bloqueador de
+entorno" arriba.
+
+## Ampliación v1.2: Lobby de selección de juego (2026-08-20)
+
+El usuario pidió que `CasinoFloor` deje de apilar las 7 mesas en una
+pantalla larga y en su lugar sea "como un casino online": un lobby con
+rejilla de tarjetas de juego, el jugador entra a una sala aislada por
+juego, cada uno navega independiente de los demás, con HUD de meta
+colectiva/batalla siempre visible. Decisiones confirmadas con el usuario
+(detalle completo en la spec maestra, sección "Ampliación v1.2"):
+
+- Sala aislada (no cámara sobre un suelo único) — al pulsar una tarjeta,
+  esa mesa ocupa toda la pantalla, el resto se oculta.
+- Cada jugador su sala, sin coordinación entre clientes — decisión 100%
+  local, no hay RPC nuevo, no se sincroniza "quién está en qué sala".
+- HUD persistente (meta colectiva / marcador de batalla) visible en el
+  lobby y dentro de cualquier sala.
+
+Cambio puramente de cliente/UI — no toca `GameLogic`/`TableState`/
+`TableController` de ningún juego, ya que cada mesa ya difunde su estado
+por RPC a todo `CasinoFloor` desde Plan 3. Creado `plan12-lobby`,
+desbloqueado (sin dependencias pendientes, los 7 juegos ya están en
+`main`).
 
 ## Ampliación v1.1: Dice/Crash/Mines/Plinko (2026-08-19)
 

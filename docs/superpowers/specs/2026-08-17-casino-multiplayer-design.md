@@ -155,6 +155,53 @@ los extremos pagan mucho más (curva simétrica tipo binomial invertida).
   (slot) importa para el pago; la animación de caída es puramente visual y
   puede ser aproximada.
 
+## Ampliación v1.2: Lobby de selección de juego (2026-08-20)
+
+Decisión tomada con el usuario tras completar v1.1 (los 7 juegos ya en
+`main`): el `CasinoFloor` actual apila las 7 mesas en una sola pantalla
+larga con scroll — no escala y no se siente "casino online". Se sustituye
+por un **lobby de selección + salas aisladas**, decisiones confirmadas:
+
+- **Sala aislada** (no cámara/scroll sobre un suelo único): al entrar al
+  `CasinoFloor`, el jugador ve primero un **lobby** — una rejilla de
+  tarjetas, una por juego (Blackjack/Ruleta/Póker/Dice/Crash/Mines/Plinko),
+  con icono/nombre. Al pulsar una tarjeta, esa mesa pasa a ocupar toda la
+  pantalla del jugador y el resto de mesas quedan ocultas para él — botón
+  "Volver al lobby" para salir de la sala y ver la rejilla de nuevo.
+- **Cada jugador su sala, independiente de los demás**: no es una decisión
+  de grupo. Un jugador puede estar en la sala de Blackjack mientras otro
+  está en la de Dice, cada uno navega libremente sin afectar al otro. Esto
+  es un cambio **puramente de cliente/UI** — la capa de red no cambia: cada
+  `TableController` ya es autoritativo en el host y ya difunde su estado a
+  todos los presentes en `CasinoFloor` (Plan 3 en adelante), entrar/salir
+  de una sala en el lobby solo decide qué nodo de mesa muestra ese cliente
+  en pantalla, no desconecta ni reinstancia nada a nivel de red.
+  - **Matiz sobre "Visibilidad compartida" (sección "Modos de juego"
+    arriba):** ese principio se mantiene a nivel de *datos* — la meta
+    colectiva y los pozos de equipo siguen sumando fichas de cualquier
+    mesa, y cualquier `TableController` sigue difundiendo su estado a
+    todo el mundo por RPC igual que antes. Lo que cambia es que ya **no se
+    renderizan las 7 mesas a la vez**: cada cliente decide qué mesa
+    dibujar (la de su sala activa, o ninguna si está en el lobby). Si en
+    el futuro se quiere un "modo espectador" que muestre mesas ajenas sin
+    entrar a jugar, es una extensión de este lobby, no un cambio de red.
+- **HUD persistente**: la meta colectiva (modo libre) o el marcador de
+  equipos/pozo (modo batalla) se ven en una barra fija (arriba o abajo),
+  visible tanto en el lobby como dentro de cualquier sala — el jugador
+  nunca pierde de vista el objetivo de grupo/equipo por estar jugando.
+- **Estética "casino online"**: tarjetas de selección con arte por juego
+  (aunque sea placeholder pixel art inicial), no una lista de texto plano.
+  El agente que implemente esto decide el look concreto, pero debe sentirse
+  como un hall de selección de juego, no un menú de depuración.
+- **Alcance técnico**: esto es una capa de navegación sobre las 7 mesas ya
+  existentes (`scenes/*_table_net.tscn`, ya hijas de `CasinoFloor`) — no
+  toca `GameLogic`/`TableState`/`TableController` de ningún juego. Puede
+  implicar reestructurar `scenes/casino_floor.tscn` para que las mesas
+  empiecen ocultas y el lobby decida visibilidad, y casi seguro reduce
+  `project.godot` `viewport_height` de vuelta a un tamaño de pantalla
+  normal (ya no hace falta apilar 7 mesas en una columna de 2650px si cada
+  una ocupa su propia pantalla completa).
+
 ## Fuera de alcance (v1 / v1.1)
 
 - Persistencia de progreso entre partidas.
