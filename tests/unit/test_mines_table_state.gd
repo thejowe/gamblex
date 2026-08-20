@@ -24,6 +24,11 @@ func test_start_round_fails_on_invalid_mine_count():
 	assert_false(table.start_round(111, 25, 0, 50))
 	assert_false(table.start_round(111, 25, 25, 50))
 
+func test_start_round_fails_on_total_cells_too_large():
+	var table = MinesTableState.new()
+	assert_false(table.start_round(111, 101, 3, 50))
+	assert_true(table.start_round(111, 100, 3, 50)) # el límite exacto sí es válido
+
 func test_start_round_fails_on_insufficient_balance():
 	var table = MinesTableState.new()
 	var ok = table.start_round(111, 25, 3, 5000)

@@ -4,6 +4,7 @@ extends RefCounted
 signal chips_won(player_id: int, amount: int)
 
 const STARTING_BALANCE := 500
+const MAX_CELLS := 100
 
 class Player:
 	var player_id: int = 0
@@ -32,7 +33,7 @@ func _player_for(player_id: int) -> Player:
 	return players[player_id]
 
 func start_round(player_id: int, total_cells: int, mine_count: int, amount: int) -> bool:
-	if total_cells < 2:
+	if total_cells < 2 or total_cells > MAX_CELLS:
 		return false
 	if mine_count < 1 or mine_count >= total_cells:
 		return false

@@ -1,3 +1,4 @@
 .godot/
 ~*
 .claude/worktrees/
+test_output_*.txt
