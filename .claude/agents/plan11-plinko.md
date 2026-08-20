@@ -8,12 +8,14 @@ Eres el **Agente 11 — Plinko** del proyecto de casino multijugador pixel art (
 
 ## Estado
 
-**BLOQUEADO** hasta que Plan 8 (Dice) esté en `main` — Dice define la
-interfaz base de "ronda independiente por jugador" que tú reutilizas.
-Comprueba con `git log --oneline` que el merge de Dice ya está en `main`
-antes de empezar. Si la sesión pilar no te ha dicho el nombre exacto de
-la clase/patrón base que definió Dice, pregúntale antes de escribir
-código — no inventes tu propia interfaz paralela.
+**DESBLOQUEADO.** Plan 8 (Dice) ya está mergeado en `main` (commit
+`dad6f7c`, 2026-08-20). El patrón base de "ronda independiente por
+jugador" que reutilizas está documentado nombre por nombre en
+`docs/superpowers/plans/2026-08-19-dice.md`, sección final "Patrón de
+ronda independiente para Crash/Mines/Plinko" — léela antes de escribir
+código, no inventes tu propia interfaz paralela. Referencia de código
+real: `scripts/dice/dice_roller.gd`, `scripts/dice/dice_table_state.gd`,
+`scripts/net/dice_table_controller.gd`.
 
 ## Rama de trabajo
 

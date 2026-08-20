@@ -53,10 +53,10 @@ sesión pilar para evitar conflictos entre ramas.
 | 5 | `plan5-roulette` | Módulo Ruleta | `feature/roulette` (mergeado) | ✅ Completado, mergeado a `main` |
 | 6 | `plan6-poker` | Módulo Póker | `feature/poker` (mergeado) | ✅ Completado, mergeado a `main` |
 | 7 | `plan7-freemode` | Modo libre: meta colectiva de grupo | `main` (directo, sin rama) | ✅ Completado, ya en `main` |
-| 8 | `plan8-dice` | Dice + define la interfaz base de "ronda independiente por jugador" | `feature/dice` (pusheada, sin mergear) | ✅ Completado en rama, pendiente de merge a `main` |
-| 9 | `plan9-crash` | Crash: multiplicador creciente + cash-out | `feature/crash` | 🔴 Bloqueado hasta que #8 esté en `main` |
-| 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` | 🔴 Bloqueado hasta que #8 esté en `main` |
-| 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` | 🔴 Bloqueado hasta que #8 esté en `main` |
+| 8 | `plan8-dice` | Dice + define la interfaz base de "ronda independiente por jugador" | `feature/dice` (mergeado) | ✅ Completado, mergeado a `main` (`dad6f7c`) |
+| 9 | `plan9-crash` | Crash: multiplicador creciente + cash-out | `feature/crash` | 🟢 Desbloqueado, listo para arrancar |
+| 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` | 🟢 Desbloqueado, listo para arrancar |
+| 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` | 🟢 Desbloqueado, listo para arrancar |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -121,12 +121,14 @@ del reporte que te tiene que dar al terminar.
 2. ~~Agente `plan3-casinofloor`~~ ✅
 3. ~~Agentes `plan4-battle`, `plan5-roulette`, `plan6-poker`,
    `plan7-freemode` en paralelo~~ ✅ — mergeados, ver arriba.
-4. ~~Agente `plan8-dice`~~ ✅ código completo en `feature/dice` (5 tasks,
-   commits `5caebf2`…`f3e4b4a`), pusheada a origin. **Pendiente: merge a
-   `main` decidido por el usuario** (ver nota abajo).
-5. Agentes `plan9-crash`, `plan10-mines`, `plan11-plinko` en paralelo, cada
-   uno en su rama (cuando #8 esté en `main`) — vuelve a esta sesión pilar
-   cuando cada uno termine para que te diga cómo mergear sin conflictos.
+4. ~~Agente `plan8-dice`~~ ✅ mergeado a `main` (`dad6f7c`, merge commit
+   `merge: Plan 8 Dice module into main`, 2026-08-20, sin conflictos).
+5. Agentes `plan9-crash`, `plan10-mines`, `plan11-plinko` — **DESBLOQUEADOS,
+   lanzados en paralelo el 2026-08-20 por indicación del usuario.** Cada
+   uno en su propia rama (`feature/crash`/`feature/mines`/`feature/plinko`).
+   Vuelve a esta sesión pilar cuando cada uno termine para que te diga cómo
+   mergear sin conflictos entre sí (los tres van a tocar `casino_floor.tscn`
+   sin verse — mismo patrón de conflicto esperado que Planes 4-7).
 
 ## Verificación de Agente 8 — Dice (2026-08-20, hecha por esta sesión pilar)
 
@@ -174,13 +176,21 @@ puede hacer sin cuentas Steam en vivo. Checkboxes correspondientes en
 `docs/superpowers/plans/2026-08-19-dice.md` quedaron marcados `[ ]` con
 nota `⚠️ no confirmado esta sesión` a propósito.
 
-**Merge a `main`:** no lo hace esta sesión sin que el usuario lo confirme
-(regla de `.claude/agents/pilar.md`). Si el usuario da el visto bueno, el
-merge debería ser trivial — `feature/dice` solo toca archivos nuevos
-(`scripts/dice/*`, `scripts/net/dice_table_controller.gd`,
-`scenes/dice_table_net.*`) más ediciones acotadas a `casino_floor.tscn`/`.gd`
-que no tocan las franjas de Blackjack/Ruleta/Póker/Batalla — bajo riesgo de
-conflicto real, a diferencia del merge de Planes 4-7.
+**Merge a `main` (2026-08-20):** hecho, con autorización explícita del
+usuario ("plan 8 ha terminado, lancemos ya el 9 el 10 y el 11"). `git merge
+--no-ff feature/dice` sobre `main` — **sin conflictos**, como se anticipaba
+(solo archivos nuevos + ediciones acotadas a `casino_floor.tscn`/`.gd` que
+no tocaban las franjas de Blackjack/Ruleta/Póker/Batalla). Commit de merge
+`dad6f7c`, pusheado a `origin/main`.
+
+**Desbloqueo de Agentes 9/10/11:** hecho tras el merge. Las secciones
+"Estado" de `.claude/agents/plan9-crash.md`, `plan10-mines.md` y
+`plan11-plinko.md` ya no dicen BLOQUEADO — apuntan directo al patrón base
+documentado en `docs/superpowers/plans/2026-08-19-dice.md` (sección final
+"Patrón de ronda independiente para Crash/Mines/Plinko") y al código real
+(`scripts/dice/dice_roller.gd`, `scripts/dice/dice_table_state.gd`,
+`scripts/net/dice_table_controller.gd`), para que ningún agente tenga que
+preguntarle a pilar el nombre exacto de la interfaz.
 
 ## Ampliación v1.1: Dice/Crash/Mines/Plinko (2026-08-19)
 
