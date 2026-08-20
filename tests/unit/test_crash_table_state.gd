@@ -19,6 +19,17 @@ func test_place_bet_creates_player_lazily_with_starting_balance():
 	assert_eq(table.players[111].ledger.balance, 400)
 	assert_true(table.players[111].is_active)
 
+func test_place_bet_rejects_non_positive_amount():
+	# El SpinBox de la UI limita el valor minimo del lado del cliente, pero
+	# eso no es una frontera de seguridad: un cliente puede enviar cualquier
+	# int via RPC. place_bet() debe rechazar montos <= 0 (ChipLedger.can_afford
+	# exige amount > 0 and amount <= balance).
+	var table = CrashTableState.new()
+	assert_false(table.place_bet(111, 0))
+	assert_false(table.place_bet(111, -100))
+	assert_eq(table.players[111].ledger.balance, 500) # nada se descontó
+	assert_false(table.players[111].is_active)
+
 func test_place_bet_fails_on_insufficient_balance():
 	var table = CrashTableState.new()
 	var ok = table.place_bet(111, 5000)

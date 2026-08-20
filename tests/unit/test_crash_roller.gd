@@ -23,6 +23,26 @@ func test_roll_without_queue_never_returns_below_one():
 	for i in range(200):
 		assert_true(roller.roll() >= 1.00)
 
+func test_roll_without_queue_always_returns_finite_value():
+	# roll() debe excluir tanto r=0.0 como r=1.0 antes de llamar a
+	# crash_point_for(). r=1.0 es el caso peligroso: 1.0 - r = 0.0, y
+	# crash_point_for(1.0) daria INF (division por cero no lanza error en
+	# GDScript). No podemos forzar randf() a devolver exactamente 1.0 aqui,
+	# asi que esta es una comprobacion estadistica de la invariante que
+	# roll() debe mantener siempre: el resultado nunca es infinito ni NaN.
+	var roller = CrashRoller.new()
+	for i in range(500):
+		var result = roller.roll()
+		assert_true(is_finite(result), "roll() devolvio un valor no finito: %s" % result)
+
+func test_crash_point_for_boundary_r_values_documents_the_danger():
+	# r=0.0 es inofensivo: max(1.00, ...) lo recorta.
+	assert_almost_eq(CrashRoller.crash_point_for(0.0), 1.00, 0.001)
+	# r=1.0 (que randf() SI puede devolver, ~1 en 33 millones en esta build)
+	# anula el divisor 1.0 - r y produce INF. Por eso roll() debe excluir
+	# r >= 1.0 en su guarda antes de llamar a crash_point_for().
+	assert_true(is_inf(CrashRoller.crash_point_for(1.0)))
+
 func test_roll_distribution_median_matches_expected_house_edge():
 	# Validación estadística de la fórmula pedida en la tarea del agente: no
 	# basta un caso suelto, hay que ver la forma de la distribución sobre

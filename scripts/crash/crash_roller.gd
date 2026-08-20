@@ -7,7 +7,7 @@ func roll() -> float:
 	if not results.is_empty():
 		return results.pop_front()
 	var r := randf()
-	while r <= 0.0:
+	while r <= 0.0 or r >= 1.0:
 		r = randf()
 	return crash_point_for(r)
 
