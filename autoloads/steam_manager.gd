@@ -7,6 +7,7 @@ signal lobby_join_failed(reason: String)
 var steam_id: int = 0
 var steam_username: String = ""
 var current_lobby_id: int = 0
+var chosen_match_type: int = -1
 
 func _ready() -> void:
 	Steam.lobby_created.connect(_on_lobby_created)

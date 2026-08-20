@@ -3,10 +3,17 @@ extends Control
 @onready var create_button: Button = $CreateButton
 @onready var invite_button: Button = $InviteButton
 @onready var members_label: Label = $MembersLabel
+@onready var match_type_option: OptionButton = $MatchTypeOption
 
 var _transitioned: bool = false
 
+const FREE_MODE_MAX_MEMBERS := 4
+
 func _ready() -> void:
+	match_type_option.add_item("Libre", -1)
+	match_type_option.add_item("1v1", TeamAssignment.MatchType.ONE_V_ONE)
+	match_type_option.add_item("2v2", TeamAssignment.MatchType.TWO_V_TWO)
+	match_type_option.add_item("4v4", TeamAssignment.MatchType.FOUR_V_FOUR)
 	create_button.pressed.connect(_on_create_pressed)
 	invite_button.pressed.connect(_on_invite_pressed)
 	invite_button.disabled = true
@@ -16,7 +23,10 @@ func _ready() -> void:
 
 func _on_create_pressed() -> void:
 	create_button.disabled = true
-	SteamManager.create_lobby(4)
+	var match_type: int = match_type_option.get_selected_id()
+	SteamManager.chosen_match_type = match_type
+	var max_members: int = FREE_MODE_MAX_MEMBERS if match_type == -1 else TeamAssignment.team_size_for(match_type) * 2
+	SteamManager.create_lobby(max_members)
 
 func _on_invite_pressed() -> void:
 	Steam.activateGameOverlayInviteDialog(SteamManager.current_lobby_id)
@@ -34,8 +44,11 @@ func _on_lobby_join_failed(reason: String) -> void:
 
 func _on_lobby_chat_update(_lobby_id: int, _change_id: int, _making_change_id: int, _chat_state: int) -> void:
 	_refresh_members()
-	# El host espera aquí (con el botón de invitar visible) hasta que se una alguien más.
-	if Steam.getNumLobbyMembers(SteamManager.current_lobby_id) >= 2:
+	# El host espera aquí (con el botón de invitar visible) hasta que haya
+	# suficiente gente: en modo libre, con que se una uno más ya alcanza;
+	# en modo batalla espera a que ambos equipos estén completos.
+	var min_members: int = 2 if SteamManager.chosen_match_type == -1 else TeamAssignment.team_size_for(SteamManager.chosen_match_type) * 2
+	if Steam.getNumLobbyMembers(SteamManager.current_lobby_id) >= min_members:
 		_go_to_casino_floor()
 
 func _go_to_casino_floor() -> void:
