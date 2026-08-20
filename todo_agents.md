@@ -49,15 +49,48 @@ sesión pilar para evitar conflictos entre ramas.
 | 1 | `plan1-blackjack` | Base del proyecto + Blackjack en solitario | `main` | ✅ Completado |
 | 2 | `plan2-steam` | GodotSteam: init, lobbies, invitaciones, SteamMultiplayerPeer | `main` | ✅ Completado |
 | 3 | `plan3-casinofloor` | CasinoFloor compartido + Blackjack multijugador | `main` | ✅ Completado |
-| 4 | `plan4-battle` | Modo batalla: equipos, pozo compartido, MatchRules | `feature/battle-mode` | 🟢 Listo para arrancar |
-| 5 | `plan5-roulette` | Módulo Ruleta | `feature/roulette` | 🟢 Listo para arrancar |
-| 6 | `plan6-poker` | Módulo Póker | `feature/poker` | 🟢 Listo para arrancar |
-| 7 | `plan7-freemode` | Modo libre: meta colectiva de grupo | `feature/free-mode` | 🟢 Listo para arrancar |
+| 4 | `plan4-battle` | Modo batalla: equipos, pozo compartido, MatchRules | `feature/battle-mode` (mergeado) | ✅ Completado, mergeado a `main` |
+| 5 | `plan5-roulette` | Módulo Ruleta | `feature/roulette` (mergeado) | ✅ Completado, mergeado a `main` |
+| 6 | `plan6-poker` | Módulo Póker | `feature/poker` (mergeado) | ✅ Completado, mergeado a `main` |
+| 7 | `plan7-freemode` | Modo libre: meta colectiva de grupo | `main` (directo, sin rama) | ✅ Completado, ya en `main` |
 
-Los cuatro (#4-#7) pueden arrancar **a la vez**, cada uno en su propia
-sesión y su propia rama — no dependen entre sí, solo de #3 (ya mergeado).
-Ninguno mergea a `main` por su cuenta; avisan a la sesión pilar cuando
-terminan.
+Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
+pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
+commits directo sobre `main` local y no los pusheó hasta que esta sesión
+pilar lo detectó y empujó. Los Agentes 4/5/6 sí usaron su rama correctamente
+(aunque la de poker se creó mal nombrada como `worktree-feature+poker`;
+esta sesión la renombró a `feature/poker` antes de mergear).
+
+## Merge de Planes 4-7 (2026-08-19)
+
+Orden de merge: roulette → poker → battle-mode (free-mode ya estaba en
+`main`). Todos con conflicto en `scenes/casino_floor.tscn` (cada agente
+añadió su mesa sin ver a los demás — esperado, por eso el merge lo hace
+pilar y no un agente aislado). Resueltos a mano:
+
+- **Layout**: Blackjack/Ruleta/Póker repartidos en 3 franjas verticales
+  (33%/33%/33%) en vez de superpuestos. Sin verificar visualmente en el
+  editor (esta sesión no tiene Godot para probar) — el próximo agente o el
+  usuario debería abrir el proyecto y confirmar que no se solapan de forma
+  rara antes de darlo por bueno.
+- **Conflicto real (no solo textual)**: `CasinoFloor` solo admite un script
+  en su nodo raíz, y free-mode y battle-mode traían cada uno el suyo
+  (`scripts/net/casino_floor.gd` vs `scenes/casino_floor.gd`). Se fusionaron
+  en un único script en `scripts/net/casino_floor.gd`, consciente de modo vía
+  `SteamManager.chosen_match_type` (`-1` = modo libre, default; enum
+  `TeamAssignment.MatchType.*` = modo batalla). Se borró el script duplicado.
+- `LobbyMenu` ahora tiene opción "Libre" en el selector de tipo de partida
+  (antes solo ofrecía 1v1/2v2/4v4, porque el agente de batalla no sabía del
+  modo libre).
+- Las 4 ramas feature quedaron pusheadas a origin además de mergeadas
+  (registro histórico), aunque ya no hace falta trabajar en ellas.
+
+**Pendiente de verificación real** (nadie ha abierto el proyecto en el
+editor todavía tras el merge): que las 4 mesas cargan sin error de import,
+que el modo libre y el modo batalla arrancan cada uno su rama de lógica sin
+pisarse, y que una partida real de 2+ jugadores no revienta por el gotcha
+del self-RPC en `BattleController`/`CasinoFloor` (ya mitigado en el código,
+pero no probado en vivo).
 
 Cada archivo `.claude/agents/planN-*.md` ya contiene: qué construye
 exactamente, si el plan detallado ya está escrito (Plan 1 y 2) o si el
