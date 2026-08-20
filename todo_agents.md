@@ -53,6 +53,10 @@ sesión pilar para evitar conflictos entre ramas.
 | 5 | `plan5-roulette` | Módulo Ruleta | `feature/roulette` (mergeado) | ✅ Completado, mergeado a `main` |
 | 6 | `plan6-poker` | Módulo Póker | `feature/poker` (mergeado) | ✅ Completado, mergeado a `main` |
 | 7 | `plan7-freemode` | Modo libre: meta colectiva de grupo | `main` (directo, sin rama) | ✅ Completado, ya en `main` |
+| 8 | `plan8-dice` | Dice + define la interfaz base de "ronda independiente por jugador" | `feature/dice` | 🟢 Listo para arrancar |
+| 9 | `plan9-crash` | Crash: multiplicador creciente + cash-out | `feature/crash` | 🔴 Bloqueado hasta que #8 esté en `main` |
+| 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` | 🔴 Bloqueado hasta que #8 esté en `main` |
+| 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` | 🔴 Bloqueado hasta que #8 esté en `main` |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -85,12 +89,25 @@ pilar y no un agente aislado). Resueltos a mano:
 - Las 4 ramas feature quedaron pusheadas a origin además de mergeadas
   (registro histórico), aunque ya no hace falta trabajar en ellas.
 
-**Pendiente de verificación real** (nadie ha abierto el proyecto en el
-editor todavía tras el merge): que las 4 mesas cargan sin error de import,
-que el modo libre y el modo batalla arrancan cada uno su rama de lógica sin
-pisarse, y que una partida real de 2+ jugadores no revienta por el gotcha
-del self-RPC en `BattleController`/`CasinoFloor` (ya mitigado en el código,
-pero no probado en vivo).
+**Verificación post-merge (2026-08-19, hecha por esta sesión pilar):**
+las 5 escenas relevantes cargan e instancian sin error (chequeo headless
+con el editor de GodotSteam, sin GPU). Layout corregido dos veces: primero
+de columnas a franjas verticales apiladas (`5deaf90`) porque el contenido
+interno de cada mesa usa offsets absolutos que no encogían con el ancho de
+columna; luego los botones de Ruleta en sí (`cb50b8e`) porque textos largos
+como "Apostar Negro 50" desbordaban botones de 120px hacia el vecino de al
+lado, a solo 10px. Confirmado visualmente por el usuario tras el segundo
+fix. **Sigue sin probarse una partida real de 2+ jugadores** (bloqueado por
+la DLL de GodotSteam rota, ver abajo) — el gotcha del self-RPC en
+`BattleController`/`CasinoFloor` está mitigado en el código pero no
+verificado en vivo.
+
+**Bloqueador de entorno, no de código:** la GDExtension de GodotSteam
+(`addons/godotsteam/win64/libgodotsteam.windows.template_debug.x86_64.dll`)
+no carga en esta máquina — `Error 127` al abrir la librería dinámica. Nadie
+lo ha investigado a fondo todavía. Bloquea probar Steam/multijugador real
+hasta que se arregle (probable dependencia nativa faltante o mismatch de
+build). No lo causó ningún merge de esta sesión.
 
 Cada archivo `.claude/agents/planN-*.md` ya contiene: qué construye
 exactamente, si el plan detallado ya está escrito (Plan 1 y 2) o si el
@@ -100,9 +117,26 @@ del reporte que te tiene que dar al terminar.
 
 ## Orden recomendado
 
-1. Agente `plan2-steam` (siguiente, ya desbloqueado)
-2. Agente `plan3-casinofloor` (cuando #2 esté en `main`)
-3. Agentes `plan4-battle`, `plan5-roulette`, `plan6-poker`, `plan7-freemode`
-   en paralelo, cada uno en su rama (cuando #3 esté en `main`) — vuelve a
-   esta sesión pilar cuando cada uno termine para que te diga cómo mergear
-   sin conflictos y qué toca después.
+1. ~~Agente `plan2-steam`~~ ✅
+2. ~~Agente `plan3-casinofloor`~~ ✅
+3. ~~Agentes `plan4-battle`, `plan5-roulette`, `plan6-poker`,
+   `plan7-freemode` en paralelo~~ ✅ — mergeados, ver arriba.
+4. Agente `plan8-dice` (siguiente, ya desbloqueado) — define la interfaz de
+   ronda independiente por jugador que reutilizan los siguientes tres.
+5. Agentes `plan9-crash`, `plan10-mines`, `plan11-plinko` en paralelo, cada
+   uno en su rama (cuando #8 esté en `main`) — vuelve a esta sesión pilar
+   cuando cada uno termine para que te diga cómo mergear sin conflictos.
+
+## Ampliación v1.1: Dice/Crash/Mines/Plinko (2026-08-19)
+
+Decisiones tomadas con el usuario antes de crear los agentes 8-11 (detalle
+completo en la spec maestra, sección "Ampliación v1.1"):
+
+- Cada uno es **ronda independiente por jugador contra la casa** (no mesa
+  compartida con turnos como Blackjack/Ruleta/Póker).
+- Margen de casa: **1%** en los cuatro, horneado en la fórmula de pago de
+  cada juego (no un impuesto aparte).
+- Orden: Dice primero (más simple), porque define la interfaz base que los
+  otros tres reutilizan — evita que cada agente invente su propio patrón de
+  "ronda independiente" y haya que unificar 4 interfaces distintas a mano
+  después. Crash/Mines/Plinko van en paralelo una vez Dice esté en `main`.

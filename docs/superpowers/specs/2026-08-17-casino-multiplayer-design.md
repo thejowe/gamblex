@@ -62,9 +62,104 @@ Cliente envía acción → host valida (turno correcto, fondos suficientes) → 
 - Prueba manual multijugador con varias instancias del juego en local antes de probar con Steam real.
 - Prueba de `MatchRules` con casos límite (empate en tiempo, bancarrota simultánea de ambos equipos).
 
-## Fuera de alcance (v1)
+## Ampliación v1.1: juegos de casino "originales" (Dice, Crash, Mines, Plinko)
+
+Decidido 2026-08-19. A diferencia de Blackjack/Ruleta/Póker (mesa compartida,
+turnos, varios jugadores interactuando entre sí), estos cuatro son **ronda
+independiente por jugador contra la casa**: cada jugador apuesta y resuelve
+su propia ronda cuando quiere, sin esperar turno ni compartir resultado con
+nadie. Se mantiene la visibilidad compartida del spec original — todos los
+presentes en `CasinoFloor` ven en vivo las rondas de los demás — pero nadie
+más participa en la ronda de otro jugador.
+
+**Margen de casa: 1%** en los cuatro juegos (estándar de casino online),
+aplicado en la fórmula de pago de cada uno, no como un impuesto aparte.
+
+### Componente nuevo: patrón de ronda independiente
+
+No hay `TableController` con asientos. Cada juego define su propio
+controlador (uno por mesa, autoridad en el host, mismo patrón RPC que
+`TableController`/`RouletteTableController`), pero el estado que sincroniza
+es **por jugador**, no un asiento compartido: cada cliente apuesta, el host
+resuelve con RNG propio (`randi()`/`randf()` del host, sin necesidad de ser
+"provably fair" — no hay dinero real, spec ya dice que las fichas se
+reinician cada partida) y hace broadcast del resultado de *ese* jugador a
+todos los presentes (para que lo vean en vivo), igual que
+`TableController.chips_won` ya hace en Blackjack.
+
+Construido primero por el Agente 8 (Dice, el más simple) como Plan base;
+Crash/Mines/Plinko reutilizan la interfaz que defina, no inventan la suya.
+
+### Dice
+
+Jugador elige un número umbral (1-99) y dirección ("mayor que" / "menor
+que"), más el monto apostado. El host tira un número aleatorio 0-99.99 y
+decide victoria si cae del lado elegido.
+
+- `win_chance = 100 - umbral` (si "mayor que") o `= umbral` (si "menor que").
+- `multiplicador = 99 / win_chance` (el 99 en vez de 100 ya incorpora el 1%
+  de margen).
+- Pago si gana: `apuesta * multiplicador`. Si pierde, pierde la apuesta.
+
+### Mines
+
+Grid configurable (default 5×5 = 25 casillas) con N minas ocultas (default
+3, configurable 1-24). Jugador aporta apuesta y empieza a revelar casillas
+una a una. Cada casilla segura revelada sube el multiplicador acumulado;
+puede retirarse ("cash out") en cualquier momento y cobrar
+`apuesta * multiplicador_actual`. Si revela una mina, pierde la apuesta y
+la ronda termina.
+
+- Multiplicador tras revelar `k` casillas seguras, con `T` casillas totales
+  y `M` minas: `mult(k) = 0.99 * C(T, k) / C(T - M, k)` (combinatorio,
+  probabilidad justa de sobrevivir k revelados, con el 1% de margen
+  aplicado como factor).
+- El host decide las posiciones de las minas al empezar la ronda (RNG del
+  host, no se revela al cliente hasta game over o cash-out).
+
+### Crash
+
+Un multiplicador empieza en 1.00x y sube con el tiempo (curva exponencial).
+Jugador apuesta antes de que arranque la ronda; puede pulsar "retirar" en
+cualquier momento mientras sube para cobrar `apuesta * multiplicador_actual`.
+Si no se retira antes de que la ronda "explote", pierde la apuesta.
+
+- Punto de explosión decidido por el host al arrancar la ronda (no
+  incremental/adivinable):
+  `r = randf()` (uniforme 0-1, evitar r=0);
+  `crash_point = max(1.00, floor(100 * 0.99 / (1 - r)) / 100)`.
+- Curva de subida: `multiplicador_actual(t) = 1.00 + growth_rate * t^2` (t en
+  segundos desde el inicio de la ronda); `growth_rate` es una constante de
+  diseño (no fijada aún — el Agente 8/9 la ajusta para que una ronda típica
+  dure entre 3 y 15 segundos antes de explotar en el rango medio de
+  multiplicadores).
+- Cliente ve el multiplicador subir en tiempo real (broadcast periódico del
+  host o extrapolación local desde el timestamp de inicio); el host es la
+  única autoridad sobre cuándo "explota".
+
+### Plinko
+
+Bola cae desde arriba por un tablero de clavijas con `rows` filas
+(default 12, configurable). En cada fila rebota a izquierda o derecha con
+50/50 de probabilidad. Cae en uno de `rows + 1` slots al fondo, cada uno
+con un multiplicador fijo — los slots centrales pagan menos de 1x, los de
+los extremos pagan mucho más (curva simétrica tipo binomial invertida).
+
+- El host tira `rows` bits aleatorios (izquierda/derecha) y determina el
+  slot final = número de rebotes a la derecha (0..rows).
+- Tabla de multiplicadores por slot: distribución binomial invertida
+  normalizada a 0.99 de retorno esperado total — el Agente responsable la
+  calcula (no hay tabla fija todavía; debe verificar con su test que el
+  retorno esperado da ~99%).
+- No hace falta simular física real de la bola — solo el resultado final
+  (slot) importa para el pago; la animación de caída es puramente visual y
+  puede ser aproximada.
+
+## Fuera de alcance (v1 / v1.1)
 
 - Persistencia de progreso entre partidas.
 - Migración de host tras desconexión.
-- Juegos más allá de blackjack, ruleta y póker.
+- Juegos más allá de blackjack, ruleta, póker, dice, crash, mines y plinko.
 - Servidor dedicado / relay propio (sustituido por Steam Networking).
+- "Provably fair" verificable por el cliente (seeds firmados, hash previo)
+  — no hace falta sin dinero real; el RNG del host basta.
