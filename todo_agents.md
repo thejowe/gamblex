@@ -54,9 +54,9 @@ sesión pilar para evitar conflictos entre ramas.
 | 6 | `plan6-poker` | Módulo Póker | `feature/poker` (mergeado) | ✅ Completado, mergeado a `main` |
 | 7 | `plan7-freemode` | Modo libre: meta colectiva de grupo | `main` (directo, sin rama) | ✅ Completado, ya en `main` |
 | 8 | `plan8-dice` | Dice + define la interfaz base de "ronda independiente por jugador" | `feature/dice` (mergeado) | ✅ Completado, mergeado a `main` (`dad6f7c`) |
-| 9 | `plan9-crash` | Crash: multiplicador creciente + cash-out | `feature/crash` | 🟢 Desbloqueado, listo para arrancar |
-| 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` | 🟢 Desbloqueado, listo para arrancar |
-| 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` | 🟢 Desbloqueado, listo para arrancar |
+| 9 | `plan9-crash` | Crash: multiplicador creciente + cash-out | `feature/crash` (mergeado) | ✅ Completado, mergeado a `main` |
+| 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` (mergeado) | ✅ Completado, mergeado a `main` |
+| 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` (mergeado) | ✅ Completado, mergeado a `main` |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -191,6 +191,52 @@ documentado en `docs/superpowers/plans/2026-08-19-dice.md` (sección final
 (`scripts/dice/dice_roller.gd`, `scripts/dice/dice_table_state.gd`,
 `scripts/net/dice_table_controller.gd`), para que ningún agente tenga que
 preguntarle a pilar el nombre exacto de la interfaz.
+
+## Merge de Planes 9-11 (2026-08-20)
+
+Autorizado por el usuario tras confirmar que las tres sesiones habían
+terminado. Orden de merge: Crash → Mines → Plinko (mismo `main` como punto
+de partida para los tres). Cada uno con conflicto textual esperado en
+`scenes/casino_floor.tscn`/`scripts/net/casino_floor.gd` (mismo patrón que
+Planes 4-7 y el propio Dice: cada agente añadió su mesa sin ver a los
+demás). Resuelto apilando verticalmente: Dice (1100-1400) → Crash
+(1420-1720) → Mines (1740-2180) → Plinko (2200-2520) → labels de meta
+colectiva/batalla (2540-2610). `project.godot` `viewport_height` subido a
+`2650` para que quepa todo (Plinko lo había subido a 1850 solo para su
+propia vista aislada). Sin verificar visualmente en el editor — igual que
+el merge de Planes 4-7, alguien con Godot a mano debería confirmar que las
+7 mesas no se solapan antes de darlo por bueno.
+
+**Choque de checkout compartido detectado durante esta sesión:** las
+sesiones de Mines y Plinko trabajaron un rato directo en el checkout
+compartido (la carpeta raíz del repo) en vez de en worktrees aislados como
+Crash sí hizo — se encontraron archivos de ambos agentes mezclados sin
+commitear en la misma carpeta a la vez. Ambos terminaron migrando/
+commiteando correctamente a sus propias ramas y worktrees (Plinko en
+`.claude/worktrees/feature+plinko`) antes de que se perdiera nada, pero fue
+suerte de timing, no diseño. **Para la próxima tanda de agentes en
+paralelo: exigir worktree aislado desde el primer commit**, no dejar que
+ningún agente toque el checkout compartido de la sesión pilar.
+
+Housekeeping tras el merge: se commitearon los planes de Crash/Mines que
+los agentes habían dejado sin commitear (`docs: add Crash (Plan 9)
+implementation plan`, ya incluido en el merge de Mines para el suyo), se
+pushearon las tres ramas a origin (ninguna estaba pusheada todavía), y se
+borraron los worktrees de `feature+crash`/`feature+plinko` ya mergeados
+(`git worktree remove`). El de `feature+plinko` no se pudo borrar del
+disco del todo (`Permission denied` — probablemente un proceso con el
+directorio abierto, p.ej. Godot); ya está desregistrado de `git worktree
+list`, solo queda basura física en
+`.claude/worktrees/feature+plinko/` que alguien puede borrar a mano cuando
+cierre lo que lo tenga bloqueado.
+
+**Estado del roadmap:** con esto, los Planes 1-11 (toda la "Ampliación
+v1.1" incluida) están mergeados en `main`. No hay más agentes definidos en
+este documento — si el usuario quiere ampliar el casino más allá de Dice/
+Crash/Mines/Plinko, hace falta decidir el alcance antes de crear un Plan
+12. Pendiente de siempre (no es nuevo): la DLL de GodotSteam rota en esta
+máquina sigue bloqueando probar una partida real con Steam multijugador —
+ver sección "Bloqueador de entorno" arriba.
 
 ## Ampliación v1.1: Dice/Crash/Mines/Plinko (2026-08-19)
 
