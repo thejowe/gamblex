@@ -15,13 +15,18 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Casino Pixel"
-run/main_scene="res://scenes/blackjack_table.tscn"
+run/main_scene="res://scenes/casino_floor.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]
 
 SteamManager="*res://autoloads/steam_manager.gd"
 NetworkManager="*res://autoloads/network_manager.gd"
+
+[display]
+
+window/size/viewport_width=900
+window/size/viewport_height=1250
 
 [editor_plugins]
 
