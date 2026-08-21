@@ -57,7 +57,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 9 | `plan9-crash` | Crash: multiplicador creciente + cash-out | `feature/crash` (mergeado) | ✅ Completado, mergeado a `main` |
 | 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` (mergeado) | ✅ Completado, mergeado a `main` |
 | 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` (mergeado) | ✅ Completado, mergeado a `main` |
-| 12 | `plan12-lobby` | Lobby de selección de juego: rejilla de 7 tarjetas, sala aislada por jugador, HUD persistente | `feature/lobby` | 🟢 Desbloqueado, listo para arrancar |
+| 12 | `plan12-lobby` | Lobby de selección de juego: rejilla de 7 tarjetas, sala aislada por jugador, HUD persistente | `feature/lobby` (mergeado) | ✅ Completado, mergeado a `main` (`81dd979`) |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -118,6 +118,28 @@ repitió el test headless — `steamInitEx` devuelve `status 0`:
 GodotSteam funciona en esta máquina siempre que Steam esté corriendo antes
 de lanzar el proyecto. **Bloqueador de entorno cerrado.** Sigue pendiente
 el playtest real con 2 clientes (necesita segunda cuenta Steam), ver abajo.
+
+**Nota aparte, no confundir con lo anterior:** el binario custom
+`godotsteam.multiplayerpeer.451...` (usado desde el Agente 8/Dice para
+correr GUT porque en su momento no había Godot estándar a mano) **sí**
+tiene su propio Error 127 al cargar `libgodotsteam...dll` — reproducible
+siempre, en cualquier checkout. No bloquea nada porque el Godot estándar
+4.7.1 (`/c/Users/Usuari/tools/godot/Godot_v4.7.1-stable_win64_console.exe`)
+no tiene ese problema — úsalo para tests desde ahora en vez del binario
+custom.
+
+**Gotcha real (2026-08-20, merge de Plan 12):** tras un `git merge` que
+trae clases nuevas con `class_name` (p.ej. `LobbyController`,
+`CrashRoller`...), correr `--headless --quit` con GUT directamente puede
+fallar a resolverlas ("Identifier X not declared in the current scope")
+porque `.godot/global_script_class_cache.cfg` no se ha reconstruido — GUT
+entonces **descarta esos scripts de test silenciosamente** ("Ignoring
+script... because it does not extend GutTest") y sigue diciendo "All tests
+passed" con menos tests de los que hay (168 en vez de 211, sin fallar la
+suite). Antes de fiarte de un run de tests tras un merge: correr primero
+`godot --headless --editor --quit --path .` (fuerza el rescan completo del
+proyecto), y solo entonces correr GUT. Ya verificado así en el merge de
+Plan 12: 211/211 reales.
 
 <details>
 <summary>Nota original (obsoleta, se deja para historial)</summary>
