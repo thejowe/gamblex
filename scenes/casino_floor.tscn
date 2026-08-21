@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/net/casino_floor.gd" id="2"]
@@ -10,6 +10,30 @@
 [ext_resource type="PackedScene" path="res://scenes/mines_table_net.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/plinko_table_net.tscn" id="9"]
 
+[sub_resource type="StyleBoxFlat" id="CardNormal"]
+bg_color = Color(0.043, 0.184, 0.098, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.816, 0.663, 0.176, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="CardHover"]
+bg_color = Color(0.098, 0.298, 0.153, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.816, 0.663, 0.176, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [node name="CasinoFloor" type="Node2D"]
 script = ExtResource("2")
 
@@ -17,59 +41,161 @@ script = ExtResource("2")
 script = ExtResource("5")
 
 [node name="BlackjackTableNet" parent="." instance=ExtResource("1")]
-anchor_bottom = 0.0
-offset_top = 0.0
-offset_bottom = 300.0
+visible = false
 
 [node name="RouletteTableNet" parent="." instance=ExtResource("3")]
-anchor_bottom = 0.0
-offset_top = 320.0
-offset_bottom = 640.0
+visible = false
 
 [node name="PokerTableNet" parent="." instance=ExtResource("4")]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
 offset_left = 0.0
-offset_top = 660.0
-offset_right = 900.0
-offset_bottom = 1080.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="DiceTableNet" parent="." instance=ExtResource("6")]
-anchor_bottom = 0.0
-offset_top = 1100.0
-offset_bottom = 1400.0
+visible = false
 
 [node name="CrashTableNet" parent="." instance=ExtResource("7")]
-anchor_bottom = 0.0
-offset_top = 1420.0
-offset_bottom = 1720.0
+visible = false
 
 [node name="MinesTableNet" parent="." instance=ExtResource("8")]
-anchor_bottom = 0.0
-offset_top = 1740.0
-offset_bottom = 2180.0
+visible = false
 
 [node name="PlinkoTableNet" parent="." instance=ExtResource("9")]
-anchor_bottom = 0.0
-offset_top = 2200.0
-offset_bottom = 2520.0
+visible = false
 
-[node name="GoalLabel" type="Label" parent="."]
+[node name="Lobby" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="Lobby"]
+layout_mode = 0
 offset_left = 20.0
-offset_top = 2540.0
+offset_top = 20.0
+offset_right = 880.0
+offset_bottom = 60.0
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
+horizontal_alignment = 1
+text = "Casino — elige tu mesa"
+
+[node name="CardGrid" type="GridContainer" parent="Lobby"]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 130.0
+offset_right = 840.0
+offset_bottom = 900.0
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+columns = 2
+
+[node name="BlackjackCard" type="Button" parent="Lobby/CardGrid"]
+custom_minimum_size = Vector2(380, 160)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
+theme_override_styles/normal = SubResource("CardNormal")
+theme_override_styles/hover = SubResource("CardHover")
+theme_override_styles/pressed = SubResource("CardHover")
+text = "Blackjack"
+
+[node name="RouletteCard" type="Button" parent="Lobby/CardGrid"]
+custom_minimum_size = Vector2(380, 160)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
+theme_override_styles/normal = SubResource("CardNormal")
+theme_override_styles/hover = SubResource("CardHover")
+theme_override_styles/pressed = SubResource("CardHover")
+text = "Ruleta"
+
+[node name="PokerCard" type="Button" parent="Lobby/CardGrid"]
+custom_minimum_size = Vector2(380, 160)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
+theme_override_styles/normal = SubResource("CardNormal")
+theme_override_styles/hover = SubResource("CardHover")
+theme_override_styles/pressed = SubResource("CardHover")
+text = "Póker"
+
+[node name="DiceCard" type="Button" parent="Lobby/CardGrid"]
+custom_minimum_size = Vector2(380, 160)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
+theme_override_styles/normal = SubResource("CardNormal")
+theme_override_styles/hover = SubResource("CardHover")
+theme_override_styles/pressed = SubResource("CardHover")
+text = "Dice"
+
+[node name="CrashCard" type="Button" parent="Lobby/CardGrid"]
+custom_minimum_size = Vector2(380, 160)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
+theme_override_styles/normal = SubResource("CardNormal")
+theme_override_styles/hover = SubResource("CardHover")
+theme_override_styles/pressed = SubResource("CardHover")
+text = "Crash"
+
+[node name="MinesCard" type="Button" parent="Lobby/CardGrid"]
+custom_minimum_size = Vector2(380, 160)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
+theme_override_styles/normal = SubResource("CardNormal")
+theme_override_styles/hover = SubResource("CardHover")
+theme_override_styles/pressed = SubResource("CardHover")
+text = "Mines"
+
+[node name="PlinkoCard" type="Button" parent="Lobby/CardGrid"]
+custom_minimum_size = Vector2(380, 160)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
+theme_override_styles/normal = SubResource("CardNormal")
+theme_override_styles/hover = SubResource("CardHover")
+theme_override_styles/pressed = SubResource("CardHover")
+text = "Plinko"
+
+[node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="GoalLabel" type="Label" parent="Hud"]
+offset_left = 20.0
+offset_top = 10.0
 offset_right = 700.0
-offset_bottom = 2564.0
+offset_bottom = 34.0
 text = "Meta colectiva: 0 / 1000 fichas"
 
-[node name="UnlockedBanner" type="Label" parent="."]
+[node name="UnlockedBanner" type="Label" parent="Hud"]
 offset_left = 20.0
-offset_top = 2576.0
+offset_top = 38.0
 offset_right = 700.0
-offset_bottom = 2610.0
+offset_bottom = 62.0
 text = "¡Meta colectiva alcanzada! Nueva mesa desbloqueada."
 visible = false
 
-[node name="BattleStatusLabel" type="Label" parent="."]
+[node name="BattleStatusLabel" type="Label" parent="Hud"]
 offset_left = 20.0
-offset_top = 2540.0
+offset_top = 10.0
 offset_right = 700.0
-offset_bottom = 2610.0
+offset_bottom = 80.0
 text = "Equipos: —"
+
+[node name="BackButton" type="Button" parent="Hud"]
+offset_left = 20.0
+offset_top = 90.0
+offset_right = 260.0
+offset_bottom = 130.0
+text = "‹ Volver al lobby"
+visible = false
