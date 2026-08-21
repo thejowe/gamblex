@@ -103,12 +103,31 @@ la DLL de GodotSteam rota, ver abajo) — el gotcha del self-RPC en
 `BattleController`/`CasinoFloor` está mitigado en el código pero no
 verificado en vivo.
 
+**Actualización 2026-08-20 (sesión pilar):** el "Error 127 / DLL no carga"
+de más abajo **no reprodujo**. Se encontró Godot estándar ya instalado en
+esta máquina (`/c/Users/Usuari/tools/godot/Godot_v4.7.1-stable_win64_console.exe`,
+coincide con `config/features` de `project.godot`). Corriendo el proyecto
+headless con ese binario, el GDExtension de GodotSteam **carga sin error**;
+el único fallo es `Steam init failed (2): Cannot create IPC pipe to Steam
+client process` — error normal de Steamworks (cliente no corriendo), no un
+fallo de carga de librería. Steam está instalado en la máquina
+(`C:\Program Files (x86)\Steam`) pero no estaba corriendo en el momento del
+test. **Nuevo blocker, mucho más simple:** abrir Steam con sesión iniciada
+antes de correr el proyecto. Nadie ha confirmado todavía `steamInitEx`
+devolviendo `status 0` en esta máquina — pendiente de que el usuario abra
+Steam y se repita el test.
+
+<details>
+<summary>Nota original (obsoleta, se deja para historial)</summary>
+
 **Bloqueador de entorno, no de código:** la GDExtension de GodotSteam
 (`addons/godotsteam/win64/libgodotsteam.windows.template_debug.x86_64.dll`)
 no carga en esta máquina — `Error 127` al abrir la librería dinámica. Nadie
 lo ha investigado a fondo todavía. Bloquea probar Steam/multijugador real
 hasta que se arregle (probable dependencia nativa faltante o mismatch de
 build). No lo causó ningún merge de esta sesión.
+
+</details>
 
 Cada archivo `.claude/agents/planN-*.md` ya contiene: qué construye
 exactamente, si el plan detallado ya está escrito (Plan 1 y 2) o si el
