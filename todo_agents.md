@@ -112,10 +112,12 @@ el único fallo es `Steam init failed (2): Cannot create IPC pipe to Steam
 client process` — error normal de Steamworks (cliente no corriendo), no un
 fallo de carga de librería. Steam está instalado en la máquina
 (`C:\Program Files (x86)\Steam`) pero no estaba corriendo en el momento del
-test. **Nuevo blocker, mucho más simple:** abrir Steam con sesión iniciada
-antes de correr el proyecto. Nadie ha confirmado todavía `steamInitEx`
-devolviendo `status 0` en esta máquina — pendiente de que el usuario abra
-Steam y se repita el test.
+test. **Resuelto (2026-08-20, mismo día):** usuario abrió Steam logueado, se
+repitió el test headless — `steamInitEx` devuelve `status 0`:
+`Steam initialized OK for user: Jowe el vende trufas (76561199230221215)`.
+GodotSteam funciona en esta máquina siempre que Steam esté corriendo antes
+de lanzar el proyecto. **Bloqueador de entorno cerrado.** Sigue pendiente
+el playtest real con 2 clientes (necesita segunda cuenta Steam), ver abajo.
 
 <details>
 <summary>Nota original (obsoleta, se deja para historial)</summary>
