@@ -45,7 +45,11 @@ func _on_lobby_created(connect_result: int, lobby_id: int) -> void:
 		lobby_join_failed.emit("No se pudo crear el lobby (código %d)" % connect_result)
 		return
 	current_lobby_id = lobby_id
+	Steam.setLobbyData(lobby_id, "match_type", str(chosen_match_type))
 	lobby_ready.emit(lobby_id, true)
+
+static func parse_match_type(raw: String) -> int:
+	return int(raw) if not raw.is_empty() else -1
 
 func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response: int) -> void:
 	if response != Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
@@ -56,4 +60,5 @@ func _on_lobby_joined(lobby_id: int, _permissions: int, _locked: bool, response:
 		# (crearla implica entrar en ella) — _on_lobby_created ya emitió lobby_ready.
 		return
 	current_lobby_id = lobby_id
+	chosen_match_type = parse_match_type(Steam.getLobbyData(lobby_id, "match_type"))
 	lobby_ready.emit(lobby_id, Steam.getLobbyOwner(lobby_id) == steam_id)

@@ -25,6 +25,7 @@ static func _comb(n: int, k: int) -> int:
 	k = min(k, n - k)
 	var result := 1
 	for i in range(k):
+		@warning_ignore("integer_division")
 		result = result * (n - i) / (i + 1)
 	return result
 
