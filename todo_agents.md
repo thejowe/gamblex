@@ -189,6 +189,25 @@ Sigue pendiente el playtest real de 2 clientes para confirmar que el fix
 funciona en vivo (host ya no crashea, invitado se une al pozo de equipo,
 puede sentarse) y si el freeze de tarjetas de A desaparece con esto.
 
+**Bug de resolución encontrado en vivo (2026-08-21, sesión B, portátil
+tope vertical 680px):** `project.godot` no tenía `window/stretch/mode` —
+ventana fija 900x1080 sin reescalar. `BackButton` en `casino_floor.tscn`
+(offset_top=1005, sin anchor al fondo) quedaba fuera del área visible en
+pantallas más bajas. Fix aplicado directo por esta sesión pilar (config de
+motor, no lógica de juego, `4626fc0`): `window/size/window_height_override
+=680` + `window/stretch/mode="canvas_items"` + `window/stretch/aspect=
+"keep"` — reescala toda la UI proporcionalmente en vez de recortarla.
+Verificado solo con carga headless (sin error de parseo); **falta
+confirmar visualmente en la sesión B** que el BackButton ya se ve.
+
+**Gotcha ampliado (antes solo se había visto con `--editor`):** correr
+`godot --headless --path . --quit` (sin `--editor`) en el checkout
+compartido también reformateó espacios→tabs en `scripts/net/casino_floor.gd`
+y `scripts/poker/poker_table_state.gd` sin tocarlos. Descartado con
+`git checkout --` antes de commitear. Cualquier invocación de Godot en el
+checkout compartido de pilar puede ensuciar `git status` — revisar
+siempre antes de comitear, no asumir que solo pasa con `--editor`.
+
 Cada archivo `.claude/agents/planN-*.md` ya contiene: qué construye
 exactamente, si el plan detallado ya está escrito (Plan 1 y 2) o si el
 agente tiene que escribirlo él mismo con `superpowers:writing-plans` (Plan 3
