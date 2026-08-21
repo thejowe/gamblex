@@ -197,8 +197,18 @@ pantallas más bajas. Fix aplicado directo por esta sesión pilar (config de
 motor, no lógica de juego, `4626fc0`): `window/size/window_height_override
 =680` + `window/stretch/mode="canvas_items"` + `window/stretch/aspect=
 "keep"` — reescala toda la UI proporcionalmente en vez de recortarla.
-Verificado solo con carga headless (sin error de parseo); **falta
-confirmar visualmente en la sesión B** que el BackButton ya se ve.
+**Corrección (mismo día, feedback del usuario):** el `window_height_override
+=680` era un parche solo para ese portátil, no adaptaba a cualquier
+resolución. Reemplazado (`f806619`) por `window/size/mode=2` (maximizado)
+— la ventana arranca ocupando lo que el SO le dé en cualquier pantalla, y
+`canvas_items`+`keep` sigue escalando el diseño 900x1080 proporcionalmente,
+en el arranque y en cualquier resize posterior. **Límite conocido:**
+escalado proporcional con letterbox (barras negras), no reflow por control
+— pantallas con aspect ratio muy distinto a 900x1080 verán barras en vez de
+que la UI se reacomode. Reflow real necesitaría retocar anchors escena por
+escena (fuera de alcance de este fix). Verificado solo con carga headless
+(sin error de parseo); **falta confirmar visualmente en la sesión B** que
+el BackButton ya se ve y que la ventana ocupa la pantalla disponible.
 
 **Gotcha ampliado (antes solo se había visto con `--editor`):** correr
 `godot --headless --path . --quit` (sin `--editor`) en el checkout
