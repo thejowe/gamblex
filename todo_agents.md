@@ -58,7 +58,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` (mergeado) | ✅ Completado, mergeado a `main` |
 | 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` (mergeado) | ✅ Completado, mergeado a `main` |
 | 12 | `plan12-lobby` | Lobby de selección de juego: rejilla de 7 tarjetas, sala aislada por jugador, HUD persistente | `feature/lobby` (mergeado) | ✅ Completado, mergeado a `main` (`81dd979`) |
-| 13 | `plan13-battle-sync-fix` | Fix: `chosen_match_type` nunca se sincroniza host→invitado, rompe modo batalla en vivo (bug real de playtest) | `feature/battle-sync-fix` | 🟢 Desbloqueado, listo para arrancar |
+| 13 | `plan13-battle-sync-fix` | Fix: `chosen_match_type` nunca se sincroniza host→invitado, rompe modo batalla en vivo (bug real de playtest) | `feature/battle-sync-fix` (mergeado) | ✅ Completado, mergeado a `main` (`406d914`) |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -170,6 +170,24 @@ sin dependencias pendientes.
 **Sin confirmar todavía, aparte:** por qué la sesión A (host) no podía
 pulsar ninguna tarjeta del lobby. Puede ser síntoma del mismo crash o un
 bug aparte — repetir tras el fix de Agente 13 antes de seguir investigando.
+
+**Merge de Agente 13 (2026-08-20):** hecho, sin conflictos. Diff exacto al
+plan: `Steam.setLobbyData`/`getLobbyData` en `steam_manager.gd`,
+`parse_match_type` + 4 tests, warning de Plinko silenciado. 215/215 tests
+tras reconstruir caché de clases. **Gotcha nuevo descubierto en esta
+verificación:** correr `godot --headless --editor --quit --path .`
+directo sobre el checkout de `main` (no en un worktree) hace que el editor
+re-guarde algunos `.gd` abiertos reformateando indentación (espacios↔tabs),
+ensuciando `git status` sin cambio de contenido real — pasó dos veces
+seguidas con `casino_floor.gd` y `poker_table_state.gd`. Se descartó con
+`git checkout --` antes de pushear las dos veces. Para la próxima sesión:
+si necesitas reconstruir la caché de clases tras un merge, hazlo, pero
+revisa `git status` después y descarta cualquier reformateo antes de
+comitear — no es parte del trabajo del agente.
+
+Sigue pendiente el playtest real de 2 clientes para confirmar que el fix
+funciona en vivo (host ya no crashea, invitado se une al pozo de equipo,
+puede sentarse) y si el freeze de tarjetas de A desaparece con esto.
 
 Cada archivo `.claude/agents/planN-*.md` ya contiene: qué construye
 exactamente, si el plan detallado ya está escrito (Plan 1 y 2) o si el
