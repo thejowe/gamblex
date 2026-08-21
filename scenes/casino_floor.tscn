@@ -172,30 +172,30 @@ text = "Plinko"
 
 [node name="GoalLabel" type="Label" parent="Hud"]
 offset_left = 20.0
-offset_top = 10.0
+offset_top = 1000.0
 offset_right = 700.0
-offset_bottom = 34.0
+offset_bottom = 1024.0
 text = "Meta colectiva: 0 / 1000 fichas"
 
 [node name="UnlockedBanner" type="Label" parent="Hud"]
 offset_left = 20.0
-offset_top = 38.0
+offset_top = 1028.0
 offset_right = 700.0
-offset_bottom = 62.0
+offset_bottom = 1052.0
 text = "¡Meta colectiva alcanzada! Nueva mesa desbloqueada."
 visible = false
 
 [node name="BattleStatusLabel" type="Label" parent="Hud"]
 offset_left = 20.0
-offset_top = 10.0
+offset_top = 990.0
 offset_right = 700.0
-offset_bottom = 80.0
+offset_bottom = 1060.0
 text = "Equipos: —"
 
 [node name="BackButton" type="Button" parent="Hud"]
-offset_left = 20.0
-offset_top = 90.0
-offset_right = 260.0
-offset_bottom = 130.0
+offset_left = 660.0
+offset_top = 10.0
+offset_right = 880.0
+offset_bottom = 50.0
 text = "‹ Volver al lobby"
 visible = false
