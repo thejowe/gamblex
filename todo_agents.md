@@ -58,6 +58,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 10 | `plan10-mines` | Mines: grid con minas + cash-out progresivo | `feature/mines` (mergeado) | ✅ Completado, mergeado a `main` |
 | 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` (mergeado) | ✅ Completado, mergeado a `main` |
 | 12 | `plan12-lobby` | Lobby de selección de juego: rejilla de 7 tarjetas, sala aislada por jugador, HUD persistente | `feature/lobby` (mergeado) | ✅ Completado, mergeado a `main` (`81dd979`) |
+| 13 | `plan13-battle-sync-fix` | Fix: `chosen_match_type` nunca se sincroniza host→invitado, rompe modo batalla en vivo (bug real de playtest) | `feature/battle-sync-fix` | 🟢 Desbloqueado, listo para arrancar |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -152,6 +153,23 @@ hasta que se arregle (probable dependencia nativa faltante o mismatch de
 build). No lo causó ningún merge de esta sesión.
 
 </details>
+
+## Bug real de playtest — Agente 13 (2026-08-20)
+
+Primer playtest real con 2 cuentas Steam (1v1) tras cerrar Plan 12 encontró
+un bug de código genuino, no de entorno: `SteamManager.chosen_match_type`
+solo se pone en el cliente del host (`LobbyMenu._on_create_pressed`),
+nunca se comunica al invitado. El invitado se queda pensando que está en
+modo libre, nunca se une al pozo de equipo, y el host explota
+(`goal.to_dict()` sobre `Nil`) cuando el invitado pide el estado de la
+meta colectiva equivocada. Diagnóstico completo, causa raíz y fix ya
+escritos en `docs/superpowers/plans/2026-08-20-battle-mode-sync-fix.md` y
+en `.claude/agents/plan13-battle-sync-fix.md` — Agente 13 desbloqueado,
+sin dependencias pendientes.
+
+**Sin confirmar todavía, aparte:** por qué la sesión A (host) no podía
+pulsar ninguna tarjeta del lobby. Puede ser síntoma del mismo crash o un
+bug aparte — repetir tras el fix de Agente 13 antes de seguir investigando.
 
 Cada archivo `.claude/agents/planN-*.md` ya contiene: qué construye
 exactamente, si el plan detallado ya está escrito (Plan 1 y 2) o si el
