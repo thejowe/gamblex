@@ -206,9 +206,9 @@ en el arranque y en cualquier resize posterior. **Límite conocido:**
 escalado proporcional con letterbox (barras negras), no reflow por control
 — pantallas con aspect ratio muy distinto a 900x1080 verán barras en vez de
 que la UI se reacomode. Reflow real necesitaría retocar anchors escena por
-escena (fuera de alcance de este fix). Verificado solo con carga headless
-(sin error de parseo); **falta confirmar visualmente en la sesión B** que
-el BackButton ya se ve y que la ventana ocupa la pantalla disponible.
+escena (fuera de alcance de este fix). **Confirmado visualmente por el
+usuario en sesión B (2026-08-21):** ventana maximiza, BackButton se ve.
+Fix cerrado.
 
 **Gotcha ampliado (antes solo se había visto con `--editor`):** correr
 `godot --headless --path . --quit` (sin `--editor`) en el checkout
