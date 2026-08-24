@@ -19,7 +19,13 @@ var active_seat_index: int = -1
 var round_active: bool = false
 
 func _init(p_deck: Deck = null) -> void:
-    deck = p_deck if p_deck else Deck.new()
+    if p_deck:
+        deck = p_deck
+    else:
+        deck = Deck.new()
+        var rng := RandomNumberGenerator.new()
+        rng.randomize()
+        deck.shuffle_deck(rng)
     for i in range(SEAT_COUNT):
         seats.append(null)
 
