@@ -59,6 +59,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` (mergeado) | ✅ Completado, mergeado a `main` |
 | 12 | `plan12-lobby` | Lobby de selección de juego: rejilla de 7 tarjetas, sala aislada por jugador, HUD persistente | `feature/lobby` (mergeado) | ✅ Completado, mergeado a `main` (`81dd979`) |
 | 13 | `plan13-battle-sync-fix` | Fix: `chosen_match_type` nunca se sincroniza host→invitado, rompe modo batalla en vivo (bug real de playtest) | `feature/battle-sync-fix` (mergeado) | ✅ Completado, mergeado a `main` (`406d914`) |
+| 14 | `plan14-casino-visual` | Fundación visual de casino (tapete/fichas/cartas/botones/HUD dibujados por código) + reskin completo de Blackjack con animación de reparto/apuesta/victoria | `feature/casino-visual-blackjack` | 🟢 Desbloqueado, spec y plan ya escritos |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -238,6 +239,13 @@ del reporte que te tiene que dar al terminar.
    Vuelve a esta sesión pilar cuando cada uno termine para que te diga cómo
    mergear sin conflictos entre sí (los tres van a tocar `casino_floor.tscn`
    sin verse — mismo patrón de conflicto esperado que Planes 4-7).
+6. ~~Agentes `plan12-lobby`, `plan13-battle-sync-fix`~~ ✅ — ver tabla.
+7. Agente `plan14-casino-visual` — **DESBLOQUEADO.** Ampliación v1.3 (ver
+   sección abajo), spec y plan ya escritos por la sesión pilar. Fase 1 de
+   varias: fundación visual compartida + Blackjack completo. Las demás
+   mesas se reskinarán una por una en fases posteriores (plan15+),
+   reutilizando `scripts/ui/casino/`, con referencias que el usuario irá
+   aportando por juego.
 
 ## Verificación de Agente 8 — Dice (2026-08-20, hecha por esta sesión pilar)
 
@@ -344,6 +352,40 @@ v1.1" incluida) están mergeados en `main`. Pendiente de siempre (no es
 nuevo): la DLL de GodotSteam rota en esta máquina sigue bloqueando probar
 una partida real con Steam multijugador — ver sección "Bloqueador de
 entorno" arriba.
+
+## Ampliación v1.3: fundación visual de casino + Blackjack (2026-08-23)
+
+El usuario pidió pasar de la UI funcional-pero-en-blanco (Labels/Buttons
+por defecto de Godot en las 7 mesas) a una estética básica pero intencional
+de casino online, con animación — el pixel art final queda para una fase
+futura separada. Aportó una referencia real (Evolution Gaming "First
+Person Blackjack"), guardada en
+`docs/superpowers/specs/references/blackjack-evolution-reference.png`.
+
+Decisiones tomadas con el usuario (detalle completo en el spec
+`docs/superpowers/specs/2026-08-23-casino-visual-blackjack-design.md`):
+
+- **Sin pipeline de arte**: todo el look se logra con dibujo procedural de
+  Godot (`_draw()`, `StyleBoxFlat`, `Tween`) — cero archivos de imagen.
+  Decisión del usuario, dejando la puerta abierta a mandar fotos de
+  referencia si procedural no basta.
+- **Fundación compartida primero**: componentes en `scripts/ui/casino/` /
+  `scenes/ui/casino/` (tapete, ficha, carta, botón, HUD), pensados desde el
+  principio para las 7 mesas, aplicados por completo a Blackjack en esta
+  fase.
+- **Animación completa ya en esta fase**: reparto de cartas con
+  movimiento, fichas volando a la apuesta, flash+confeti de victoria,
+  hover/press en botones.
+- Único cambio fuera de la capa visual: `BlackjackTableState.to_dict()`
+  gana `hand`/`dealer_hand` (cartas reales, mismo patrón que ya usa
+  `poker_table_state.to_dict()`) — aditivo, ninguna función de
+  apuesta/turno/pago cambia.
+
+Creado `plan14-casino-visual`, desbloqueado, spec y plan de implementación
+completos (10 tareas con TDD, código GDScript incluido) ya escritos por
+esta sesión pilar. Fuera de alcance explícito: reskin de las otras 6
+mesas (fases posteriores, un agente por mesa reutilizando estos
+componentes), Double/Split reales, sonido, pixel art final.
 
 ## Ampliación v1.2: Lobby de selección de juego (2026-08-20)
 
