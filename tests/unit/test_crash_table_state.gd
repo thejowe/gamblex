@@ -125,3 +125,14 @@ func test_to_dict_reveals_crash_point_after_round_resolves():
 	assert_false(data["players"][111]["is_active"])
 	assert_eq(data["players"][111]["last_round"]["crash_point"], 2.00)
 	assert_eq(data["players"][111]["last_round"]["win"], false)
+
+func test_place_bet_uses_external_ledger_for_new_player():
+	var table = CrashTableState.new()
+	var shared := ChipLedger.new(500)
+	table.place_bet(111, 100, shared)
+	assert_eq(shared.balance, 400)
+
+func test_place_bet_creates_individual_ledger_when_no_external_ledger_given():
+	var table = CrashTableState.new()
+	table.place_bet(111, 100)
+	assert_eq(table.players[111].ledger.balance, 400)

@@ -24,20 +24,20 @@ static func multiplier(total_cells: int, mine_count: int, revealed_count: int) -
 		result *= float(total_cells - i) / float(total_cells - mine_count - i)
 	return 0.99 * result
 
-func _player_for(player_id: int) -> Player:
+func _player_for(player_id: int, external_ledger: ChipLedger = null) -> Player:
 	if not players.has(player_id):
 		var player := Player.new()
 		player.player_id = player_id
-		player.ledger = ChipLedger.new(STARTING_BALANCE)
+		player.ledger = external_ledger if external_ledger != null else ChipLedger.new(STARTING_BALANCE)
 		players[player_id] = player
 	return players[player_id]
 
-func start_round(player_id: int, total_cells: int, mine_count: int, amount: int) -> bool:
+func start_round(player_id: int, total_cells: int, mine_count: int, amount: int, external_ledger: ChipLedger = null) -> bool:
 	if total_cells < 2 or total_cells > MAX_CELLS:
 		return false
 	if mine_count < 1 or mine_count >= total_cells:
 		return false
-	var player := _player_for(player_id)
+	var player := _player_for(player_id, external_ledger)
 	if not player.active_round.is_empty():
 		return false
 	if not player.ledger.place_bet(amount):

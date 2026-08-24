@@ -34,7 +34,7 @@ func _init(p_deck: Deck = null) -> void:
     for i in range(SEAT_COUNT):
         seats.append(null)
 
-func sit(seat_index: int, player_id: int) -> bool:
+func sit(seat_index: int, player_id: int, external_ledger: ChipLedger = null) -> bool:
     if hand_active:
         return false
     if seat_index < 0 or seat_index >= SEAT_COUNT:
@@ -46,7 +46,7 @@ func sit(seat_index: int, player_id: int) -> bool:
             return false
     var seat := Seat.new()
     seat.player_id = player_id
-    seat.ledger = ChipLedger.new(STARTING_BALANCE)
+    seat.ledger = external_ledger if external_ledger != null else ChipLedger.new(STARTING_BALANCE)
     seats[seat_index] = seat
     return true
 

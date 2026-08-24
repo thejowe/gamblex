@@ -4,6 +4,8 @@ extends Node
 signal state_changed(state: Dictionary)
 
 var table_state: RouletteTableState
+var shared_ledger_provider: Callable = Callable()
+var on_shared_ledger_changed: Callable = Callable()
 
 func _ready() -> void:
     if multiplayer.is_server():
@@ -65,7 +67,8 @@ func request_spin(seat_index: int) -> void:
     _apply_spin(seat_index, multiplayer.get_remote_sender_id())
 
 func _apply_sit(seat_index: int, player_id: int) -> void:
-    if table_state.sit(seat_index, player_id):
+    var external_ledger: ChipLedger = shared_ledger_provider.call(player_id) if shared_ledger_provider.is_valid() else null
+    if table_state.sit(seat_index, player_id, external_ledger):
         _broadcast_state()
 
 func _apply_bet(seat_index: int, bet_type: int, number: int, amount: int, player_id: int) -> void:
@@ -78,6 +81,8 @@ func _apply_spin(seat_index: int, player_id: int) -> void:
 
 func _broadcast_state() -> void:
     _receive_state.rpc(table_state.to_dict())
+    if on_shared_ledger_changed.is_valid():
+        on_shared_ledger_changed.call()
 
 @rpc("authority", "call_local", "reliable")
 func _receive_state(state: Dictionary) -> void:

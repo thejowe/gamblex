@@ -200,3 +200,23 @@ func test_to_dict_reveals_dealer_hand_after_round_resolves():
     for card_data in dealer_hand:
         assert_true(card_data.has("rank"))
         assert_false(card_data.has("hidden"))
+
+func test_sit_uses_external_ledger_when_provided():
+    var table = BlackjackTableState.new()
+    var shared := ChipLedger.new(500)
+    table.sit(0, 111, shared)
+    assert_eq(table.seats[0].ledger, shared)
+
+func test_sit_creates_individual_ledger_when_no_external_ledger_given():
+    var table = BlackjackTableState.new()
+    table.sit(0, 111)
+    assert_eq(table.seats[0].ledger.balance, 500)
+
+func test_shared_ledger_bet_is_visible_to_both_seats_on_the_same_team():
+    var table = BlackjackTableState.new()
+    var shared := ChipLedger.new(500)
+    table.sit(0, 111, shared)
+    table.sit(1, 222, shared)
+    table.place_bet(0, 111, 100)
+    assert_eq(shared.balance, 400)
+    assert_eq(table.seats[1].ledger.balance, 400)

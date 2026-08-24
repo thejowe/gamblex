@@ -72,6 +72,26 @@ func apply_payout(team_id: int, amount: int) -> void:
 	rules.on_balance_changed()
 	_broadcast_match_state()
 
+func team_for(player_id: int) -> int:
+	if assignment == null:
+		return -1
+	return assignment.team_for(player_id)
+
+func ledger_for_team(team_id: int) -> ChipLedger:
+	return pools[team_id].ledger
+
+# Las apuestas/pagos reales de cada mesa mutan directamente el ChipLedger
+# compartido (inyectado vía TableController.shared_ledger_provider, Tareas
+# 2-9), no pasan por apply_bet()/apply_payout() — así que MatchRules nunca
+# se entera del cambio de saldo a menos que alguien se lo diga. Este método
+# es ese aviso: cada TableController lo llama tras cualquier
+# _broadcast_state() suyo mientras el partido está en marcha.
+func notify_balance_possibly_changed() -> void:
+	if rules == null or rules.finished:
+		return
+	if rules.on_balance_changed():
+		_broadcast_match_state()
+
 func _process(delta: float) -> void:
 	if multiplayer.is_server() and rules != null and not rules.finished:
 		if rules.advance_time(delta):

@@ -5,6 +5,8 @@ signal state_changed(state: Dictionary)
 signal chips_won(player_id: int, amount: int)
 
 var table_state: CrashTableState
+var shared_ledger_provider: Callable = Callable()
+var on_shared_ledger_changed: Callable = Callable()
 
 func _ready() -> void:
 	if multiplayer.is_server():
@@ -68,7 +70,8 @@ func request_cash_out() -> void:
 	_apply_cash_out(multiplayer.get_remote_sender_id())
 
 func _apply_place_bet(amount: int, player_id: int) -> void:
-	if table_state.place_bet(player_id, amount):
+	var external_ledger: ChipLedger = shared_ledger_provider.call(player_id) if shared_ledger_provider.is_valid() else null
+	if table_state.place_bet(player_id, amount, external_ledger):
 		_broadcast_state()
 
 func _apply_cash_out(player_id: int) -> void:
@@ -77,6 +80,8 @@ func _apply_cash_out(player_id: int) -> void:
 
 func _broadcast_state() -> void:
 	_receive_state.rpc(table_state.to_dict())
+	if on_shared_ledger_changed.is_valid():
+		on_shared_ledger_changed.call()
 
 # Broadcast a TODOS los presentes en CasinoFloor, no solo a quien actuó — la
 # spec pide visibilidad compartida de las rondas de los demás aunque nadie

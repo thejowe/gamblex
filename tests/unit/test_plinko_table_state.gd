@@ -142,3 +142,15 @@ func test_roll_realized_rtp_is_close_to_99_percent_through_payout_path():
 		var probability: float = PlinkoTableState._comb(rows, slot) / total_outcomes
 		expected_return += probability * (float(payout) / amount)
 	assert_almost_eq(expected_return, 0.99, 0.02)
+
+func test_roll_uses_external_ledger_for_new_player():
+	var table = PlinkoTableState.new()
+	var shared := ChipLedger.new(500)
+	table.roll(111, 12, 100, shared)
+	assert_eq(table.players[111].ledger, shared)
+
+func test_roll_creates_individual_ledger_when_no_external_ledger_given():
+	var table = PlinkoTableState.new()
+	table.roll(111, 12, 100)
+	assert_true(table.players.has(111))
+	assert_ne(table.players[111].ledger, null)

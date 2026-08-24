@@ -26,20 +26,20 @@ static func win_chance(threshold: int, direction: int) -> float:
 static func multiplier(threshold: int, direction: int) -> float:
     return 99.0 / win_chance(threshold, direction)
 
-func _player_for(player_id: int) -> Player:
+func _player_for(player_id: int, external_ledger: ChipLedger = null) -> Player:
     if not players.has(player_id):
         var player := Player.new()
         player.player_id = player_id
-        player.ledger = ChipLedger.new(STARTING_BALANCE)
+        player.ledger = external_ledger if external_ledger != null else ChipLedger.new(STARTING_BALANCE)
         players[player_id] = player
     return players[player_id]
 
-func roll(player_id: int, threshold: int, direction: int, amount: int) -> bool:
+func roll(player_id: int, threshold: int, direction: int, amount: int, external_ledger: ChipLedger = null) -> bool:
     if threshold < 1 or threshold > 99:
         return false
     if direction != Direction.OVER and direction != Direction.UNDER:
         return false
-    var player := _player_for(player_id)
+    var player := _player_for(player_id, external_ledger)
     if not player.ledger.place_bet(amount):
         return false
     var result := roller.roll()
