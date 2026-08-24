@@ -49,3 +49,27 @@ func test_render_state_removes_card_nodes_when_hand_shrinks():
 	}
 	view._render_state(state_no_cards)
 	assert_eq(view._seat_card_nodes[0].size(), 0)
+
+func test_dealer_value_label_shows_only_visible_card_while_hole_card_hidden():
+	var view = _make_view()
+	var state := {
+		"seats": [null, null, null, null],
+		"dealer_value": 20,
+		"dealer_hand": [{"rank": 10, "suit": 2}, {"hidden": true}],
+		"active_seat_index": -1,
+		"round_active": true,
+	}
+	view._render_state(state)
+	assert_eq(view.dealer_value_label.text, "10")
+
+func test_dealer_value_label_shows_full_value_after_round_resolves():
+	var view = _make_view()
+	var state := {
+		"seats": [null, null, null, null],
+		"dealer_value": 20,
+		"dealer_hand": [{"rank": 10, "suit": 2}, {"rank": 10, "suit": 1}],
+		"active_seat_index": -1,
+		"round_active": false,
+	}
+	view._render_state(state)
+	assert_eq(view.dealer_value_label.text, "20")
