@@ -1,11 +1,14 @@
 extends Control
 
 @onready var table_controller: DiceTableController = $TableController
+@onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
+@onready var over_button: Button = $OverButton
+@onready var under_button: Button = $UnderButton
+@onready var multiplier_label: Label = $MultiplierLabel
+@onready var probability_label: Label = $ProbabilityLabel
+@onready var threshold_slider: DiceThresholdSlider = $ThresholdSlider
+@onready var result_flash: ColorRect = $ResultFlash
 @onready var players_label: Label = $PlayersLabel
-@onready var threshold_spinbox: SpinBox = $ThresholdSpinBox
-@onready var amount_spinbox: SpinBox = $AmountSpinBox
-@onready var bet_over_button: Button = $BetOverButton
-@onready var bet_under_button: Button = $BetUnderButton
 
 var _last_players: Dictionary = {}
 
@@ -18,28 +21,7 @@ func _display_name(peer_id: int) -> String:
 
 func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
-	bet_over_button.pressed.connect(func(): _roll(DiceTableState.Direction.OVER))
-	bet_under_button.pressed.connect(func(): _roll(DiceTableState.Direction.UNDER))
 	NetworkManager.identities_changed.connect(_refresh_players_label)
-	# Mismo gotcha que blackjack_table_net.gd/roulette_table_net.gd: un cliente
-	# recién llegado a esta escena puede que aún no tenga el
-	# SteamMultiplayerPeer en CONNECTED — bloquear las apuestas hasta entonces
-	# evita el rpc_id() fallido.
-	if not multiplayer.is_server():
-		var peer := multiplayer.multiplayer_peer
-		if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
-			bet_over_button.disabled = true
-			bet_under_button.disabled = true
-			multiplayer.connected_to_server.connect(func():
-				bet_over_button.disabled = false
-				bet_under_button.disabled = false
-				table_controller.request_state()
-			)
-		else:
-			table_controller.request_state()
-
-func _roll(direction: int) -> void:
-	table_controller.roll(int(threshold_spinbox.value), direction, int(amount_spinbox.value))
 
 func _on_state_changed(state: Dictionary) -> void:
 	_last_players = state["players"]
