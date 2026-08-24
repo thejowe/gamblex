@@ -162,10 +162,30 @@ func to_dict() -> Dictionary:
                 "balance": seat.ledger.balance,
                 "bet": seat.current_bet,
                 "hand_value": seat.hand.value() if seat.hand else 0,
+                "hand": _cards_to_dicts(seat.hand.cards) if seat.hand else [],
             })
     return {
         "seats": seats_data,
         "dealer_value": dealer_hand.value() if dealer_hand else 0,
+        "dealer_hand": _dealer_hand_to_dicts(),
         "active_seat_index": active_seat_index,
         "round_active": round_active,
     }
+
+func _cards_to_dicts(cards: Array) -> Array:
+    var result := []
+    for card in cards:
+        result.append({"rank": card.rank, "suit": card.suit})
+    return result
+
+func _dealer_hand_to_dicts() -> Array:
+    if dealer_hand == null:
+        return []
+    var cards := dealer_hand.cards
+    var result := []
+    for i in range(cards.size()):
+        if i == 1 and round_active:
+            result.append({"hidden": true})
+        else:
+            result.append({"rank": cards[i].rank, "suit": cards[i].suit})
+    return result

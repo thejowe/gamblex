@@ -164,3 +164,39 @@ func test_chips_won_emitted_when_dealer_busts():
 
     assert_signal_emitted_with_parameters(table, "chips_won", [111, 100])
     assert_eq(table.seats[0].ledger.balance, 600) # 500 - 100 + 200 (dealer bust, full payout)
+
+func test_to_dict_exposes_seat_hand_cards():
+    var table = BlackjackTableState.new()
+    table.sit(0, 111)
+    table.sit(1, 222)
+    table.place_bet(0, 111, 50)
+    table.place_bet(1, 222, 50)
+    var state = table.to_dict()
+    var hand = state["seats"][0]["hand"]
+    assert_eq(hand.size(), 2)
+    assert_true(hand[0].has("rank"))
+    assert_true(hand[0].has("suit"))
+
+func test_to_dict_hides_second_dealer_card_while_round_active():
+    var table = BlackjackTableState.new()
+    table.sit(0, 111)
+    table.place_bet(0, 111, 50)
+    var state = table.to_dict()
+    assert_true(state["round_active"])
+    var dealer_hand = state["dealer_hand"]
+    assert_eq(dealer_hand.size(), 2)
+    assert_true(dealer_hand[0].has("rank"))
+    assert_true(dealer_hand[1].has("hidden"))
+    assert_eq(dealer_hand[1]["hidden"], true)
+
+func test_to_dict_reveals_dealer_hand_after_round_resolves():
+    var table = BlackjackTableState.new()
+    table.sit(0, 111)
+    table.place_bet(0, 111, 50)
+    table.stand(0, 111)
+    var state = table.to_dict()
+    assert_false(state["round_active"])
+    var dealer_hand = state["dealer_hand"]
+    for card_data in dealer_hand:
+        assert_true(card_data.has("rank"))
+        assert_false(card_data.has("hidden"))
