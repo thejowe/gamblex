@@ -1,10 +1,12 @@
 extends Control
 
 @onready var table_controller: PlinkoTableController = $TableController
+@onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
+@onready var rows_label: Label = $RowsLabel
+@onready var rows_minus_button: Button = $RowsMinusButton
+@onready var rows_plus_button: Button = $RowsPlusButton
+@onready var board: PlinkoBoard = $PlinkoBoard
 @onready var players_label: Label = $PlayersLabel
-@onready var rows_spinbox: SpinBox = $RowsSpinBox
-@onready var amount_spinbox: SpinBox = $AmountSpinBox
-@onready var drop_button: Button = $DropButton
 
 var _last_players: Dictionary = {}
 
@@ -16,11 +18,7 @@ func _display_name(peer_id: int) -> String:
 	return persona_name if not persona_name.is_empty() else "jugador %d" % peer_id
 
 func _ready() -> void:
-	rows_spinbox.min_value = PlinkoTableState.MIN_ROWS
-	rows_spinbox.max_value = PlinkoTableState.MAX_ROWS
-	rows_spinbox.value = PlinkoTableState.DEFAULT_ROWS
 	table_controller.state_changed.connect(_on_state_changed)
-	drop_button.pressed.connect(_drop)
 	NetworkManager.identities_changed.connect(_refresh_players_label)
 	# Mismo gotcha que dice_table_net.gd/roulette_table_net.gd: un cliente
 	# recién llegado a esta escena puede que aún no tenga el
@@ -29,16 +27,11 @@ func _ready() -> void:
 	if not multiplayer.is_server():
 		var peer := multiplayer.multiplayer_peer
 		if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
-			drop_button.disabled = true
 			multiplayer.connected_to_server.connect(func():
-				drop_button.disabled = false
 				table_controller.request_state()
 			)
 		else:
 			table_controller.request_state()
-
-func _drop() -> void:
-	table_controller.roll(int(rows_spinbox.value), int(amount_spinbox.value))
 
 func _on_state_changed(state: Dictionary) -> void:
 	_last_players = state["players"]
