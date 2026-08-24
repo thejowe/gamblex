@@ -33,18 +33,18 @@ static func slot_multiplier(rows: int, slot: int) -> float:
 	var c: float = 0.99 * pow(2.0, rows) / (rows + 1)
 	return c / _comb(rows, slot)
 
-func _player_for(player_id: int) -> Player:
+func _player_for(player_id: int, external_ledger: ChipLedger = null) -> Player:
 	if not players.has(player_id):
 		var player := Player.new()
 		player.player_id = player_id
-		player.ledger = ChipLedger.new(STARTING_BALANCE)
+		player.ledger = external_ledger if external_ledger != null else ChipLedger.new(STARTING_BALANCE)
 		players[player_id] = player
 	return players[player_id]
 
-func roll(player_id: int, rows: int, amount: int) -> bool:
+func roll(player_id: int, rows: int, amount: int, external_ledger: ChipLedger = null) -> bool:
 	if rows < MIN_ROWS or rows > MAX_ROWS:
 		return false
-	var player := _player_for(player_id)
+	var player := _player_for(player_id, external_ledger)
 	if not player.ledger.place_bet(amount):
 		return false
 	var bounces: Array = roller.roll(rows)
