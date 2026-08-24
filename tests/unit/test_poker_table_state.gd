@@ -261,3 +261,14 @@ func test_to_dict_never_reveals_folded_hand():
     table.fold(0, 111)
     var data = table.to_dict(999)
     assert_eq(data["seats"][0]["hole_cards"].size(), 0)
+
+func test_sit_uses_external_ledger_when_provided():
+    var table = PokerTableState.new()
+    var shared := ChipLedger.new(500)
+    table.sit(0, 111, shared)
+    assert_eq(table.seats[0].ledger, shared)
+
+func test_sit_creates_individual_ledger_when_no_external_ledger_given():
+    var table = PokerTableState.new()
+    table.sit(0, 111)
+    assert_eq(table.seats[0].ledger.balance, 500)
