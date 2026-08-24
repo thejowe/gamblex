@@ -1,5 +1,9 @@
 extends Control
 
+const PlayingCardScene := preload("res://scenes/ui/casino/playing_card.tscn")
+const CasinoChipScene := preload("res://scenes/ui/casino/casino_chip.tscn")
+const CARD_SPACING := 24.0
+
 @onready var table_controller: TableController = $TableController
 @onready var felt_panel: FeltTablePanel = $FeltTablePanel
 @onready var hud_bar: CasinoHudBar = $CasinoHudBar
@@ -15,7 +19,10 @@ extends Control
 @onready var seats_root: Control = $SeatsRoot
 
 var my_seat_index: int = -1
-var _last_seats: Array = []
+var _last_state: Dictionary = {"seats": [null, null, null, null], "dealer_hand": []}
+var _seat_card_nodes: Array = [[], [], [], []]
+var _dealer_card_nodes: Array = []
+var _seat_chip_nodes: Array = [null, null, null, null]
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -26,13 +33,13 @@ func _display_name(peer_id: int) -> String:
 
 func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
+	table_controller.chips_won.connect(_on_chips_won)
 	sit_button.pressed.connect(_on_sit_pressed)
 	bet_button.pressed.connect(_on_bet_pressed)
 	hit_button.pressed.connect(_on_hit_pressed)
 	stand_button.pressed.connect(_on_stand_pressed)
-	# El host actúa localmente (sin RPC), pero un cliente recién llegado a esta
-	# escena puede que aún no tenga el SteamMultiplayerPeer en CONNECTED —
-	# bloquear "Sentarse" hasta entonces evita el rpc_id() fallido.
+	double_button.disabled = true
+	split_button.disabled = true
 	if not multiplayer.is_server():
 		var peer := multiplayer.multiplayer_peer
 		if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
@@ -45,11 +52,10 @@ func _ready() -> void:
 			table_controller.request_state()
 
 func _on_sit_pressed() -> void:
-	# Sentarse en el primer asiento libre según el último estado conocido; un
-	# selector de asiento por UI queda fuera de alcance de este plan.
+	var seats: Array = _last_state.get("seats", [null, null, null, null])
 	var seat_index := 0
-	for i in range(_last_seats.size()):
-		if _last_seats[i] == null:
+	for i in range(seats.size()):
+		if seats[i] == null:
 			seat_index = i
 			break
 	table_controller.sit(seat_index)
@@ -64,8 +70,115 @@ func _on_hit_pressed() -> void:
 func _on_stand_pressed() -> void:
 	table_controller.stand(my_seat_index)
 
+func seat_anchor(seat_index: int, seat_count: int) -> Vector2:
+	if seat_count <= 1:
+		return Vector2(size.x / 2.0, size.y * 0.62)
+	var usable_width := size.x * 0.7
+	var start_x := size.x * 0.15
+	var step := usable_width / float(seat_count - 1)
+	return Vector2(start_x + step * seat_index, size.y * 0.62)
+
 func _on_state_changed(state: Dictionary) -> void:
-	_last_seats = state["seats"]
-	dealer_value_label.text = "%d" % state["dealer_value"]
-	if my_seat_index >= 0 and my_seat_index < _last_seats.size() and _last_seats[my_seat_index] != null:
-		bet_button.disabled = _last_seats[my_seat_index]["bet"] > 0
+	_render_state(state)
+
+func _render_state(state: Dictionary) -> void:
+	var previous := _last_state
+	var seats: Array = state["seats"]
+	var previous_seats: Array = previous.get("seats", [null, null, null, null])
+	_render_dealer(state.get("dealer_hand", []), state["dealer_value"])
+	for i in range(seats.size()):
+		var previous_seat = previous_seats[i] if i < previous_seats.size() else null
+		_render_seat(i, seats[i], previous_seat, seats.size())
+	_last_state = state
+	if my_seat_index >= 0 and my_seat_index < seats.size() and seats[my_seat_index] != null:
+		bet_button.disabled = seats[my_seat_index]["bet"] > 0
+		hud_bar.set_balance(seats[my_seat_index]["balance"])
+		hud_bar.set_bet(seats[my_seat_index]["bet"])
+
+func _render_dealer(hand_data: Array, dealer_value: int) -> void:
+	dealer_value_label.text = str(dealer_value)
+	_sync_hand_visual(dealer_cards, _dealer_card_nodes, hand_data, Vector2(size.x / 2.0, size.y * 0.28))
+
+func _render_seat(seat_index: int, seat, previous_seat, seat_count: int) -> void:
+	var anchor := seat_anchor(seat_index, seat_count)
+	var hand_data: Array = seat["hand"] if seat != null else []
+	_sync_hand_visual(seats_root, _seat_card_nodes[seat_index], hand_data, anchor)
+	_sync_chip(seat_index, seat, anchor)
+
+func _sync_hand_visual(container: Control, nodes: Array, hand_data: Array, anchor: Vector2) -> void:
+	while nodes.size() > hand_data.size():
+		var node = nodes.pop_back()
+		node.queue_free()
+	for i in range(hand_data.size()):
+		var card_data = hand_data[i]
+		var is_new := i >= nodes.size()
+		var card: PlayingCard
+		if is_new:
+			card = PlayingCardScene.instantiate()
+			container.add_child(card)
+			card.position = deck_icon.position
+			nodes.append(card)
+		else:
+			card = nodes[i]
+		if card_data.has("hidden"):
+			card.face_up = false
+		else:
+			card.rank = card_data["rank"]
+			card.suit = card_data["suit"]
+			card.face_up = true
+		var target := anchor + Vector2(i * CARD_SPACING - hand_data.size() * CARD_SPACING * 0.5, 0)
+		if is_new:
+			var tween := create_tween()
+			tween.tween_property(card, "position", target, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		else:
+			card.position = target
+
+func _sync_chip(seat_index: int, seat, anchor: Vector2) -> void:
+	var chip_anchor := anchor + Vector2(0, 60)
+	var existing = _seat_chip_nodes[seat_index]
+	var bet: int = seat["bet"] if seat != null else 0
+	if bet <= 0:
+		if existing != null:
+			existing.queue_free()
+			_seat_chip_nodes[seat_index] = null
+		return
+	if existing == null:
+		var chip: CasinoChip = CasinoChipScene.instantiate()
+		seats_root.add_child(chip)
+		chip.position = hud_bar.position
+		_seat_chip_nodes[seat_index] = chip
+		existing = chip
+		var tween := create_tween()
+		tween.tween_property(chip, "position", chip_anchor, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	existing.denomination = bet
+
+func _on_chips_won(player_id: int, amount: int) -> void:
+	var seats: Array = _last_state.get("seats", [])
+	for i in range(seats.size()):
+		var seat = seats[i]
+		if seat != null and seat["player_id"] == player_id:
+			_celebrate_seat(i, seats.size())
+			return
+
+func _celebrate_seat(seat_index: int, seat_count: int) -> void:
+	var anchor := seat_anchor(seat_index, seat_count)
+	var particles := CPUParticles2D.new()
+	particles.position = anchor
+	particles.emitting = true
+	particles.one_shot = true
+	particles.amount = 24
+	particles.lifetime = 1.0
+	particles.spread = 180.0
+	particles.gravity = Vector2(0, 200)
+	particles.initial_velocity_min = 80.0
+	particles.initial_velocity_max = 160.0
+	particles.color = CasinoTheme.GOLD_ACCENT
+	add_child(particles)
+	get_tree().create_timer(1.2).timeout.connect(func():
+		if is_instance_valid(particles):
+			particles.queue_free()
+	)
+	for card in _seat_card_nodes[seat_index]:
+		var tween := create_tween()
+		tween.tween_property(card, "modulate", CasinoTheme.GOLD_ACCENT, 0.15)
+		tween.tween_property(card, "modulate", Color.WHITE, 0.35)
