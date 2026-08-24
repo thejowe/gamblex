@@ -60,6 +60,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 12 | `plan12-lobby` | Lobby de selección de juego: rejilla de 7 tarjetas, sala aislada por jugador, HUD persistente | `feature/lobby` (mergeado) | ✅ Completado, mergeado a `main` (`81dd979`) |
 | 13 | `plan13-battle-sync-fix` | Fix: `chosen_match_type` nunca se sincroniza host→invitado, rompe modo batalla en vivo (bug real de playtest) | `feature/battle-sync-fix` (mergeado) | ✅ Completado, mergeado a `main` (`406d914`) |
 | 14 | `plan14-casino-visual` | Fundación visual de casino (tapete/fichas/cartas/botones/HUD dibujados por código) + reskin completo de Blackjack con animación de reparto/apuesta/victoria | `feature/casino-visual-blackjack` | 🟢 Desbloqueado, spec y plan ya escritos |
+| 15 | `plan15-battle-pool-wiring` | Fix: conectar el pozo compartido de Modo Batalla (`TeamChipPool`/`MatchRules`/`BattleController`, ya completo desde Plan 4 pero nunca llamado) a las 7 mesas — cada asiento/jugador usa el `ChipLedger` del equipo en vez de uno individual | `feature/battle-pool-wiring` | 🟢 Desbloqueado, spec y plan ya escritos |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -243,9 +244,14 @@ del reporte que te tiene que dar al terminar.
 7. Agente `plan14-casino-visual` — **DESBLOQUEADO.** Ampliación v1.3 (ver
    sección abajo), spec y plan ya escritos por la sesión pilar. Fase 1 de
    varias: fundación visual compartida + Blackjack completo. Las demás
-   mesas se reskinarán una por una en fases posteriores (plan15+),
+   mesas se reskinarán una por una en fases posteriores (plan16+),
    reutilizando `scripts/ui/casino/`, con referencias que el usuario irá
    aportando por juego.
+8. Agente `plan15-battle-pool-wiring` — **DESBLOQUEADO, independiente de
+   plan14** (toca lógica de red/juego, no la capa visual — pueden correr
+   en paralelo sin pisarse, no comparten ningún archivo). Fix: conecta el
+   pozo compartido de Modo Batalla (ya construido desde Plan 4, nunca
+   llamado) a las 7 mesas. Spec y plan ya escritos por la sesión pilar.
 
 ## Verificación de Agente 8 — Dice (2026-08-20, hecha por esta sesión pilar)
 
@@ -386,6 +392,34 @@ completos (10 tareas con TDD, código GDScript incluido) ya escritos por
 esta sesión pilar. Fuera de alcance explícito: reskin de las otras 6
 mesas (fases posteriores, un agente por mesa reutilizando estos
 componentes), Double/Split reales, sonido, pixel art final.
+
+## Fix: pozo compartido de Modo Batalla nunca conectado (2026-08-24)
+
+El usuario pidió "todo el equipo empieza con un balance compartido, tiene
+que convertirlo en un objetivo" — describiendo, sin saberlo, el Modo
+Batalla ya construido en Plan 4 (`TeamChipPool`, `MatchRules`,
+`BattleController`, con tests propios: meta alcanzada gana el equipo,
+bancarrota pierde el equipo). Investigando el código para asignarle un
+agente, esta sesión pilar encontró el bug real: `BattleController.apply_bet()`/
+`apply_payout()` no los llama nadie en todo el repo (`grep` confirmado) —
+cada una de las 7 mesas sigue creando un `ChipLedger.new(500)` individual
+por asiento sin importar el modo, así que el HUD del pozo de equipo nunca
+se mueve en la práctica.
+
+Diseño confirmado con el usuario (detalle completo en
+`docs/superpowers/specs/2026-08-24-battle-pool-wiring-design.md`): en vez
+de sincronizar dos balances, cada asiento/jugador de las 7 mesas usa
+directamente el mismo objeto `ChipLedger` que `TeamChipPool` ya envuelve,
+inyectado por `CasinoFloor` vía un `Callable` en cada `TableController`.
+`TeamChipPool`/`MatchRules`/`BattleController` no cambian su lógica, solo
+ganan 3 métodos de conexión (`team_for`/`ledger_for_team`/
+`notify_balance_possibly_changed`). Modo Libre no se toca — el usuario lo
+dejó explícito ("lo perfeccionaremos luego").
+
+Creado `plan15-battle-pool-wiring`, desbloqueado, spec y plan de
+implementación completos (10 tareas con TDD, código GDScript incluido, sin
+tests que dependan de `.rpc()`/multiplayer real) ya escritos por esta
+sesión pilar.
 
 ## Ampliación v1.2: Lobby de selección de juego (2026-08-20)
 
