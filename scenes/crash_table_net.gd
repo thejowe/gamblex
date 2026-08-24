@@ -1,10 +1,10 @@
 extends Control
 
 @onready var table_controller: CrashTableController = $TableController
+@onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
+@onready var cash_out_button: CasinoButton = $CashOutButton
+@onready var crash_graph: CrashGraph = $CrashGraph
 @onready var players_label: Label = $PlayersLabel
-@onready var amount_spinbox: SpinBox = $AmountSpinBox
-@onready var bet_button: Button = $BetButton
-@onready var cash_out_button: Button = $CashOutButton
 
 var _last_players: Dictionary = {}
 var _local_elapsed: Dictionary = {} # player_id -> float, extrapolación local desde el último broadcast
@@ -18,7 +18,7 @@ func _display_name(peer_id: int) -> String:
 
 func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
-	bet_button.pressed.connect(func(): table_controller.place_bet(int(amount_spinbox.value)))
+	bet_sidebar.bet_pressed.connect(func(amount): table_controller.place_bet(amount))
 	cash_out_button.pressed.connect(func(): table_controller.cash_out())
 	NetworkManager.identities_changed.connect(_refresh_players_label)
 	cash_out_button.disabled = true
@@ -29,9 +29,9 @@ func _ready() -> void:
 	if not multiplayer.is_server():
 		var peer := multiplayer.multiplayer_peer
 		if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
-			bet_button.disabled = true
+			bet_sidebar.bet_button.disabled = true
 			multiplayer.connected_to_server.connect(func():
-				bet_button.disabled = false
+				bet_sidebar.bet_button.disabled = false
 				table_controller.request_state()
 			)
 		else:
@@ -55,7 +55,7 @@ func _on_state_changed(state: Dictionary) -> void:
 	var mine_active: bool = mine.get("is_active", false)
 	cash_out_button.disabled = not mine_active
 	if not (not multiplayer.is_server() and multiplayer.multiplayer_peer != null and multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED):
-		bet_button.disabled = mine_active
+		bet_sidebar.bet_button.disabled = mine_active
 	_refresh_players_label()
 
 func _refresh_players_label() -> void:
