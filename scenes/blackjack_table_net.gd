@@ -80,8 +80,8 @@ func _on_sit_pressed() -> void:
 		if seats[i] == null:
 			seat_index = i
 			break
-	table_controller.sit(seat_index)
 	my_seat_index = seat_index
+	table_controller.sit(seat_index)
 
 func _on_bet_pressed() -> void:
 	table_controller.bet(my_seat_index, 50)

@@ -62,6 +62,11 @@ func test_dealer_value_label_shows_only_visible_card_while_hole_card_hidden():
 	view._render_state(state)
 	assert_eq(view.dealer_value_label.text, "10")
 
+func test_hud_shows_balance_immediately_after_sitting():
+	var view = _make_view()
+	view._on_sit_pressed()
+	assert_eq(view.hud_bar.balance_label.text, "BALANCE  $500")
+
 func test_dealer_value_label_shows_full_value_after_round_resolves():
 	var view = _make_view()
 	var state := {
