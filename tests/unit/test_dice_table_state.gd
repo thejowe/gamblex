@@ -130,3 +130,22 @@ func test_to_dict_reflects_players_and_last_round():
     assert_eq(data["players"][111]["player_id"], 111)
     assert_eq(data["players"][111]["balance"], 598)
     assert_eq(data["players"][111]["last_round"]["win"], true)
+
+func test_roll_uses_external_ledger_for_new_player():
+    var table = DiceTableState.new()
+    var shared := ChipLedger.new(500)
+    table.roll(111, 40, DiceTableState.Direction.OVER, 100, shared)
+    assert_eq(table.players[111].ledger, shared)
+
+func test_roll_creates_individual_ledger_when_no_external_ledger_given():
+    var table = DiceTableState.new()
+    table.roll(111, 40, DiceTableState.Direction.OVER, 100)
+    assert_true(table.players.has(111))
+    assert_ne(table.players[111].ledger, null)
+
+func test_shared_ledger_persists_after_first_roll_ignoring_later_argument():
+    var table = DiceTableState.new()
+    var shared := ChipLedger.new(500)
+    table.roll(111, 40, DiceTableState.Direction.OVER, 100, shared)
+    table.roll(111, 40, DiceTableState.Direction.OVER, 50) # sin external_ledger la 2a vez
+    assert_eq(table.players[111].ledger, shared)
