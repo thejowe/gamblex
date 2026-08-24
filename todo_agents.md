@@ -62,6 +62,10 @@ sesión pilar para evitar conflictos entre ramas.
 | 14 | `plan14-casino-visual` | Fundación visual de casino (tapete/fichas/cartas/botones/HUD dibujados por código) + reskin completo de Blackjack con animación de reparto/apuesta/victoria | `feature/casino-visual-blackjack` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
 | 15 | `plan15-battle-pool-wiring` | Fix: conectar el pozo compartido de Modo Batalla (`TeamChipPool`/`MatchRules`/`BattleController`, ya completo desde Plan 4 pero nunca llamado) a las 7 mesas — cada asiento/jugador usa el `ChipLedger` del equipo en vez de uno individual | `feature/battle-pool-wiring` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
 | 16 | `plan16-dark-casino-foundation-dice` | Fundación de panel oscuro compartido (`BetSidebarPanel`) + reskin completo de Dice con slider de umbral arrastrable | `feature/dark-casino-foundation-dice` (mergeado) | ✅ Completado, mergeado a `main` (`6f7f917`) |
+| 17 | `plan17-roulette-visual` | Reskin visual de Ruleta: rueda animada, grid de 37 números clicable, historial de resultados | `feature/roulette-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
+| 18 | `plan18-crash-visual` | Reskin visual de Crash: gráfico de multiplicador creciente en tiempo real | `feature/crash-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
+| 19 | `plan19-mines-visual` | Reskin visual de Mines: grid dinámico de casillas con estados tapada/revelada/mina | `feature/mines-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
+| 20 | `plan20-plinko-visual` | Reskin visual de Plinko: tablero de clavijas con bola animada y fila de multiplicadores | `feature/plinko-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -448,9 +452,21 @@ reformateo espacios/tabs de siempre (descartado).
 
 `BetSidebarPanel` (`scripts/ui/casino/bet_sidebar_panel.gd`) ya está en
 `main`, listo para que Ruleta/Crash/Mines/Plinko lo reutilicen sin
-tocarlo. Agentes `plan17` (Ruleta), `plan18` (Crash), `plan19` (Mines),
-`plan20` (Plinko) — **desbloqueados a partir de ahora**, pendientes de
-crear.
+tocarlo.
+
+**Los 4 agentes restantes, creados (2026-08-24):** `plan17-roulette-visual`
+lo escribió esta sesión pilar a mano; `plan18-crash-visual`,
+`plan19-mines-visual` y `plan20-plinko-visual` los escribieron 3 forks en
+paralelo de esta misma sesión pilar (mismo patrón, mismas restricciones:
+reutilizar `BetSidebarPanel`/`CasinoTheme`/`CasinoButton` tal cual, cero
+cambios a `scripts/<juego>/` ni a los controllers de red). Ningún agente
+toca archivos de los demás — las 4 ramas (`feature/roulette-visual`,
+`feature/crash-visual`, `feature/mines-visual`, `feature/plinko-visual`)
+pueden correr en paralelo sin pisarse. **Desbloqueados, listos para que
+el usuario abra las 4 sesiones.** Nota de Crash: la vista nunca debe leer
+`crash_point` del estado (solo `elapsed`/`multiplier_at()`), quedó
+explícito en su spec/plan/persona para que ningún agente exponga el punto
+de explosión antes de tiempo.
 
 ## Fix: pozo compartido de Modo Batalla nunca conectado (2026-08-24)
 
