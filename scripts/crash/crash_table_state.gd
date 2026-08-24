@@ -28,16 +28,16 @@ func _init(p_roller: CrashRoller = null) -> void:
 static func multiplier_at(t: float) -> float:
 	return 1.0 + GROWTH_RATE * t * t
 
-func _player_for(player_id: int) -> Player:
+func _player_for(player_id: int, external_ledger: ChipLedger = null) -> Player:
 	if not players.has(player_id):
 		var player := Player.new()
 		player.player_id = player_id
-		player.ledger = ChipLedger.new(STARTING_BALANCE)
+		player.ledger = external_ledger if external_ledger != null else ChipLedger.new(STARTING_BALANCE)
 		players[player_id] = player
 	return players[player_id]
 
-func place_bet(player_id: int, amount: int) -> bool:
-	var player := _player_for(player_id)
+func place_bet(player_id: int, amount: int, external_ledger: ChipLedger = null) -> bool:
+	var player := _player_for(player_id, external_ledger)
 	if player.is_active:
 		return false
 	if not player.ledger.place_bet(amount):
