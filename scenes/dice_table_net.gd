@@ -1,13 +1,17 @@
 extends Control
 
 @onready var table_controller: DiceTableController = $TableController
+@onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
+@onready var over_button: Button = $OverButton
+@onready var under_button: Button = $UnderButton
+@onready var multiplier_label: Label = $MultiplierLabel
+@onready var probability_label: Label = $ProbabilityLabel
+@onready var threshold_slider: DiceThresholdSlider = $ThresholdSlider
+@onready var result_flash: ColorRect = $ResultFlash
 @onready var players_label: Label = $PlayersLabel
-@onready var threshold_spinbox: SpinBox = $ThresholdSpinBox
-@onready var amount_spinbox: SpinBox = $AmountSpinBox
-@onready var bet_over_button: Button = $BetOverButton
-@onready var bet_under_button: Button = $BetUnderButton
 
 var _last_players: Dictionary = {}
+var _last_round_seen: Dictionary = {}
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -18,32 +22,59 @@ func _display_name(peer_id: int) -> String:
 
 func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
-	bet_over_button.pressed.connect(func(): _roll(DiceTableState.Direction.OVER))
-	bet_under_button.pressed.connect(func(): _roll(DiceTableState.Direction.UNDER))
+	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
+	threshold_slider.threshold_changed.connect(func(_value): _refresh_stats())
+	over_button.pressed.connect(func(): _apply_direction(DiceTableState.Direction.OVER))
+	under_button.pressed.connect(func(): _apply_direction(DiceTableState.Direction.UNDER))
 	NetworkManager.identities_changed.connect(_refresh_players_label)
-	# Mismo gotcha que blackjack_table_net.gd/roulette_table_net.gd: un cliente
-	# recién llegado a esta escena puede que aún no tenga el
-	# SteamMultiplayerPeer en CONNECTED — bloquear las apuestas hasta entonces
-	# evita el rpc_id() fallido.
+	_apply_direction(DiceTableState.Direction.UNDER)
 	if not multiplayer.is_server():
 		var peer := multiplayer.multiplayer_peer
 		if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
-			bet_over_button.disabled = true
-			bet_under_button.disabled = true
+			bet_sidebar.bet_button.disabled = true
 			multiplayer.connected_to_server.connect(func():
-				bet_over_button.disabled = false
-				bet_under_button.disabled = false
+				bet_sidebar.bet_button.disabled = false
 				table_controller.request_state()
 			)
 		else:
 			table_controller.request_state()
 
-func _roll(direction: int) -> void:
-	table_controller.roll(int(threshold_spinbox.value), direction, int(amount_spinbox.value))
+func _apply_direction(new_direction: int) -> void:
+	threshold_slider.direction = new_direction
+	over_button.variant = CasinoButton.Variant.POSITIVE if new_direction == DiceTableState.Direction.OVER else CasinoButton.Variant.NEUTRAL
+	under_button.variant = CasinoButton.Variant.POSITIVE if new_direction == DiceTableState.Direction.UNDER else CasinoButton.Variant.NEUTRAL
+	_refresh_stats()
+
+func _refresh_stats() -> void:
+	var threshold := threshold_slider.threshold
+	var direction := threshold_slider.direction
+	var mult := DiceTableState.multiplier(threshold, direction)
+	var chance := DiceTableState.win_chance(threshold, direction)
+	multiplier_label.text = "Multiplicador: %.2fx" % mult
+	probability_label.text = "Probabilidad: %.2f%%" % chance
+
+func _on_bet_pressed(amount: int) -> void:
+	table_controller.roll(threshold_slider.threshold, threshold_slider.direction, amount)
 
 func _on_state_changed(state: Dictionary) -> void:
 	_last_players = state["players"]
 	_refresh_players_label()
+	_maybe_flash_result()
+
+func _maybe_flash_result() -> void:
+	var my_id := multiplayer.get_unique_id()
+	if not _last_players.has(my_id):
+		return
+	var last_round: Dictionary = _last_players[my_id]["last_round"]
+	if last_round.is_empty():
+		return
+	if _last_round_seen.get(my_id, {}) == last_round:
+		return
+	_last_round_seen[my_id] = last_round
+	var flash_color: Color = CasinoTheme.ACCENT_GREEN if last_round["win"] else CasinoTheme.ACCENT_RED
+	var tween := create_tween()
+	result_flash.color = Color(flash_color.r, flash_color.g, flash_color.b, 0.35)
+	tween.tween_property(result_flash, "color:a", 0.0, 0.6)
 
 func _refresh_players_label() -> void:
 	if _last_players.is_empty():
