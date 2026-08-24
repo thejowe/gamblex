@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scenes/blackjack_table_net.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/net/table_controller.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/felt_table_panel.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_hud_bar.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="5"]
 
 [node name="BlackjackTableNet" type="Control"]
 layout_mode = 3
@@ -15,50 +18,94 @@ script = ExtResource("1")
 [node name="TableController" type="Node" parent="."]
 script = ExtResource("2")
 
-[node name="DealerLabel" type="Label" parent="."]
+[node name="FeltTablePanel" parent="." instance=ExtResource("3")]
+layout_mode = 1
+
+[node name="DeckIcon" type="Control" parent="."]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 820.0
 offset_top = 20.0
-offset_right = 400.0
-offset_bottom = 44.0
-text = "Banca: 0"
+offset_right = 890.0
+offset_bottom = 90.0
 
-[node name="SeatsLabel" type="Label" parent="."]
+[node name="DealerCards" type="Control" parent="."]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 56.0
-offset_right = 500.0
-offset_bottom = 200.0
-text = "Asiento 0: libre"
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 900.0
+offset_bottom = 1080.0
 
-[node name="SitButton" type="Button" parent="."]
+[node name="DealerValueLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 220.0
-offset_right = 160.0
-offset_bottom = 256.0
+offset_left = 420.0
+offset_top = 190.0
+offset_right = 480.0
+offset_bottom = 220.0
+text = "0"
+horizontal_alignment = 1
+
+[node name="SeatsRoot" type="Control" parent="."]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 900.0
+offset_bottom = 1080.0
+
+[node name="SitButton" parent="." instance=ExtResource("5")]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 900.0
+offset_right = 155.0
+offset_bottom = 940.0
 text = "Sentarse"
 
-[node name="BetButton" type="Button" parent="."]
+[node name="BetButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
-offset_left = 180.0
-offset_top = 220.0
-offset_right = 320.0
-offset_bottom = 256.0
+offset_left = 169.0
+offset_top = 900.0
+offset_right = 299.0
+offset_bottom = 940.0
 text = "Apostar 50"
 
-[node name="HitButton" type="Button" parent="."]
+[node name="HitButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
-offset_left = 340.0
-offset_top = 220.0
-offset_right = 460.0
-offset_bottom = 256.0
-text = "Pedir"
+offset_left = 457.0
+offset_top = 900.0
+offset_right = 587.0
+offset_bottom = 940.0
+text = "HIT"
+variant = 1
 
-[node name="StandButton" type="Button" parent="."]
+[node name="StandButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
-offset_left = 480.0
-offset_top = 220.0
-offset_right = 620.0
-offset_bottom = 256.0
-text = "Plantarse"
+offset_left = 601.0
+offset_top = 900.0
+offset_right = 731.0
+offset_bottom = 940.0
+text = "STAND"
+variant = 2
+
+[node name="DoubleButton" parent="." instance=ExtResource("5")]
+layout_mode = 0
+offset_left = 313.0
+offset_top = 900.0
+offset_right = 443.0
+offset_bottom = 940.0
+text = "DOUBLE"
+disabled = true
+
+[node name="SplitButton" parent="." instance=ExtResource("5")]
+layout_mode = 0
+offset_left = 745.0
+offset_top = 900.0
+offset_right = 875.0
+offset_bottom = 940.0
+text = "SPLIT"
+disabled = true
+
+[node name="CasinoHudBar" parent="." instance=ExtResource("4")]
+layout_mode = 0
+offset_left = 0.0
+offset_top = 1000.0
+offset_right = 900.0
+offset_bottom = 1080.0
