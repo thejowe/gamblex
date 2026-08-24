@@ -59,8 +59,8 @@ sesión pilar para evitar conflictos entre ramas.
 | 11 | `plan11-plinko` | Plinko: tablero de clavijas + tabla de multiplicadores | `feature/plinko` (mergeado) | ✅ Completado, mergeado a `main` |
 | 12 | `plan12-lobby` | Lobby de selección de juego: rejilla de 7 tarjetas, sala aislada por jugador, HUD persistente | `feature/lobby` (mergeado) | ✅ Completado, mergeado a `main` (`81dd979`) |
 | 13 | `plan13-battle-sync-fix` | Fix: `chosen_match_type` nunca se sincroniza host→invitado, rompe modo batalla en vivo (bug real de playtest) | `feature/battle-sync-fix` (mergeado) | ✅ Completado, mergeado a `main` (`406d914`) |
-| 14 | `plan14-casino-visual` | Fundación visual de casino (tapete/fichas/cartas/botones/HUD dibujados por código) + reskin completo de Blackjack con animación de reparto/apuesta/victoria | `feature/casino-visual-blackjack` | 🟢 Desbloqueado, spec y plan ya escritos |
-| 15 | `plan15-battle-pool-wiring` | Fix: conectar el pozo compartido de Modo Batalla (`TeamChipPool`/`MatchRules`/`BattleController`, ya completo desde Plan 4 pero nunca llamado) a las 7 mesas — cada asiento/jugador usa el `ChipLedger` del equipo en vez de uno individual | `feature/battle-pool-wiring` | 🟢 Desbloqueado, spec y plan ya escritos |
+| 14 | `plan14-casino-visual` | Fundación visual de casino (tapete/fichas/cartas/botones/HUD dibujados por código) + reskin completo de Blackjack con animación de reparto/apuesta/victoria | `feature/casino-visual-blackjack` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
+| 15 | `plan15-battle-pool-wiring` | Fix: conectar el pozo compartido de Modo Batalla (`TeamChipPool`/`MatchRules`/`BattleController`, ya completo desde Plan 4 pero nunca llamado) a las 7 mesas — cada asiento/jugador usa el `ChipLedger` del equipo en vez de uno individual | `feature/battle-pool-wiring` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -392,6 +392,37 @@ completos (10 tareas con TDD, código GDScript incluido) ya escritos por
 esta sesión pilar. Fuera de alcance explícito: reskin de las otras 6
 mesas (fases posteriores, un agente por mesa reutilizando estos
 componentes), Double/Split reales, sonido, pixel art final.
+
+## Merge de Planes 14-15 (2026-08-24)
+
+Ambos agentes terminaron en paralelo (no compartían archivos entre sí,
+salvo `blackjack_table_state.gd`, en funciones distintas: Plan 14 tocó
+`to_dict()`, Plan 15 tocó `sit()`). Verificado antes de mergear: 242/242
+tests en `feature/casino-visual-blackjack`, 237/237 en
+`feature/battle-pool-wiring`, y captura visual real (`diag1.png`, dejada
+por el propio Plan 14 tras su verificación en vivo) confirmando tapete,
+cartas, fichas y HUD tal como el spec pedía. Merge sin incidentes:
+`feature/casino-visual-blackjack` sin conflictos; `feature/battle-pool-wiring`
+con un conflicto textual esperado en `tests/unit/test_blackjack_table_state.gd`
+(ambos planes añadieron tests al final del mismo archivo) — resuelto
+conservando los dos bloques. 264/264 tests tras el merge, tras reconstruir
+la caché de clases. Antes de mergear, el checkout compartido de pilar
+tenía cambios sueltos sin commitear en `project.godot` (había perdido
+`window/stretch/aspect="keep"`, un fix deliberado de esta sesión) y en
+`casino_floor.gd`/`poker_table_state.gd` (reformateo espacios↔tabs) —
+descartados por no ser parte de ningún plan, mismo gotcha de siempre. Se
+repitió el mismo reformateo tras reconstruir la caché post-merge, también
+descartado. Pusheado a `origin/main` (`876526b`).
+
+## Ampliación v1.4: reskin visual de las 6 mesas restantes (2026-08-24)
+
+El usuario pidió aplicar el mismo tratamiento visual de Plan 14 (tapete,
+fichas, cartas/tablero según el juego, botones, HUD, animación) a Ruleta,
+Póker, Dice, Crash, Mines y Plinko — reutilizando
+`scripts/ui/casino/`/`scenes/ui/casino/`, ya en `main`. Pendiente de
+definir con el usuario antes de crear los agentes: si hay referencias
+visuales por juego disponibles ya, y si se lanzan en paralelo (como
+Planes 4-7/9-11) o de uno en uno. Sin agentes creados todavía para esto.
 
 ## Fix: pozo compartido de Modo Batalla nunca conectado (2026-08-24)
 
