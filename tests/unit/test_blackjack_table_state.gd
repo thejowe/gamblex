@@ -164,3 +164,23 @@ func test_chips_won_emitted_when_dealer_busts():
 
     assert_signal_emitted_with_parameters(table, "chips_won", [111, 100])
     assert_eq(table.seats[0].ledger.balance, 600) # 500 - 100 + 200 (dealer bust, full payout)
+
+func test_sit_uses_external_ledger_when_provided():
+    var table = BlackjackTableState.new()
+    var shared := ChipLedger.new(500)
+    table.sit(0, 111, shared)
+    assert_eq(table.seats[0].ledger, shared)
+
+func test_sit_creates_individual_ledger_when_no_external_ledger_given():
+    var table = BlackjackTableState.new()
+    table.sit(0, 111)
+    assert_eq(table.seats[0].ledger.balance, 500)
+
+func test_shared_ledger_bet_is_visible_to_both_seats_on_the_same_team():
+    var table = BlackjackTableState.new()
+    var shared := ChipLedger.new(500)
+    table.sit(0, 111, shared)
+    table.sit(1, 222, shared)
+    table.place_bet(0, 111, 100)
+    assert_eq(shared.balance, 400)
+    assert_eq(table.seats[1].ledger.balance, 400)
