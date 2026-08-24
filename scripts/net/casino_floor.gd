@@ -64,6 +64,7 @@ func _ready() -> void:
             for controller in find_children("*", "PlinkoTableController", true, false):
                 controller.chips_won.connect(_on_chips_won)
             _broadcast_goal_state()
+        _inject_shared_ledger_providers()
     else:
         var peer := multiplayer.multiplayer_peer
         if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
@@ -77,6 +78,27 @@ func _on_connected_to_server() -> void:
         battle_controller.request_state()
     else:
         request_goal_state()
+
+func _ledger_for_player(player_id: int) -> ChipLedger:
+    if not _is_battle_mode:
+        return null
+    var team_id := battle_controller.team_for(player_id)
+    if team_id == -1:
+        return null
+    return battle_controller.ledger_for_team(team_id)
+
+const CONTROLLER_CLASS_NAMES := [
+    "TableController", "RouletteTableController", "PokerTableController",
+    "DiceTableController", "CrashTableController", "MinesTableController",
+    "PlinkoTableController",
+]
+
+func _inject_shared_ledger_providers() -> void:
+    for controller_class in CONTROLLER_CLASS_NAMES:
+        for controller in find_children("*", controller_class, true, false):
+            controller.shared_ledger_provider = _ledger_for_player
+            if _is_battle_mode:
+                controller.on_shared_ledger_changed = battle_controller.notify_balance_possibly_changed
 
 # ---- lobby: navegación local entre sala y mesas (sin red) ----
 
