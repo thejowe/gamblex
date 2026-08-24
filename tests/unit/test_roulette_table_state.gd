@@ -169,3 +169,14 @@ func test_to_dict_reflects_seats_bets_and_last_result():
     assert_eq(data["seats"][1], null)
     assert_eq(data["last_result"], 7)
     assert_eq(data["seats"][0]["bets"].size(), 0)
+
+func test_sit_uses_external_ledger_when_provided():
+    var table = RouletteTableState.new()
+    var shared := ChipLedger.new(500)
+    table.sit(0, 111, shared)
+    assert_eq(table.seats[0].ledger, shared)
+
+func test_sit_creates_individual_ledger_when_no_external_ledger_given():
+    var table = RouletteTableState.new()
+    table.sit(0, 111)
+    assert_eq(table.seats[0].ledger.balance, 500)

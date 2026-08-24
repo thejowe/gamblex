@@ -26,7 +26,7 @@ func _init(p_wheel: RouletteWheel = null) -> void:
     for i in range(SEAT_COUNT):
         seats.append(null)
 
-func sit(seat_index: int, player_id: int) -> bool:
+func sit(seat_index: int, player_id: int, external_ledger: ChipLedger = null) -> bool:
     if seat_index < 0 or seat_index >= SEAT_COUNT:
         return false
     if seats[seat_index] != null:
@@ -36,7 +36,7 @@ func sit(seat_index: int, player_id: int) -> bool:
             return false
     var seat := Seat.new()
     seat.player_id = player_id
-    seat.ledger = ChipLedger.new(500)
+    seat.ledger = external_ledger if external_ledger != null else ChipLedger.new(500)
     seats[seat_index] = seat
     return true
 
