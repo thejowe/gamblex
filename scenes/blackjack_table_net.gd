@@ -1,12 +1,18 @@
 extends Control
 
 @onready var table_controller: TableController = $TableController
-@onready var seats_label: Label = $SeatsLabel
-@onready var dealer_label: Label = $DealerLabel
+@onready var felt_panel: FeltTablePanel = $FeltTablePanel
+@onready var hud_bar: CasinoHudBar = $CasinoHudBar
 @onready var sit_button: Button = $SitButton
 @onready var bet_button: Button = $BetButton
 @onready var hit_button: Button = $HitButton
 @onready var stand_button: Button = $StandButton
+@onready var double_button: Button = $DoubleButton
+@onready var split_button: Button = $SplitButton
+@onready var dealer_cards: Control = $DealerCards
+@onready var dealer_value_label: Label = $DealerValueLabel
+@onready var deck_icon: Control = $DeckIcon
+@onready var seats_root: Control = $SeatsRoot
 
 var my_seat_index: int = -1
 var _last_seats: Array = []
@@ -24,7 +30,6 @@ func _ready() -> void:
 	bet_button.pressed.connect(_on_bet_pressed)
 	hit_button.pressed.connect(_on_hit_pressed)
 	stand_button.pressed.connect(_on_stand_pressed)
-	NetworkManager.identities_changed.connect(_refresh_seats_label)
 	# El host actúa localmente (sin RPC), pero un cliente recién llegado a esta
 	# escena puede que aún no tenga el SteamMultiplayerPeer en CONNECTED —
 	# bloquear "Sentarse" hasta entonces evita el rpc_id() fallido.
@@ -61,19 +66,6 @@ func _on_stand_pressed() -> void:
 
 func _on_state_changed(state: Dictionary) -> void:
 	_last_seats = state["seats"]
-	dealer_label.text = "Banca: %d" % state["dealer_value"]
-	_refresh_seats_label()
+	dealer_value_label.text = "%d" % state["dealer_value"]
 	if my_seat_index >= 0 and my_seat_index < _last_seats.size() and _last_seats[my_seat_index] != null:
 		bet_button.disabled = _last_seats[my_seat_index]["bet"] > 0
-
-func _refresh_seats_label() -> void:
-	var lines: Array[String] = []
-	for i in range(_last_seats.size()):
-		var seat = _last_seats[i]
-		if seat == null:
-			lines.append("Asiento %d: libre" % i)
-		else:
-			lines.append("Asiento %d: %s — fichas %d — apuesta %d — mano %d" % [
-				i, _display_name(seat["player_id"]), seat["balance"], seat["bet"], seat["hand_value"]
-			])
-	seats_label.text = "\n".join(lines)
