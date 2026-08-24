@@ -61,6 +61,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 13 | `plan13-battle-sync-fix` | Fix: `chosen_match_type` nunca se sincroniza host→invitado, rompe modo batalla en vivo (bug real de playtest) | `feature/battle-sync-fix` (mergeado) | ✅ Completado, mergeado a `main` (`406d914`) |
 | 14 | `plan14-casino-visual` | Fundación visual de casino (tapete/fichas/cartas/botones/HUD dibujados por código) + reskin completo de Blackjack con animación de reparto/apuesta/victoria | `feature/casino-visual-blackjack` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
 | 15 | `plan15-battle-pool-wiring` | Fix: conectar el pozo compartido de Modo Batalla (`TeamChipPool`/`MatchRules`/`BattleController`, ya completo desde Plan 4 pero nunca llamado) a las 7 mesas — cada asiento/jugador usa el `ChipLedger` del equipo en vez de uno individual | `feature/battle-pool-wiring` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
+| 16 | `plan16-dark-casino-foundation-dice` | Fundación de panel oscuro compartido (`BetSidebarPanel`) + reskin completo de Dice con slider de umbral arrastrable | `feature/dark-casino-foundation-dice` | 🟢 Desbloqueado, spec y plan ya escritos |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -416,13 +417,31 @@ descartado. Pusheado a `origin/main` (`876526b`).
 
 ## Ampliación v1.4: reskin visual de las 6 mesas restantes (2026-08-24)
 
-El usuario pidió aplicar el mismo tratamiento visual de Plan 14 (tapete,
-fichas, cartas/tablero según el juego, botones, HUD, animación) a Ruleta,
-Póker, Dice, Crash, Mines y Plinko — reutilizando
-`scripts/ui/casino/`/`scenes/ui/casino/`, ya en `main`. Pendiente de
-definir con el usuario antes de crear los agentes: si hay referencias
-visuales por juego disponibles ya, y si se lanzan en paralelo (como
-Planes 4-7/9-11) o de uno en uno. Sin agentes creados todavía para esto.
+El usuario pidió aplicar el mismo tratamiento visual de Plan 14 a Ruleta,
+Póker, Dice, Crash, Mines y Plinko, y pasó una foto de referencia real por
+juego (`rulette.png`, `dice.png`, `crash.png`, `mines.png`, `plinko.png`
+en la raíz del repo — copiadas a
+`docs/superpowers/specs/references/*-acebet-reference.png` para que no se
+pierdan; Póker queda para después, sin referencia todavía).
+
+**Sorpresa real al ver las referencias:** no es el mismo lenguaje visual
+de Blackjack (mesa de fieltro). Las 5 con referencia son estilo "app de
+casino online moderna" (panel oscuro navy, acento verde) — un sistema de
+componentes distinto, `FeltTablePanel`/`PlayingCard`/`CasinoChip` de Plan
+14 no aplican aquí. Las 5 comparten casi el mismo panel lateral de
+apuesta (monto, 1/2, x2, Máx, botón "Hacer apuesta") — confirmado con el
+usuario: se construye esa fundación compartida primero, aplicada a Dice
+(el más simple), y solo cuando esa rama mergee se lanzan Ruleta/Crash/
+Mines/Plinko en paralelo reutilizándola (mismo criterio que "Dice
+primero" en la Ampliación v1.1, para no arriesgar 4 versiones ligeramente
+distintas del mismo panel).
+
+Creado `plan16-dark-casino-foundation-dice`, desbloqueado, spec y plan de
+implementación completos (6 tareas con TDD, código GDScript incluido) ya
+escritos por esta sesión pilar. Agentes `plan17` (Ruleta), `plan18`
+(Crash), `plan19` (Mines), `plan20` (Plinko) — **sin crear todavía**,
+bloqueados hasta que `plan16` mergee a `main` (necesitan `BetSidebarPanel`
+real, no un plan en papel).
 
 ## Fix: pozo compartido de Modo Batalla nunca conectado (2026-08-24)
 
