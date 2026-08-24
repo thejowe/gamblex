@@ -61,7 +61,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 13 | `plan13-battle-sync-fix` | Fix: `chosen_match_type` nunca se sincroniza host→invitado, rompe modo batalla en vivo (bug real de playtest) | `feature/battle-sync-fix` (mergeado) | ✅ Completado, mergeado a `main` (`406d914`) |
 | 14 | `plan14-casino-visual` | Fundación visual de casino (tapete/fichas/cartas/botones/HUD dibujados por código) + reskin completo de Blackjack con animación de reparto/apuesta/victoria | `feature/casino-visual-blackjack` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
 | 15 | `plan15-battle-pool-wiring` | Fix: conectar el pozo compartido de Modo Batalla (`TeamChipPool`/`MatchRules`/`BattleController`, ya completo desde Plan 4 pero nunca llamado) a las 7 mesas — cada asiento/jugador usa el `ChipLedger` del equipo en vez de uno individual | `feature/battle-pool-wiring` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
-| 16 | `plan16-dark-casino-foundation-dice` | Fundación de panel oscuro compartido (`BetSidebarPanel`) + reskin completo de Dice con slider de umbral arrastrable | `feature/dark-casino-foundation-dice` | 🟢 Desbloqueado, spec y plan ya escritos |
+| 16 | `plan16-dark-casino-foundation-dice` | Fundación de panel oscuro compartido (`BetSidebarPanel`) + reskin completo de Dice con slider de umbral arrastrable | `feature/dark-casino-foundation-dice` (mergeado) | ✅ Completado, mergeado a `main` (`6f7f917`) |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -436,12 +436,21 @@ Mines/Plinko en paralelo reutilizándola (mismo criterio que "Dice
 primero" en la Ampliación v1.1, para no arriesgar 4 versiones ligeramente
 distintas del mismo panel).
 
-Creado `plan16-dark-casino-foundation-dice`, desbloqueado, spec y plan de
-implementación completos (6 tareas con TDD, código GDScript incluido) ya
-escritos por esta sesión pilar. Agentes `plan17` (Ruleta), `plan18`
-(Crash), `plan19` (Mines), `plan20` (Plinko) — **sin crear todavía**,
-bloqueados hasta que `plan16` mergee a `main` (necesitan `BetSidebarPanel`
-real, no un plan en papel).
+**Merge de Plan 16 (2026-08-24):** hecho. 280/280 tests tras reconstruir
+caché de clases. Código revisado línea a línea contra el plan (coincide
+exacto). El agente se saltó su propio paso de verificación visual en vivo
+(Task 6) — a diferencia del agente de Plan 14, no dejó captura de
+pantalla; el código y los tests son correctos, pero nadie ha visto
+todavía el slider/panel funcionando en pantalla. Pendiente: que el
+usuario confirme visualmente la mesa de Dice antes de dar la Ampliación
+v1.4a por cerrada del todo. Sin conflictos al mergear, mismo gotcha de
+reformateo espacios/tabs de siempre (descartado).
+
+`BetSidebarPanel` (`scripts/ui/casino/bet_sidebar_panel.gd`) ya está en
+`main`, listo para que Ruleta/Crash/Mines/Plinko lo reutilicen sin
+tocarlo. Agentes `plan17` (Ruleta), `plan18` (Crash), `plan19` (Mines),
+`plan20` (Plinko) — **desbloqueados a partir de ahora**, pendientes de
+crear.
 
 ## Fix: pozo compartido de Modo Batalla nunca conectado (2026-08-24)
 
