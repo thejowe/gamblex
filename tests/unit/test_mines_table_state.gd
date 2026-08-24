@@ -194,3 +194,14 @@ func test_to_dict_player_absent_until_first_action():
 	var table = MinesTableState.new()
 	assert_eq(table.players.size(), 0)
 	assert_eq(table.to_dict()["players"].size(), 0)
+
+func test_start_round_uses_external_ledger_for_new_player():
+	var table = MinesTableState.new()
+	var shared := ChipLedger.new(500)
+	table.start_round(111, 25, 3, 100, shared)
+	assert_eq(shared.balance, 400)
+
+func test_start_round_creates_individual_ledger_when_no_external_ledger_given():
+	var table = MinesTableState.new()
+	table.start_round(111, 25, 3, 100)
+	assert_eq(table.players[111].ledger.balance, 400)
