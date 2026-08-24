@@ -24,3 +24,11 @@ static func chip_color(denomination: int) -> Color:
 	if CHIP_COLORS.has(denomination):
 		return CHIP_COLORS[denomination]
 	return Color("9b59b6")
+
+const PANEL_NAVY_DARK := Color("131b26")
+const PANEL_NAVY_MID := Color("1c2733")
+const PANEL_NAVY_LIGHT := Color("28374a")
+const ACCENT_GREEN := Color("4caf6e")
+const ACCENT_RED := Color("d9534f")
+const TEXT_LIGHT := Color("e8edf2")
+const TEXT_MUTED := Color("7c8a9a")

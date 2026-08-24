@@ -12,3 +12,12 @@ func test_palette_constants_are_colors():
 	assert_true(CasinoTheme.GOLD_ACCENT is Color)
 	assert_true(CasinoTheme.CARD_WHITE is Color)
 	assert_true(CasinoTheme.TEXT_CREAM is Color)
+
+func test_dark_panel_palette_constants_are_colors():
+	assert_true(CasinoTheme.PANEL_NAVY_DARK is Color)
+	assert_true(CasinoTheme.PANEL_NAVY_MID is Color)
+	assert_true(CasinoTheme.PANEL_NAVY_LIGHT is Color)
+	assert_true(CasinoTheme.ACCENT_GREEN is Color)
+	assert_true(CasinoTheme.ACCENT_RED is Color)
+	assert_true(CasinoTheme.TEXT_LIGHT is Color)
+	assert_true(CasinoTheme.TEXT_MUTED is Color)
