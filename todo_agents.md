@@ -62,11 +62,11 @@ sesión pilar para evitar conflictos entre ramas.
 | 14 | `plan14-casino-visual` | Fundación visual de casino (tapete/fichas/cartas/botones/HUD dibujados por código) + reskin completo de Blackjack con animación de reparto/apuesta/victoria | `feature/casino-visual-blackjack` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
 | 15 | `plan15-battle-pool-wiring` | Fix: conectar el pozo compartido de Modo Batalla (`TeamChipPool`/`MatchRules`/`BattleController`, ya completo desde Plan 4 pero nunca llamado) a las 7 mesas — cada asiento/jugador usa el `ChipLedger` del equipo en vez de uno individual | `feature/battle-pool-wiring` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
 | 16 | `plan16-dark-casino-foundation-dice` | Fundación de panel oscuro compartido (`BetSidebarPanel`) + reskin completo de Dice con slider de umbral arrastrable | `feature/dark-casino-foundation-dice` (mergeado) | ✅ Completado, mergeado a `main` (`6f7f917`) |
-| 17 | `plan17-roulette-visual` | Reskin visual de Ruleta: rueda animada, grid de 37 números clicable, historial de resultados | `feature/roulette-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
-| 18 | `plan18-crash-visual` | Reskin visual de Crash: gráfico de multiplicador creciente en tiempo real | `feature/crash-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
-| 19 | `plan19-mines-visual` | Reskin visual de Mines: grid dinámico de casillas con estados tapada/revelada/mina | `feature/mines-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
-| 20 | `plan20-plinko-visual` | Reskin visual de Plinko: tablero de clavijas con bola animada y fila de multiplicadores | `feature/plinko-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
-| 21 | `plan21-free-mode-shared-pool` | Fix: pozo compartido real en Modo Libre (reemplaza `CollectiveGoal` acumulativo) + pantalla de derrota si el pozo llega a 0 | `feature/free-mode-shared-pool` | 🟢 Desbloqueado, spec y plan ya escritos |
+| 17 | `plan17-roulette-visual` | Reskin visual de Ruleta: rueda animada, grid de 37 números clicable, historial de resultados | `feature/roulette-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — ⚠️ ver bug de layout abajo |
+| 18 | `plan18-crash-visual` | Reskin visual de Crash: gráfico de multiplicador creciente en tiempo real | `feature/crash-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
+| 19 | `plan19-mines-visual` | Reskin visual de Mines: grid dinámico de casillas con estados tapada/revelada/mina | `feature/mines-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
+| 20 | `plan20-plinko-visual` | Reskin visual de Plinko: tablero de clavijas con bola animada y fila de multiplicadores | `feature/plinko-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
+| 21 | `plan21-free-mode-shared-pool` | Fix: pozo compartido real en Modo Libre (reemplaza `CollectiveGoal` acumulativo) + pantalla de derrota si el pozo llega a 0 | `feature/free-mode-shared-pool` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — confirmado funcionando en vivo |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -468,6 +468,49 @@ el usuario abra las 4 sesiones.** Nota de Crash: la vista nunca debe leer
 `crash_point` del estado (solo `elapsed`/`multiplier_at()`), quedó
 explícito en su spec/plan/persona para que ningún agente exponga el punto
 de explosión antes de tiempo.
+
+## Merge de Planes 17-21 (2026-08-24)
+
+Las 5 sesiones terminaron en paralelo (4 mesas visuales + fix de modo
+libre). Verificado antes de mergear: 5/5 branches con tests en verde de
+forma aislada (292-320 según rama), sin cambios sin commitear salvo caché
+de import de Godot (ruido, ignorado). **Sin ningún conflicto** al
+mergear las 5 — confirmado el análisis de que no comparten archivos entre
+sí (cada mesa visual toca solo su propia escena; el fix de modo libre
+toca solo `casino_floor.*`). 320/320 tests tras el merge completo, caché
+de clases reconstruida. Mismo gotcha de reformateo espacios/tabs de
+siempre en `casino_floor.gd`/`poker_table_state.gd` (descartado).
+
+**Desviación real en Ruleta (Plan 17), aceptada, no es un bug:** el
+usuario, probando en vivo durante la sesión del agente, pidió que apostar
+sea de un clic (clic en número/apuesta de fuera apuesta al instante con
+el monto del sidebar) en vez de seleccionar-y-confirmar como decía el
+plan original — "Hacer apuesta" del panel lateral ahora repite la última
+selección. Documentado en el commit `1e3e46b`, tests actualizados para
+cubrir el nuevo comportamiento.
+
+**Verificación en vivo hecha por esta sesión pilar (2026-08-24), lanzando
+el juego con Steam y capturando la ventana real:**
+- **Plan 21 confirmado funcionando de verdad**: el HUD mostró "Meta
+  colectiva: 500 / 1000 fichas" al arrancar, y tras una apuesta perdida
+  bajó a "410 / 1000" — el pozo compartido sube y baja de verdad, ya no
+  es el contador acumulativo roto que reportó el usuario.
+- Rueda de Ruleta, panel lateral oscuro, grid de números, botones e
+  historial de resultados renderizan correctamente.
+- **Bug real encontrado, sin arreglar todavía**: el grid de 37 números de
+  `RouletteBettingGrid` usa `columns = 12`, pero a 12 columnas × ~66px no
+  cabe en el ancho de diseño de 900px del proyecto — los números de la
+  derecha de cada fila (11, 23, 35, y parte de la última columna) quedan
+  cortados fuera de la ventana, invisibles e imposibles de pulsar.
+  Necesita su propio fix (menos columnas, o celdas más pequeñas, o ambas)
+  — **pendiente de agente**.
+- No se pudo automatizar el clic para navegar a Blackjack/Dice/Crash/
+  Mines/Plinko desde esta sesión (el clic sintético vía `mouse_event` no
+  llegó a registrarse en la ventana de Godot, causa no investigada más a
+  fondo) — **esas 4 mesas + Blackjack siguen sin confirmación visual de
+  esta sesión pilar**, solo tests + revisión de código. Pendiente que el
+  usuario las confirme jugando en vivo, como ya se le pidió a cada agente
+  en su Task de verificación.
 
 ## Fix: pozo compartido real en Modo Libre (2026-08-24)
 
