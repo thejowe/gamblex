@@ -42,6 +42,41 @@ sesión pilar para evitar conflictos entre ramas.
 
 ---
 
+## Cierre de sesión (2026-08-24)
+
+Estado al cerrar por hoy: **Planes 1-22 completados y mergeados a
+`main`** (`e369aae`), working tree limpio, todo pusheado a
+`origin/main`. Ningún agente desbloqueado esperando prompt ahora mismo.
+
+Pendiente real, no urgente:
+- **Confirmación visual del usuario**: Plan 22 (grid de Ruleta) tiene
+  código+tests correctos pero esta sesión pilar no pudo confirmarlo en
+  vivo (el clic sintético vía PowerShell/Win32 no registra de forma
+  fiable en la ventana de Godot — ver nota en la sección de merge de
+  Plan 22 más abajo). Cuando el usuario entre a Ruleta, confirmar que los
+  37 números ya se ven completos.
+- **Playtest real de 2 clientes Steam en Modo Batalla**: sigue sin
+  confirmarse en vivo que el pozo compartido (Plan 15) se comporta bien
+  con gente de verdad — el fix de Modo Libre (Plan 21) sí se confirmó en
+  vivo por esta sesión, Modo Batalla no.
+- **Blackjack/Dice/Crash/Mines/Plinko**: reskins visuales mergeados con
+  tests en verde, pero sin confirmación visual de una sesión pilar
+  (los agentes que las construyeron sí verificaron, según sus reportes,
+  salvo Dice que se saltó ese paso — ver nota en el merge de Plan 16).
+
+Próxima ampliación posible, sin agente creado todavía: reskin visual de
+Póker (sin foto de referencia del usuario todavía, explícitamente
+pospuesto).
+
+Prompt para la próxima sesión pilar, igual que siempre:
+
+> Actúa como la sesión pilar del proyecto de casino multijugador — lee y
+> sigue al pie de la letra `.claude/agents/pilar.md`, y luego revisa
+> `todo_agents.md` y el estado real del repo (`git pull`, `git log
+> --oneline -20`) antes de decirme nada.
+
+---
+
 ## Tabla de agentes
 
 | # | Agente (`.claude/agents/…`) | Encargo | Rama | Estado |
@@ -62,7 +97,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 14 | `plan14-casino-visual` | Fundación visual de casino (tapete/fichas/cartas/botones/HUD dibujados por código) + reskin completo de Blackjack con animación de reparto/apuesta/victoria | `feature/casino-visual-blackjack` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
 | 15 | `plan15-battle-pool-wiring` | Fix: conectar el pozo compartido de Modo Batalla (`TeamChipPool`/`MatchRules`/`BattleController`, ya completo desde Plan 4 pero nunca llamado) a las 7 mesas — cada asiento/jugador usa el `ChipLedger` del equipo en vez de uno individual | `feature/battle-pool-wiring` (mergeado) | ✅ Completado, mergeado a `main` (`876526b`) |
 | 16 | `plan16-dark-casino-foundation-dice` | Fundación de panel oscuro compartido (`BetSidebarPanel`) + reskin completo de Dice con slider de umbral arrastrable | `feature/dark-casino-foundation-dice` (mergeado) | ✅ Completado, mergeado a `main` (`6f7f917`) |
-| 17 | `plan17-roulette-visual` | Reskin visual de Ruleta: rueda animada, grid de 37 números clicable, historial de resultados | `feature/roulette-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — ⚠️ ver bug de layout abajo |
+| 17 | `plan17-roulette-visual` | Reskin visual de Ruleta: rueda animada, grid de 37 números clicable, historial de resultados | `feature/roulette-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — bug de layout del grid arreglado por Plan 22 |
 | 18 | `plan18-crash-visual` | Reskin visual de Crash: gráfico de multiplicador creciente en tiempo real | `feature/crash-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
 | 19 | `plan19-mines-visual` | Reskin visual de Mines: grid dinámico de casillas con estados tapada/revelada/mina | `feature/mines-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
 | 20 | `plan20-plinko-visual` | Reskin visual de Plinko: tablero de clavijas con bola animada y fila de multiplicadores | `feature/plinko-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
