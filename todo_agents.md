@@ -702,6 +702,101 @@ solo higiene de proceso. Antes de automatizar clics: `Get-Process |
 Where MainWindowTitle -like "Casino Pixel*"` y confirmar que da
 exactamente 1 resultado antes de tocar nada.
 
+## Barrida exhaustiva de las 7 mesas (2026-08-24)
+
+Usuario pidió una revisión sistemática de las 7 mesas — solapamientos,
+botones muertos, fallos internos, todas las funciones. Esta sesión
+(un fork de la sesión pilar principal) intentó automatizar la
+verificación en vivo con el mismo método Win32 ya usado antes, pero
+**el foco de ventana no se pudo forzar de forma fiable**: el usuario
+estaba usando su propio escritorio en paralelo (YouTube, luego
+Netflix) y Windows bloqueó correctamente el robo de foco
+(`SetForegroundWindow` fallaba consistentemente, incluso con el truco
+`AttachThreadInput`). Decisión: no forzar el foco mientras el usuario
+usa su máquina en vivo — se hizo el resto de la barrida por **revisión
+de código estática** (coordenadas de `.tscn` para solapamientos,
+grep de señales `.pressed.connect`/`.disabled` para botones muertos,
+lectura de la lógica de cada `*_table_state.gd`/`*_table_net.gd`),
+apoyada en el test suite completo (GUT) como verificación, no en
+capturas de pantalla. Los fixes anteriores de esta sesión (rueda,
+spoiler, monto de apuesta, bancarrota prematura, overlay de derrota,
+apuesta fija de Blackjack, sync de "Máx") ya estaban confirmados en
+vivo antes de este bloqueo y no se volvieron a tocar.
+
+**Bugs encontrados y arreglados (7, todos commiteados y pusheados a
+`main`, tests nuevos por cada uno, 349/349 al final):**
+
+- **Ruleta** (`9b3bbb6`): `RouletteBettingGrid` (4 filas de números +
+  fila de apuestas de fuera) necesita ~196px de alto pero solo tenía
+  160px asignados en `roulette_table_net.tscn` — se desbordaba 16px
+  sobre `SeatsLabel`, tapando su texto. Encontrado por cálculo exacto
+  de altura de contenido, no por captura (coincide con lo que se vio
+  en vivo antes en esta misma sesión y quedó sin diagnosticar en su
+  momento).
+- **Ruleta** (`a7f0983`): nada bloqueaba el botón "Girar" mientras la
+  bola de la ronda anterior seguía animándose (2s). Re-apostar y
+  volver a girar en esa ventana crea un segundo tween compitiendo por
+  `ball_angle` (bola temblando) y una segunda conexión `spin_finished`
+  sin limpiar la primera (el historial podía recibir resultados fuera
+  de orden). Botón se bloquea al empezar el giro, se libera al
+  terminar.
+- **Póker** (`d6e5662`): el nodo raíz de `PokerTableNet` seguía con el
+  offset de la franja vertical de antes del Lobby (Plan 12) —
+  `offset_left=650, offset_right=1400` en un canvas de diseño de
+  900px. La mayoría de la mesa quedaba fuera del área visible/
+  clicable. Las otras 6 mesas ya usan rect completo (0,0)-(900,1080)
+  porque cada una tuvo su propio agente de reskin que las reconstruyó
+  desde cero; Póker nunca tuvo ese agente, así que nadie tocó su nodo
+  raíz desde Plan 4-7. Bug de máxima severidad de esta barrida.
+- **Póker** (`303c026`): botón "Repartir" sin ningún `disabled` ligado
+  al número de sentados — con menos de 2 jugadores o mano ya activa,
+  `PokerTableState.start_hand()` rechaza en silencio server-side, cero
+  feedback al usuario. Ahora se deshabilita según sentados/mano activa.
+- **Blackjack** (`ef78104`): mismo patrón que Póker pero en HIT/STAND
+  — nunca se deshabilitaban fuera de turno, `hit()`/`stand()` los
+  rechaza en silencio server-side si no es tu turno. Ahora siguen
+  `active_seat_index == my_seat_index`.
+- **Mines** (`5b3f67c`): selector de tamaño de grid y campo de minas
+  sin bloquear durante una ronda activa — cambiarlos a mitad de
+  partida llama `_rebuild_grid()` con el tamaño nuevo mientras el
+  servidor sigue trackeando el tamaño viejo, desincronizando visualmente
+  el grid (no crashea, `start_round` ya rechaza rondas duplicadas
+  server-side, pero el grid queda con celdas huérfanas en estado por
+  defecto). Bloqueados junto a "Retirar"/apostar mientras hay ronda activa.
+- **Plinko** (`8918aaa`): la señal `PlinkoBoard.ball_landed` se emitía
+  pero nadie la escuchaba. Nada bloqueaba filas (+/-) ni "Hacer
+  apuesta" mientras la bola caía — cambiar filas a mitad de caída hace
+  que `_draw()` recalcule las posiciones de las clavijas con el nuevo
+  `rows` cada frame (se llama en cada paso del tween de la bola),
+  mientras la bola sigue animándose por la trayectoria vieja: bola
+  visualmente desconectada de las clavijas. Bloqueados los 3 controles
+  mientras `_dropping`, liberados en `ball_landed` (ahora sí conectada).
+
+**Revisado y confirmado correcto, sin cambios:**
+- Blackjack `DoubleButton`/`SplitButton` permanentemente deshabilitados
+  a propósito — Double/Split reales están fuera de alcance explícito
+  desde Plan 14, no es un bug, es trabajo futuro documentado.
+- Crash: bloqueo de apostar/retirar durante ronda activa ya estaba
+  bien implementado desde el principio (`cash_out_button.disabled`/
+  `bet_sidebar.bet_button.disabled` ligados a `is_active`).
+- Póker: Retirarse/Pasar/Igualar/Subir ya estaban correctamente
+  ligados a `is_my_turn` — solo faltaba "Repartir" (arreglado arriba).
+- Dice: slider de umbral, multiplicador/probabilidad en vivo, sin
+  solapamientos — todo limpio.
+
+**Gotcha de entorno nuevo, importante para la próxima sesión que
+quiera automatizar clics:** si el usuario está usando su propio
+escritorio en paralelo (viendo vídeos, otras apps), Windows bloquea
+`SetForegroundWindow` de un proceso en segundo plano — es una
+protección del SO contra robo de foco, funciona incluso contra el
+truco `AttachThreadInput`+`ShowWindow`+`BringWindowToTop`. **No
+forzar el foco en ese caso** — es la ventana del usuario, no la
+nuestra. `PrintWindow` sí funciona sin foco (captura el buffer de la
+ventana igual), así que se puede seguir viendo el estado sin poder
+interactuar. Si hace falta seguir probando con clics reales, pedirle
+al usuario que deje el juego en primer plano un rato, o hacerlo
+cuando conste que no está usando la máquina activamente.
+
 ## Merge de Plan 22 (2026-08-24)
 
 Diff exacto al plan (3 archivos: `roulette_betting_grid.gd`/`.tscn` +
