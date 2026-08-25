@@ -561,6 +561,44 @@ van bien, pero encontró 2 bugs reales más:
 y pusheado directo a `main` (`11e0e3a` spoiler, `53f2663` monto). **Sin
 confirmar en vivo todavía** — pendiente que el usuario juegue de nuevo.
 
+## Fix directo: bancarrota prematura antes de resolver la apuesta (2026-08-24)
+
+Usuario reportó: "cuando estas a tus últimas fichas y las apuestas todas
+se termina la partida sin ni siquiera terminar la apuesta". Bug real y
+de alcance amplio, investigado directo por esta sesión pilar:
+`ChipLedger.is_bankrupt()` solo miraba `balance <= 0` — eso se cumple
+en el instante en que `place_bet()` descuenta la apuesta, antes de que
+la ronda se resuelva. Para cualquier juego con hueco real entre apostar
+y resolver (Ruleta: apuesta→girar; Crash: apuesta→sube en vivo→cash
+out/explota; Mines: apuesta→revelar→cash out/mina; Blackjack:
+apuesta→pedir/plantarse→resolver; Póker: ciegas/igualar/subir→showdown)
+la pantalla de derrota saltaba en cuanto apostabas todo, sin darle
+tiempo a la ronda a terminar (ni siquiera a ganar). Dice/Plinko no
+tenían el bug — resuelven apuesta+pago en la misma llamada, sin hueco.
+
+Fix: `ChipLedger` gana `pending_amount` (incrementado en `place_bet`,
+decrementado con `resolve_bet(amount)` nuevo) — `is_bankrupt()` ahora
+exige `balance <= 0 AND pending_amount <= 0`. `resolve_bet()` llamado
+desde el punto de resolución que cada juego ya tenía: `_resolve_bet`
+(Ruleta), `cash_out`/`advance_time` (Crash), `_end_round` (Mines),
+`_resolve_round` (Blackjack), y un `_resolve_all_pending_bets()` nuevo
+en Póker al final de mano (usa un acumulador `total_wagered` por
+asiento porque una mano de Póker puede tener varias `place_bet` —
+ciega, igualadas, subidas — antes de un solo resultado).
+`TeamChipPool` expone `resolve_bet()` — esto también arregla el mismo
+bug en Modo Batalla (`MatchRules.on_balance_changed()` tenía el mismo
+problema de timing, solo que nadie lo había reportado en playtest
+todavía).
+
+3 tests existentes que codificaban el comportamiento viejo (bancarrota
+instantánea) actualizados para resolver la apuesta antes de comprobar:
+`test_team_chip_pool.gd`, `test_match_rules.gd`,
+`test_casino_floor_ledger_wiring.gd`. Test nuevo "no bancarrota
+mientras la apuesta sigue en juego" añadido en cada uno de los 5 juegos
+afectados + a nivel `ChipLedger`/`TeamChipPool`. 338/338 tests
+(era 327). Commiteado y pusheado directo a `main` (`8eb608c`). **Sin
+confirmar en vivo todavía.**
+
 ## Merge de Plan 22 (2026-08-24)
 
 Diff exacto al plan (3 archivos: `roulette_betting_grid.gd`/`.tscn` +
