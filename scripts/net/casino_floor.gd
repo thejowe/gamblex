@@ -1,6 +1,7 @@
 extends Node2D
 
 const GOAL_TARGET := 1000
+const FREE_MODE_STARTING_BALANCE := 500
 const BATTLE_GOAL_BALANCE := 2000
 const BATTLE_TIME_LIMIT_SEC := 600.0
 const BATTLE_STARTING_BALANCE := 500
@@ -17,13 +18,15 @@ const TABLE_NODE_NAMES := [
 
 @onready var goal_label: Label = $Hud/GoalLabel
 @onready var unlocked_banner: Label = $Hud/UnlockedBanner
+@onready var defeat_overlay: Control = $Hud/DefeatOverlay
 @onready var battle_controller: BattleController = $BattleController
 @onready var battle_status_label: Label = $Hud/BattleStatusLabel
 @onready var lobby_view: Control = $Lobby
 @onready var card_grid: GridContainer = $Lobby/CardGrid
 @onready var back_button: Button = $Hud/BackButton
 
-var goal: CollectiveGoal
+var shared_pool_ledger: ChipLedger
+var _pool_unlocked: bool = false
 var _is_battle_mode: bool
 var _teams_line: String = ""
 var _state_line: String = ""
@@ -52,17 +55,7 @@ func _ready() -> void:
             battle_controller.start_match(SteamManager.chosen_match_type, BATTLE_GOAL_BALANCE, BATTLE_TIME_LIMIT_SEC, BATTLE_STARTING_BALANCE)
             battle_controller.join(multiplayer.get_unique_id())
         else:
-            goal = CollectiveGoal.new(GOAL_TARGET)
-            for controller in find_children("*", "TableController", true, false):
-                controller.chips_won.connect(_on_chips_won)
-            for controller in find_children("*", "DiceTableController", true, false):
-                controller.chips_won.connect(_on_chips_won)
-            for controller in find_children("*", "CrashTableController", true, false):
-                controller.chips_won.connect(_on_chips_won)
-            for controller in find_children("*", "MinesTableController", true, false):
-                controller.chips_won.connect(_on_chips_won)
-            for controller in find_children("*", "PlinkoTableController", true, false):
-                controller.chips_won.connect(_on_chips_won)
+            shared_pool_ledger = ChipLedger.new(FREE_MODE_STARTING_BALANCE)
             _broadcast_goal_state()
         _inject_shared_ledger_providers()
     else:
@@ -80,12 +73,12 @@ func _on_connected_to_server() -> void:
         request_goal_state()
 
 func _ledger_for_player(player_id: int) -> ChipLedger:
-    if not _is_battle_mode:
-        return null
-    var team_id := battle_controller.team_for(player_id)
-    if team_id == -1:
-        return null
-    return battle_controller.ledger_for_team(team_id)
+    if _is_battle_mode:
+        var team_id := battle_controller.team_for(player_id)
+        if team_id == -1:
+            return null
+        return battle_controller.ledger_for_team(team_id)
+    return shared_pool_ledger
 
 const CONTROLLER_CLASS_NAMES := [
     "TableController", "RouletteTableController", "PokerTableController",
@@ -99,6 +92,8 @@ func _inject_shared_ledger_providers() -> void:
             controller.shared_ledger_provider = _ledger_for_player
             if _is_battle_mode:
                 controller.on_shared_ledger_changed = battle_controller.notify_balance_possibly_changed
+            else:
+                controller.on_shared_ledger_changed = _notify_free_mode_balance_changed
 
 # ---- lobby: navegación local entre sala y mesas (sin red) ----
 
@@ -119,17 +114,29 @@ func _refresh_room_visibility() -> void:
     for table_name in _table_nodes:
         _table_nodes[table_name].visible = _lobby.is_active(table_name)
 
-# ---- modo libre: meta colectiva ----
+# ---- modo libre: pozo compartido ----
 
-func _on_chips_won(_player_id: int, amount: int) -> void:
-    goal.add_chips(amount)
+func _set_pool_unlocked_if_reached_goal() -> void:
+    if shared_pool_ledger.balance >= GOAL_TARGET:
+        _pool_unlocked = true
+
+func _notify_free_mode_balance_changed() -> void:
+    _set_pool_unlocked_if_reached_goal()
     _broadcast_goal_state()
 
-# Un cliente que entra a CasinoFloor después de que ya hubo ganancias no
+func _goal_state_dict() -> Dictionary:
+    return {
+        "balance": shared_pool_ledger.balance,
+        "target": GOAL_TARGET,
+        "unlocked": _pool_unlocked,
+        "bankrupt": shared_pool_ledger.is_bankrupt(),
+    }
+
+# Un cliente que entra a CasinoFloor después de que ya hubo apuestas no
 # recibe nada por su cuenta: el host solo retransmite _receive_goal_state
-# cuando el contador cambia, nunca al conectar (mismo gotcha que
+# cuando el pozo cambia, nunca al conectar (mismo gotcha que
 # TableController.request_state en Plan 3). Sin este pedido explícito el
-# cliente se queda con el contador en 0 para siempre.
+# cliente se queda con el pozo en el balance inicial para siempre.
 func request_goal_state() -> void:
     if multiplayer.is_server():
         return
@@ -139,15 +146,16 @@ func request_goal_state() -> void:
 func _request_goal_state() -> void:
     if not multiplayer.is_server():
         return
-    _receive_goal_state.rpc_id(multiplayer.get_remote_sender_id(), goal.to_dict())
+    _receive_goal_state.rpc_id(multiplayer.get_remote_sender_id(), _goal_state_dict())
 
 func _broadcast_goal_state() -> void:
-    _receive_goal_state.rpc(goal.to_dict())
+    _receive_goal_state.rpc(_goal_state_dict())
 
 @rpc("authority", "call_local", "reliable")
 func _receive_goal_state(state: Dictionary) -> void:
-    goal_label.text = "Meta colectiva: %d / %d fichas" % [state["total"], state["target"]]
+    goal_label.text = "Meta colectiva: %d / %d fichas" % [state["balance"], state["target"]]
     unlocked_banner.visible = state["unlocked"]
+    defeat_overlay.visible = state["bankrupt"]
 
 # ---- modo batalla ----
 
