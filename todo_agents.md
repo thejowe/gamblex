@@ -67,7 +67,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 19 | `plan19-mines-visual` | Reskin visual de Mines: grid dinámico de casillas con estados tapada/revelada/mina | `feature/mines-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
 | 20 | `plan20-plinko-visual` | Reskin visual de Plinko: tablero de clavijas con bola animada y fila de multiplicadores | `feature/plinko-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
 | 21 | `plan21-free-mode-shared-pool` | Fix: pozo compartido real en Modo Libre (reemplaza `CollectiveGoal` acumulativo) + pantalla de derrota si el pozo llega a 0 | `feature/free-mode-shared-pool` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — confirmado funcionando en vivo |
-| 22 | `plan22-roulette-grid-overflow-fix` | Fix: grid de 37 números de Ruleta se sale de la ventana (columnas compartidas con apuestas de fuera más anchas) | `feature/roulette-grid-overflow-fix` | 🟢 Desbloqueado, spec y plan ya escritos |
+| 22 | `plan22-roulette-grid-overflow-fix` | Fix: grid de 37 números de Ruleta se sale de la ventana (columnas compartidas con apuestas de fuera más anchas) | `feature/roulette-grid-overflow-fix` (mergeado) | ✅ Completado, mergeado a `main` (`2fc5bb1`) — código+tests verificados, visual pendiente de confirmar (ver nota) |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -469,6 +469,29 @@ el usuario abra las 4 sesiones.** Nota de Crash: la vista nunca debe leer
 `crash_point` del estado (solo `elapsed`/`multiplier_at()`), quedó
 explícito en su spec/plan/persona para que ningún agente exponga el punto
 de explosión antes de tiempo.
+
+## Merge de Plan 22 (2026-08-24)
+
+Diff exacto al plan (3 archivos: `roulette_betting_grid.gd`/`.tscn` +
+su test), incluye el commit final de verificación del agente. 322/322
+tests tras el merge, sin conflictos, caché de clases reconstruida.
+
+**Verificación visual: intento fallido, no bloqueante.** Esta sesión
+pilar volvió a lanzar el juego con Steam para confirmar el fix en vivo
+(mismo método que confirmó Plan 21: `PrintWindow` sobre el handle real
+de la ventana "Casino Pixel (DEBUG)", funciona bien para capturar). Pero
+el clic sintético (`SetCursorPos` + `mouse_event` de Win32) **no llegó a
+registrarse** en la ventana de Godot en dos intentos — se quedó en el
+lobby, no pudo navegar a la mesa de Ruleta para ver el grid arreglado.
+La vez anterior (verificación de Plan 21) sí pareció "funcionar", pero en
+retrospectiva es más probable que esa sesión se uniera a un lobby de
+Steam ya existente con estado avanzado de una prueba anterior, no que el
+clic sintético funcionara de verdad — no hay que asumir que ese método de
+clic es fiable en este entorno. Código y tests del fix son correctos
+(revisados línea a línea, coinciden con el diagnóstico de causa raíz);
+**falta que el usuario confirme visualmente en vivo** que los 37 números
+ya no se cortan — pendiente, no urgente, es un fix de layout de bajo
+riesgo ya cubierto por el test de ancho (`test_number_grid_and_outside_bets_row_fit_within_design_width`).
 
 ## Merge de Planes 17-21 (2026-08-24)
 
