@@ -1,15 +1,13 @@
 extends Control
 
 @onready var table_controller: RouletteTableController = $TableController
-@onready var seats_label: Label = $SeatsLabel
-@onready var result_label: Label = $ResultLabel
-@onready var sit_button: Button = $SitButton
-@onready var bet_red_button: Button = $BetRedButton
-@onready var bet_black_button: Button = $BetBlackButton
-@onready var bet_even_button: Button = $BetEvenButton
-@onready var bet_odd_button: Button = $BetOddButton
-@onready var bet_straight_button: Button = $BetStraightButton
+@onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
+@onready var wheel: RouletteWheelDisplay = $RouletteWheelDisplay
+@onready var betting_grid: RouletteBettingGrid = $RouletteBettingGrid
+@onready var results_history: HBoxContainer = $ResultsHistory
 @onready var spin_button: Button = $SpinButton
+@onready var sit_button: Button = $SitButton
+@onready var seats_label: Label = $SeatsLabel
 
 var my_seat_index: int = -1
 var _last_seats: Array = []
@@ -24,11 +22,6 @@ func _display_name(peer_id: int) -> String:
 func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
 	sit_button.pressed.connect(_on_sit_pressed)
-	bet_red_button.pressed.connect(func(): _place_bet(RouletteTableState.BetType.RED, -1, 50))
-	bet_black_button.pressed.connect(func(): _place_bet(RouletteTableState.BetType.BLACK, -1, 50))
-	bet_even_button.pressed.connect(func(): _place_bet(RouletteTableState.BetType.EVEN, -1, 50))
-	bet_odd_button.pressed.connect(func(): _place_bet(RouletteTableState.BetType.ODD, -1, 50))
-	bet_straight_button.pressed.connect(func(): _place_bet(RouletteTableState.BetType.STRAIGHT, 7, 100))
 	spin_button.pressed.connect(_on_spin_pressed)
 	NetworkManager.identities_changed.connect(_refresh_seats_label)
 	# Mismo gotcha que blackjack_table_net.gd: un cliente recién llegado a esta
@@ -62,7 +55,6 @@ func _on_spin_pressed() -> void:
 
 func _on_state_changed(state: Dictionary) -> void:
 	_last_seats = state["seats"]
-	result_label.text = "Último número: %d" % state["last_result"]
 	_refresh_seats_label()
 
 func _refresh_seats_label() -> void:
