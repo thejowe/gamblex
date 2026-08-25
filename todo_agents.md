@@ -67,6 +67,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 19 | `plan19-mines-visual` | Reskin visual de Mines: grid dinámico de casillas con estados tapada/revelada/mina | `feature/mines-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
 | 20 | `plan20-plinko-visual` | Reskin visual de Plinko: tablero de clavijas con bola animada y fila de multiplicadores | `feature/plinko-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
 | 21 | `plan21-free-mode-shared-pool` | Fix: pozo compartido real en Modo Libre (reemplaza `CollectiveGoal` acumulativo) + pantalla de derrota si el pozo llega a 0 | `feature/free-mode-shared-pool` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — confirmado funcionando en vivo |
+| 22 | `plan22-roulette-grid-overflow-fix` | Fix: grid de 37 números de Ruleta se sale de la ventana (columnas compartidas con apuestas de fuera más anchas) | `feature/roulette-grid-overflow-fix` | 🟢 Desbloqueado, spec y plan ya escritos |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
