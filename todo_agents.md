@@ -647,6 +647,61 @@ diseño de 900px — no se confirmó si es intencional o un pixel-perfect
 ajustado al límite; no se tocó, no hay evidencia de que sea un bug
 real (nada se corta ni se ve mal).
 
+## Fix directo: Blackjack solo dejaba apostar 50 fichas fijas (2026-08-24)
+
+Usuario, jugando en vivo en paralelo mientras esta sesión probaba el
+juego, reportó: "en blackjack solo puedes apostar 50". Causa real:
+Blackjack (`scenes/blackjack_table_net.tscn`/`.gd`) es de Plan 14,
+anterior a la fundación `BetSidebarPanel` de Plan 16 — se quedó con un
+único botón fijo `BetButton` ("Apostar 50") que llamaba
+`table_controller.bet(seat, 50)` a pelo, la única de las 7 mesas sin
+monto de apuesta ajustable.
+
+Fix: reemplazado por `BetSidebarPanel` (mismo patrón que las otras 6
+mesas) — campo de monto, 1/2, x2, Máx, "Hacer apuesta" con la señal
+`bet_pressed(amount)`. Fila de botones inferior (Sentarse/DOUBLE/HIT/
+STAND/SPLIT) recorrida a la izquierda para llenar el hueco.
+
+**De regalo, arreglado el mismo día el bug de "Máx" pegado en 500**
+(`scripts/net/casino_floor.gd`): `BetSidebarPanel.max_amount` nunca se
+sincronizaba tras el valor por defecto, así que "Máx" apostaba siempre
+el balance inicial (500) sin importar cuánto quedara de verdad en el
+pozo compartido/de equipo. `_sync_bet_sidebars_max_amount()` nuevo,
+llamado en cada broadcast de `_receive_goal_state` (modo libre) y
+`_on_match_state_changed` (modo batalla) — encuentra todos los
+`BetSidebarPanel` de la escena vía `find_children` y les empuja el
+balance real. El de Blackjack lo hereda gratis, sin cableado extra.
+
+339/339 tests (test de estructura de escena actualizado, más el test
+nuevo `test_receive_goal_state_syncs_bet_sidebar_max_amount_to_pool_balance`).
+Commiteado y pusheado directo a `main` (`9f13b77`). **El usuario tenía
+su propia ventana del juego abierta jugando en vivo durante este fix**
+— como el `.tscn`/`.gd` no se recargan en caliente en una instancia ya
+corriendo, necesita cerrar y volver a abrir el juego para ver el panel
+nuevo de Blackjack y el "Máx" corregido.
+
+**Gotcha nuevo de esta sesión, aparte del reformateo de siempre:**
+reconstruir la caché de clases (`godot --headless --editor --quit`)
+justo antes de editar `casino_floor.gd` con el Edit tool hizo que el
+`git checkout --` de limpieza posterior borrara SIN QUERER también el
+cambio real recién hecho (el diff completo del archivo, ~200 líneas,
+mezclaba mi fix de 11 líneas con el reformateo tabs/espacios de
+siempre, y no había forma de distinguirlos con `git diff --stat` antes
+de descartar). Se recuperó rehaciendo los 3 edits a mano sobre la
+versión ya reformateada. Para la próxima: si vas a tocar
+`casino_floor.gd`, hazlo ANTES de reconstruir la caché de clases, no
+después — o revisa el diff línea por línea (no solo `--stat`) antes de
+descartar cualquier cosa en ese archivo.
+
+**Gotcha de entorno nuevo:** relanzar el juego varias veces seguidas
+sin verificar que el proceso anterior murió del todo puede dejar 2+
+ventanas "Casino Pixel (DEBUG)" superpuestas a la vez (fullscreen,
+tapándose una a otra) — los clics automatizados van a la que esté
+encima de forma no determinista, lo que parece un bug random pero es
+solo higiene de proceso. Antes de automatizar clics: `Get-Process |
+Where MainWindowTitle -like "Casino Pixel*"` y confirmar que da
+exactamente 1 resultado antes de tocar nada.
+
 ## Merge de Plan 22 (2026-08-24)
 
 Diff exacto al plan (3 archivos: `roulette_betting_grid.gd`/`.tscn` +
