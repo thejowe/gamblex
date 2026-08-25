@@ -23,7 +23,8 @@ func _ready() -> void:
 	box.corner_radius_bottom_right = 8
 	add_theme_stylebox_override("panel", box)
 	amount_edit.text = str(amount)
-	amount_edit.text_submitted.connect(func(new_text: String): amount = int(new_text))
+	amount_edit.text_submitted.connect(_commit_typed_amount)
+	amount_edit.focus_exited.connect(func(): _commit_typed_amount(amount_edit.text))
 	bet_button.pressed.connect(_on_bet_pressed)
 	$Margin/VBox/AmountRow/HalfButton.pressed.connect(_on_half_pressed)
 	$Margin/VBox/AmountRow/DoubleButton.pressed.connect(_on_double_pressed)
@@ -44,3 +45,9 @@ func _on_max_pressed() -> void:
 
 func _on_bet_pressed() -> void:
 	bet_pressed.emit(amount)
+
+func _commit_typed_amount(new_text: String) -> void:
+	if new_text.is_valid_int():
+		amount = int(new_text)
+	else:
+		amount_edit.text = str(amount)

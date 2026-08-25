@@ -48,3 +48,25 @@ func test_bet_button_emits_bet_pressed_with_current_amount():
 	watch_signals(panel)
 	panel._on_bet_pressed()
 	assert_signal_emitted_with_parameters(panel, "bet_pressed", [42])
+
+func test_typed_amount_commits_on_focus_lost_without_pressing_enter():
+	var panel := _make_panel()
+	panel.amount_edit.text = "75"
+	panel.amount_edit.focus_exited.emit()
+	assert_eq(panel.amount, 75)
+
+func test_bet_button_uses_typed_amount_even_without_enter():
+	var panel := _make_panel()
+	panel.amount_edit.text = "75"
+	panel.amount_edit.focus_exited.emit()
+	watch_signals(panel)
+	panel._on_bet_pressed()
+	assert_signal_emitted_with_parameters(panel, "bet_pressed", [75])
+
+func test_invalid_typed_amount_reverts_to_last_valid_amount():
+	var panel := _make_panel()
+	panel.amount = 30
+	panel.amount_edit.text = "abc"
+	panel.amount_edit.focus_exited.emit()
+	assert_eq(panel.amount, 30)
+	assert_eq(panel.amount_edit.text, "30")
