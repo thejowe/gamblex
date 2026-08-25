@@ -116,6 +116,9 @@ func _render_state(state: Dictionary) -> void:
 		bet_sidebar.bet_button.disabled = seats[my_seat_index]["bet"] > 0
 		hud_bar.set_balance(seats[my_seat_index]["balance"])
 		hud_bar.set_bet(seats[my_seat_index]["bet"])
+	var is_my_turn: bool = my_seat_index >= 0 and state.get("active_seat_index", -1) == my_seat_index
+	hit_button.disabled = not is_my_turn
+	stand_button.disabled = not is_my_turn
 
 func _render_dealer(hand_data: Array, dealer_value: int) -> void:
 	var has_hidden_card := hand_data.any(func(c): return c.has("hidden"))

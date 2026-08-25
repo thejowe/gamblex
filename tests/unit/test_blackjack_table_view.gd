@@ -67,6 +67,28 @@ func test_hud_shows_balance_immediately_after_sitting():
 	view._on_sit_pressed()
 	assert_eq(view.hud_bar.balance_label.text, "BALANCE  $500")
 
+func test_hit_and_stand_disabled_when_not_my_turn():
+	var view = _make_view()
+	view._on_sit_pressed() # se sienta en el asiento 0
+	var state := {
+		"seats": [{"player_id": 111, "balance": 450, "bet": 50, "hand_value": 15, "hand": []}, null, null, null],
+		"dealer_value": 0, "dealer_hand": [], "active_seat_index": 1, "round_active": true,
+	}
+	view._render_state(state)
+	assert_true(view.hit_button.disabled, "HIT fuera de turno debe quedar deshabilitado, no fallar en silencio")
+	assert_true(view.stand_button.disabled)
+
+func test_hit_and_stand_enabled_on_my_turn():
+	var view = _make_view()
+	view._on_sit_pressed()
+	var state := {
+		"seats": [{"player_id": 111, "balance": 450, "bet": 50, "hand_value": 15, "hand": []}, null, null, null],
+		"dealer_value": 0, "dealer_hand": [], "active_seat_index": 0, "round_active": true,
+	}
+	view._render_state(state)
+	assert_false(view.hit_button.disabled)
+	assert_false(view.stand_button.disabled)
+
 func test_dealer_value_label_shows_full_value_after_round_resolves():
 	var view = _make_view()
 	var state := {
