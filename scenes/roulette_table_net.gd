@@ -70,8 +70,12 @@ func _on_state_changed(state: Dictionary) -> void:
 	var new_result: int = state["last_result"]
 	if new_result != -1 and new_result != _last_seen_result:
 		_last_seen_result = new_result
+		spin_button.disabled = true
 		wheel.spin_to(new_result)
-		wheel.spin_finished.connect(_push_history.bind(new_result), CONNECT_ONE_SHOT)
+		wheel.spin_finished.connect(func():
+			spin_button.disabled = false
+			_push_history(new_result)
+		, CONNECT_ONE_SHOT)
 
 func _push_history(result: int) -> void:
 	_history.push_front(result)

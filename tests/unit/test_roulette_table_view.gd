@@ -36,6 +36,13 @@ func test_result_only_added_to_history_after_ball_lands():
 	await view.wheel.spin_finished
 	assert_eq(view.results_history.get_child_count(), 1)
 
+func test_spin_button_locks_during_ball_animation_and_unlocks_after():
+	var view = _make_view()
+	view._on_state_changed({"seats": [], "last_result": 7})
+	assert_true(view.spin_button.disabled, "re-girar mientras la bola anterior sigue en el aire crea un segundo tween sobre ball_angle")
+	await view.wheel.spin_finished
+	assert_false(view.spin_button.disabled)
+
 func test_bet_pressed_repeats_last_selection_with_given_amount():
 	var view = _make_view()
 	view.table_controller.table_state = RouletteTableState.new()
