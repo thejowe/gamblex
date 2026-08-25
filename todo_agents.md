@@ -505,6 +505,36 @@ el usuario abra las 4 sesiones.** Nota de Crash: la vista nunca debe leer
 explícito en su spec/plan/persona para que ningún agente exponga el punto
 de explosión antes de tiempo.
 
+## Fix directo: bola/números de Ruleta + pantalla completa (2026-08-24)
+
+Usuario reportó jugando en vivo: la ruleta gira entera (todas las
+casillas) en vez de una bola, los números no se ven en la rueda, y pidió
+pasar a pantalla completa. Investigado directo por esta sesión pilar
+(mismo criterio que el fix de botones de Ruleta `cb50b8e`: bug visual
+acotado a un archivo, sin necesidad de agente):
+
+- `scripts/ui/casino/roulette_wheel_display.gd`: `_draw()` nunca llamaba
+  `draw_string` — las 37 casillas se pintaban de color pero sin número.
+  `spin_to()` tweeneaba `rotation` del nodo entero (todo el dibujo,
+  casillas incluidas). Fix: nueva propiedad `ball_angle` (mismo patrón
+  `@export`+setter que `last_result`) que dibuja una bola en un radio
+  interior fijo; `spin_to()` anima esa propiedad en vez de `rotation`.
+  Las casillas y sus números quedan estáticos, coherente con una ruleta
+  real. Reutiliza `ThemeDB.fallback_font` igual que `roulette_result_badge.gd`.
+- `project.godot`: `window/size/mode` de `2` (maximizado) a `3`
+  (pantalla completa), manteniendo `stretch/aspect="keep"` para que el
+  diseño 900x1080 no se deforme.
+- Test nuevo `test_spin_to_animates_ball_not_whole_wheel` en
+  `tests/unit/test_roulette_wheel_display.gd` — confirma `ball_angle`
+  llega al ángulo del resultado y `rotation` del nodo se queda en 0.
+  323/323 tests tras rebuild de caché de clases (era 322).
+
+Commiteado y pusheado directo a `main` (`fa033aa`). **Sin confirmar
+visualmente en vivo** — mismo bloqueador de siempre (clic sintético no
+registra en la ventana de Godot en este entorno). Pendiente que el
+usuario confirme jugando: números visibles en la rueda, bola (no la
+rueda) es lo que gira, ventana en pantalla completa.
+
 ## Merge de Plan 22 (2026-08-24)
 
 Diff exacto al plan (3 archivos: `roulette_betting_grid.gd`/`.tscn` +
