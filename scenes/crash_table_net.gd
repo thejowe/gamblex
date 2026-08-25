@@ -8,6 +8,7 @@ extends Control
 
 var _last_players: Dictionary = {}
 var _local_elapsed: Dictionary = {} # player_id -> float, extrapolación local desde el último broadcast
+var _last_round_seen: Dictionary = {}
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -18,7 +19,7 @@ func _display_name(peer_id: int) -> String:
 
 func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
-	bet_sidebar.bet_pressed.connect(func(amount): table_controller.place_bet(amount))
+	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
 	cash_out_button.pressed.connect(func(): table_controller.cash_out())
 	NetworkManager.identities_changed.connect(_refresh_players_label)
 	cash_out_button.disabled = true
@@ -37,6 +38,9 @@ func _ready() -> void:
 		else:
 			table_controller.request_state()
 
+func _on_bet_pressed(amount: int) -> void:
+	table_controller.place_bet(amount)
+
 func _process(delta: float) -> void:
 	var any_active := false
 	for player_id in _last_players:
@@ -45,6 +49,7 @@ func _process(delta: float) -> void:
 			any_active = true
 	if any_active:
 		_refresh_players_label()
+		_refresh_graph()
 
 func _on_state_changed(state: Dictionary) -> void:
 	_last_players = state["players"]
@@ -57,6 +62,31 @@ func _on_state_changed(state: Dictionary) -> void:
 	if not (not multiplayer.is_server() and multiplayer.multiplayer_peer != null and multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED):
 		bet_sidebar.bet_button.disabled = mine_active
 	_refresh_players_label()
+	_refresh_graph()
+	_maybe_flash_result(mine)
+
+func _refresh_graph() -> void:
+	var my_id := multiplayer.get_unique_id()
+	var mine: Dictionary = _last_players.get(my_id, {})
+	if mine.is_empty():
+		crash_graph.state = CrashGraph.State.IDLE
+		crash_graph.elapsed = 0.0
+		return
+	crash_graph.elapsed = _local_elapsed.get(my_id, mine["elapsed"])
+	if mine["is_active"]:
+		crash_graph.state = CrashGraph.State.RISING
+
+func _maybe_flash_result(mine: Dictionary) -> void:
+	if mine.is_empty():
+		return
+	var last_round: Dictionary = mine["last_round"]
+	if last_round.is_empty():
+		return
+	var my_id := multiplayer.get_unique_id()
+	if _last_round_seen.get(my_id, {}) == last_round:
+		return
+	_last_round_seen[my_id] = last_round
+	crash_graph.state = CrashGraph.State.CASHED_OUT if last_round["win"] else CrashGraph.State.CRASHED
 
 func _refresh_players_label() -> void:
 	if _last_players.is_empty():
