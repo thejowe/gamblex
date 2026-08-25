@@ -1,21 +1,31 @@
 class_name RouletteBettingGrid
-extends GridContainer
+extends VBoxContainer
 
 signal bet_selected(bet_type: int, number: int)
 
 const CasinoButtonScene := preload("res://scenes/ui/casino/casino_button.tscn")
+const NUMBER_CELL_SIZE := Vector2(48, 36)
+const OUTSIDE_BET_CELL_SIZE := Vector2(96, 36)
 
 var _selected_button: Control = null
+var _number_grid: GridContainer
+var _outside_bets_row: GridContainer
 
 func _ready() -> void:
-	columns = 12
+	_number_grid = GridContainer.new()
+	_number_grid.columns = 12
+	add_child(_number_grid)
 	for number in range(37):
 		var button := Button.new()
 		button.text = str(number)
-		button.custom_minimum_size = Vector2(48, 36)
-		add_child(button)
+		button.custom_minimum_size = NUMBER_CELL_SIZE
+		_number_grid.add_child(button)
 		_style_number_button(button, number)
 		button.pressed.connect(_on_number_pressed.bind(button, number))
+
+	_outside_bets_row = GridContainer.new()
+	_outside_bets_row.columns = 7
+	add_child(_outside_bets_row)
 	_add_outside_bet_button("Rojo", RouletteTableState.BetType.RED)
 	_add_outside_bet_button("Negro", RouletteTableState.BetType.BLACK)
 	_add_outside_bet_button("Par", RouletteTableState.BetType.EVEN)
@@ -40,8 +50,8 @@ func _style_number_button(button: Button, number: int) -> void:
 func _add_outside_bet_button(label: String, bet_type: int) -> void:
 	var button: CasinoButton = CasinoButtonScene.instantiate()
 	button.text = label
-	button.custom_minimum_size = Vector2(90, 36)
-	add_child(button)
+	button.custom_minimum_size = OUTSIDE_BET_CELL_SIZE
+	_outside_bets_row.add_child(button)
 	button.pressed.connect(_on_outside_bet_pressed.bind(button, bet_type, -1))
 
 func _on_number_pressed(button: Control, number: int) -> void:
