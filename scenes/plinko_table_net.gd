@@ -10,6 +10,7 @@ extends Control
 
 var _last_players: Dictionary = {}
 var _rows: int = PlinkoTableState.DEFAULT_ROWS
+var _dropping: bool = false
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -23,6 +24,7 @@ func _ready() -> void:
 	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
 	rows_minus_button.pressed.connect(func(): _set_rows(_rows - 1))
 	rows_plus_button.pressed.connect(func(): _set_rows(_rows + 1))
+	board.ball_landed.connect(_on_ball_landed)
 	NetworkManager.identities_changed.connect(_refresh_players_label)
 	_set_rows(PlinkoTableState.DEFAULT_ROWS)
 	if not multiplayer.is_server():
@@ -60,7 +62,17 @@ func _maybe_drop_ball(previous: Dictionary) -> void:
 	var previous_round: Dictionary = previous[my_id]["last_round"] if previous.has(my_id) else {}
 	if previous_round == last_round:
 		return
+	_dropping = true
+	rows_minus_button.disabled = true
+	rows_plus_button.disabled = true
+	bet_sidebar.bet_button.disabled = true
 	board.drop_ball(last_round["bounces"])
+
+func _on_ball_landed(_slot: int) -> void:
+	_dropping = false
+	rows_minus_button.disabled = false
+	rows_plus_button.disabled = false
+	bet_sidebar.bet_button.disabled = false
 
 func _refresh_players_label() -> void:
 	if _last_players.is_empty():
