@@ -55,6 +55,7 @@ func _on_sit_pressed() -> void:
 func _on_bet_selected(bet_type: int, number: int) -> void:
 	_selected_bet_type = bet_type
 	_selected_number = number
+	table_controller.place_bet(my_seat_index, bet_type, number, bet_sidebar.amount)
 
 func _on_bet_pressed(amount: int) -> void:
 	table_controller.place_bet(my_seat_index, _selected_bet_type, _selected_number, amount)
