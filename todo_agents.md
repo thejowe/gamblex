@@ -535,6 +535,32 @@ registra en la ventana de Godot en este entorno). Pendiente que el
 usuario confirme jugando: números visibles en la rueda, bola (no la
 rueda) es lo que gira, ventana en pantalla completa.
 
+## Fix directo: spoiler de resultado + monto de apuesta atascado en 10 (2026-08-24)
+
+Usuario probó el fix anterior en vivo: bola/números/pantalla completa ya
+van bien, pero encontró 2 bugs reales más:
+
+- **`scenes/roulette_table_net.gd`**: `_on_state_changed` metía el número
+  ganador en la barra de historial al instante, mientras la bola seguía
+  animándose 2s — spoileaba el resultado antes de que cayera. Fix:
+  `_push_history` se conecta a `wheel.spin_finished` (`CONNECT_ONE_SHOT`,
+  bind del resultado) en vez de llamarse directo. El guard anti-duplicado
+  pasó de comparar contra `_history[0]` (desfasado mientras la animación
+  corre) a una variable dedicada `_last_seen_result`.
+- **`scripts/ui/casino/bet_sidebar_panel.gd`, compartido por las 7
+  mesas**: el campo de monto solo sincronizaba `amount` en
+  `text_submitted` (tecla Enter). Pulsar "Hacer apuesta" o una celda de
+  apuesta le quita el foco al campo primero — eso nunca dispara
+  `text_submitted`, así que el valor tecleado se descartaba en silencio y
+  toda apuesta usaba el default de 10. Fix: `focus_exited` también
+  comitea el texto tecleado (si es inválido, revierte al último monto
+  válido en vez de resetear a 1). Bug afectaba a las 7 mesas, no solo
+  Ruleta.
+
+327/327 tests tras ambos fixes (era 323 tras el fix anterior). Commiteado
+y pusheado directo a `main` (`11e0e3a` spoiler, `53f2663` monto). **Sin
+confirmar en vivo todavía** — pendiente que el usuario juegue de nuevo.
+
 ## Merge de Plan 22 (2026-08-24)
 
 Diff exacto al plan (3 archivos: `roulette_betting_grid.gd`/`.tscn` +
