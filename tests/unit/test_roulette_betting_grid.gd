@@ -25,6 +25,11 @@ func test_number_grid_and_outside_bets_row_fit_within_design_width():
 	assert_true(number_grid_width <= DESIGN_WIDTH, "el grid de números por sí solo ya no cabe")
 	assert_true(outside_bets_width <= DESIGN_WIDTH, "la fila de apuestas de fuera por sí sola ya no cabe")
 
+func test_number_grid_and_outside_bets_row_fit_within_design_height():
+	var grid := _make_grid()
+	const DESIGN_HEIGHT := 210.0 # alto real asignado a RouletteBettingGrid en roulette_table_net.tscn (570-360)
+	assert_true(grid.get_combined_minimum_size().y <= DESIGN_HEIGHT, "el grid + fila de apuestas de fuera se salen del alto asignado e invaden el SeatsLabel de debajo")
+
 func test_number_press_emits_straight_bet_selected():
 	var grid := _make_grid()
 	watch_signals(grid)
