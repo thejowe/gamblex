@@ -66,6 +66,7 @@ sesión pilar para evitar conflictos entre ramas.
 | 18 | `plan18-crash-visual` | Reskin visual de Crash: gráfico de multiplicador creciente en tiempo real | `feature/crash-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
 | 19 | `plan19-mines-visual` | Reskin visual de Mines: grid dinámico de casillas con estados tapada/revelada/mina | `feature/mines-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
 | 20 | `plan20-plinko-visual` | Reskin visual de Plinko: tablero de clavijas con bola animada y fila de multiplicadores | `feature/plinko-visual` | 🟢 Desbloqueado, spec y plan ya escritos |
+| 21 | `plan21-free-mode-shared-pool` | Fix: pozo compartido real en Modo Libre (reemplaza `CollectiveGoal` acumulativo) + pantalla de derrota si el pozo llega a 0 | `feature/free-mode-shared-pool` | 🟢 Desbloqueado, spec y plan ya escritos |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -467,6 +468,27 @@ el usuario abra las 4 sesiones.** Nota de Crash: la vista nunca debe leer
 `crash_point` del estado (solo `elapsed`/`multiplier_at()`), quedó
 explícito en su spec/plan/persona para que ningún agente exponga el punto
 de explosión antes de tiempo.
+
+## Fix: pozo compartido real en Modo Libre (2026-08-24)
+
+Tras cerrar Plan 15 (pozo de batalla), el usuario probó Modo Libre y
+reportó que "la meta colectiva sigue siendo errónea, sigue acumulando
+solo los puntos ganados" — quería el mismo balance compartido real que
+Batalla (500/1000, sube y baja con cada apuesta), no el contador
+acumulativo de `CollectiveGoal`. Confirmado con el usuario: al llegar a 0
+fichas, pantalla de derrota real (no solo bloqueo silencioso de
+apuestas); al llegar a la meta, sigue el comportamiento actual (banner de
+desbloqueo, la partida continúa — "niveles" queda como trabajo futuro
+aparte, no de este fix).
+
+Creado `plan21-free-mode-shared-pool`, desbloqueado, spec y plan de
+implementación completos (4 tareas con TDD, código GDScript incluido) ya
+escritos por esta sesión pilar. Reutiliza la tubería
+`shared_ledger_provider`/`on_shared_ledger_changed` de Plan 15 sin tocar
+ninguna mesa — solo `casino_floor.gd`/`.tscn`, más borrar
+`CollectiveGoal` (queda sin uso). Independiente de los Planes 17-20
+(visual de las 4 mesas restantes) — no comparte archivos con ellos,
+puede correr en paralelo.
 
 ## Fix: pozo compartido de Modo Batalla nunca conectado (2026-08-24)
 
