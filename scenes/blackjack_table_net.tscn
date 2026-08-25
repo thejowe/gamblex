@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/felt_table_panel.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_hud_bar.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/bet_sidebar_panel.tscn" id="6"]
 
 [node name="BlackjackTableNet" type="Control"]
 layout_mode = 3
@@ -51,6 +52,13 @@ offset_top = 0.0
 offset_right = 900.0
 offset_bottom = 1080.0
 
+[node name="BetSidebarPanel" parent="." instance=ExtResource("6")]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 300.0
+offset_bottom = 260.0
+
 [node name="SitButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
 offset_left = 25.0
@@ -59,46 +67,38 @@ offset_right = 155.0
 offset_bottom = 940.0
 text = "Sentarse"
 
-[node name="BetButton" parent="." instance=ExtResource("5")]
+[node name="DoubleButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
 offset_left = 169.0
 offset_top = 900.0
 offset_right = 299.0
 offset_bottom = 940.0
-text = "Apostar 50"
+text = "DOUBLE"
+disabled = true
 
 [node name="HitButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
-offset_left = 457.0
+offset_left = 313.0
 offset_top = 900.0
-offset_right = 587.0
+offset_right = 443.0
 offset_bottom = 940.0
 text = "HIT"
 variant = 1
 
 [node name="StandButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
-offset_left = 601.0
+offset_left = 457.0
 offset_top = 900.0
-offset_right = 731.0
+offset_right = 587.0
 offset_bottom = 940.0
 text = "STAND"
 variant = 2
 
-[node name="DoubleButton" parent="." instance=ExtResource("5")]
-layout_mode = 0
-offset_left = 313.0
-offset_top = 900.0
-offset_right = 443.0
-offset_bottom = 940.0
-text = "DOUBLE"
-disabled = true
-
 [node name="SplitButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
-offset_left = 745.0
+offset_left = 601.0
 offset_top = 900.0
-offset_right = 875.0
+offset_right = 731.0
 offset_bottom = 940.0
 text = "SPLIT"
 disabled = true

@@ -8,7 +8,7 @@ const CARD_SPACING := 24.0
 @onready var felt_panel: FeltTablePanel = $FeltTablePanel
 @onready var hud_bar: CasinoHudBar = $CasinoHudBar
 @onready var sit_button: Button = $SitButton
-@onready var bet_button: Button = $BetButton
+@onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
 @onready var hit_button: Button = $HitButton
 @onready var stand_button: Button = $StandButton
 @onready var double_button: Button = $DoubleButton
@@ -38,7 +38,7 @@ func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
 	table_controller.chips_won.connect(_on_chips_won)
 	sit_button.pressed.connect(_on_sit_pressed)
-	bet_button.pressed.connect(_on_bet_pressed)
+	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
 	hit_button.pressed.connect(_on_hit_pressed)
 	stand_button.pressed.connect(_on_stand_pressed)
 	double_button.disabled = true
@@ -83,8 +83,8 @@ func _on_sit_pressed() -> void:
 	my_seat_index = seat_index
 	table_controller.sit(seat_index)
 
-func _on_bet_pressed() -> void:
-	table_controller.bet(my_seat_index, 50)
+func _on_bet_pressed(amount: int) -> void:
+	table_controller.bet(my_seat_index, amount)
 
 func _on_hit_pressed() -> void:
 	table_controller.hit(my_seat_index)
@@ -113,7 +113,7 @@ func _render_state(state: Dictionary) -> void:
 		_render_seat(i, seats[i], previous_seat, seats.size())
 	_last_state = state
 	if my_seat_index >= 0 and my_seat_index < seats.size() and seats[my_seat_index] != null:
-		bet_button.disabled = seats[my_seat_index]["bet"] > 0
+		bet_sidebar.bet_button.disabled = seats[my_seat_index]["bet"] > 0
 		hud_bar.set_balance(seats[my_seat_index]["balance"])
 		hud_bar.set_bet(seats[my_seat_index]["bet"])
 

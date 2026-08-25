@@ -62,3 +62,13 @@ func test_goal_state_dict_not_bankrupt_while_last_bet_is_still_unresolved():
 	casino_floor.shared_pool_ledger.place_bet(500)
 	var state = casino_floor._goal_state_dict()
 	assert_false(state["bankrupt"])
+
+func test_receive_goal_state_syncs_bet_sidebar_max_amount_to_pool_balance():
+	var root = load("res://scenes/casino_floor.tscn").instantiate()
+	add_child_autofree(root)
+	root.shared_pool_ledger.place_bet(150) # el pozo baja de 500 a 350
+	root._receive_goal_state(root._goal_state_dict())
+	var sidebars = root.find_children("*", "BetSidebarPanel", true, false)
+	assert_true(sidebars.size() > 0, "no se encontró ningún BetSidebarPanel en la escena")
+	for sidebar in sidebars:
+		assert_eq(sidebar.max_amount, 350)

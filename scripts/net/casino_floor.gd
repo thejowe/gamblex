@@ -95,6 +95,13 @@ func _inject_shared_ledger_providers() -> void:
             else:
                 controller.on_shared_ledger_changed = _notify_free_mode_balance_changed
 
+# El botón "Máx" del panel de apuesta usa `max_amount`, que si no se
+# sincroniza aquí se queda pegado en el valor por defecto (500) en vez de
+# reflejar cuántas fichas quedan de verdad en el pozo compartido/de equipo.
+func _sync_bet_sidebars_max_amount(balance: int) -> void:
+    for sidebar in find_children("*", "BetSidebarPanel", true, false):
+        sidebar.set_max_amount(balance)
+
 # ---- lobby: navegación local entre sala y mesas (sin red) ----
 
 func _on_card_pressed(card_name: String) -> void:
@@ -156,6 +163,7 @@ func _receive_goal_state(state: Dictionary) -> void:
     goal_label.text = "Meta colectiva: %d / %d fichas" % [state["balance"], state["target"]]
     unlocked_banner.visible = state["unlocked"]
     defeat_overlay.visible = state["bankrupt"]
+    _sync_bet_sidebars_max_amount(state["balance"])
 
 # ---- modo batalla ----
 
@@ -169,6 +177,9 @@ func _on_match_state_changed(state: Dictionary) -> void:
         msg += " — FIN (equipo %d, %s)" % [state["winning_team"], state["reason"]]
     _state_line = msg
     _refresh_battle_label()
+    var my_team := battle_controller.team_for(multiplayer.get_unique_id())
+    if my_team != -1:
+        _sync_bet_sidebars_max_amount(state["pool_balances"][my_team])
 
 func _refresh_battle_label() -> void:
     battle_status_label.text = _teams_line + "\n" + _state_line
