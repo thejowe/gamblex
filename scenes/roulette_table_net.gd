@@ -1,5 +1,8 @@
 extends Control
 
+const RouletteResultBadgeScene := preload("res://scenes/ui/casino/roulette_result_badge.tscn")
+const MAX_HISTORY := 8
+
 @onready var table_controller: RouletteTableController = $TableController
 @onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
 @onready var wheel: RouletteWheelDisplay = $RouletteWheelDisplay
@@ -11,6 +14,9 @@ extends Control
 
 var my_seat_index: int = -1
 var _last_seats: Array = []
+var _selected_bet_type: int = RouletteTableState.BetType.RED
+var _selected_number: int = -1
+var _history: Array = []
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -21,12 +27,11 @@ func _display_name(peer_id: int) -> String:
 
 func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
+	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
+	betting_grid.bet_selected.connect(_on_bet_selected)
 	sit_button.pressed.connect(_on_sit_pressed)
 	spin_button.pressed.connect(_on_spin_pressed)
 	NetworkManager.identities_changed.connect(_refresh_seats_label)
-	# Mismo gotcha que blackjack_table_net.gd: un cliente recién llegado a esta
-	# escena puede que aún no tenga el SteamMultiplayerPeer en CONNECTED —
-	# bloquear "Sentarse" hasta entonces evita el rpc_id() fallido.
 	if not multiplayer.is_server():
 		var peer := multiplayer.multiplayer_peer
 		if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
@@ -47,8 +52,12 @@ func _on_sit_pressed() -> void:
 	table_controller.sit(seat_index)
 	my_seat_index = seat_index
 
-func _place_bet(bet_type: int, number: int, amount: int) -> void:
-	table_controller.place_bet(my_seat_index, bet_type, number, amount)
+func _on_bet_selected(bet_type: int, number: int) -> void:
+	_selected_bet_type = bet_type
+	_selected_number = number
+
+func _on_bet_pressed(amount: int) -> void:
+	table_controller.place_bet(my_seat_index, _selected_bet_type, _selected_number, amount)
 
 func _on_spin_pressed() -> void:
 	table_controller.spin(my_seat_index)
@@ -56,6 +65,21 @@ func _on_spin_pressed() -> void:
 func _on_state_changed(state: Dictionary) -> void:
 	_last_seats = state["seats"]
 	_refresh_seats_label()
+	var new_result: int = state["last_result"]
+	if new_result != -1 and (_history.is_empty() or _history[0] != new_result):
+		_push_history(new_result)
+		wheel.spin_to(new_result)
+
+func _push_history(result: int) -> void:
+	_history.push_front(result)
+	if _history.size() > MAX_HISTORY:
+		_history.resize(MAX_HISTORY)
+	for child in results_history.get_children():
+		child.free()
+	for n in _history:
+		var badge: RouletteResultBadge = RouletteResultBadgeScene.instantiate()
+		results_history.add_child(badge)
+		badge.number = n
 
 func _refresh_seats_label() -> void:
 	var lines: Array[String] = []
