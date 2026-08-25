@@ -29,6 +29,13 @@ func test_bet_selected_places_bet_immediately_with_sidebar_amount():
 	assert_eq(view.table_controller.table_state.seats[0].bets[0].number, 7)
 	assert_eq(view.table_controller.table_state.seats[0].bets[0].amount, 100)
 
+func test_result_only_added_to_history_after_ball_lands():
+	var view = _make_view()
+	view._on_state_changed({"seats": [], "last_result": 7})
+	assert_eq(view.results_history.get_child_count(), 0)
+	await view.wheel.spin_finished
+	assert_eq(view.results_history.get_child_count(), 1)
+
 func test_bet_pressed_repeats_last_selection_with_given_amount():
 	var view = _make_view()
 	view.table_controller.table_state = RouletteTableState.new()

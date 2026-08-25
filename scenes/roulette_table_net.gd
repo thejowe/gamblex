@@ -14,6 +14,7 @@ const MAX_HISTORY := 8
 
 var my_seat_index: int = -1
 var _last_seats: Array = []
+var _last_seen_result: int = -1
 var _selected_bet_type: int = RouletteTableState.BetType.RED
 var _selected_number: int = -1
 var _history: Array = []
@@ -67,9 +68,10 @@ func _on_state_changed(state: Dictionary) -> void:
 	_last_seats = state["seats"]
 	_refresh_seats_label()
 	var new_result: int = state["last_result"]
-	if new_result != -1 and (_history.is_empty() or _history[0] != new_result):
-		_push_history(new_result)
+	if new_result != -1 and new_result != _last_seen_result:
+		_last_seen_result = new_result
 		wheel.spin_to(new_result)
+		wheel.spin_finished.connect(_push_history.bind(new_result), CONNECT_ONE_SHOT)
 
 func _push_history(result: int) -> void:
 	_history.push_front(result)
