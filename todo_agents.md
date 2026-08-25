@@ -599,6 +599,54 @@ afectados + a nivel `ChipLedger`/`TeamChipPool`. 338/338 tests
 (era 327). Commiteado y pusheado directo a `main` (`8eb608c`). **Sin
 confirmar en vivo todavía.**
 
+## Verificación en vivo real + fix de pantalla de derrota atascada (2026-08-24)
+
+Usuario pidió que esta sesión pilar jugara el juego ella misma y
+revisara errores. Se consiguió automatizar clics reales por primera vez
+en este entorno (intentos anteriores con `mouse_event`/`SetCursorPos`
+habían fallado o eran dudosos — ver notas de Plan 21/22 más abajo). La
+diferencia esta vez: `SetProcessDPIAware()` antes de leer/escribir
+coordenadas, y lanzar el juego real (`--path .` sin `--editor`) en vez
+de depender de una sesión de editor. Con eso los clics **sí
+registraron de forma fiable** — método para futuras sesiones: PrintWindow
+sobre la ventana "Casino Pixel (DEBUG)" para capturar, SetCursorPos+
+mouse_event (o SendKeys para campos de texto) para interactuar.
+
+Confirmado en vivo, con capturas reales:
+- Ruleta: pantalla completa sin deformar, 37 números legibles en la
+  rueda, bola (no la rueda) gira y aterriza en su casilla, historial no
+  se llena hasta que la bola cae. Los 3 fixes de esta sesión (wheel/
+  spoiler/monto de apuesta) funcionan de verdad, no solo en tests.
+- Bug de bancarrota prematura: se tecleó 500 sin pulsar Enter, se
+  apostó al número 7 (clic directo, sin Enter) — la apuesta SÍ tomó
+  500, no 10 (fix de monto confirmado), el balance bajó a 0 y **no**
+  saltó la pantalla de derrota hasta girar y perder de verdad (fix de
+  bancarrota prematura confirmado en vivo).
+
+**Bug nuevo encontrado y arreglado en el mismo hallazgo:** tras perder
+y que saltara la pantalla "PERDISTE — el pozo compartido se agotó", el
+botón "‹ Volver al lobby" no respondía a ningún clic — el jugador
+quedaba atascado sin ninguna salida salvo cerrar el juego.
+`DefeatOverlay` (`scenes/casino_floor.tscn`) es un `ColorRect` a
+pantalla completa con `mouse_filter=0` (STOP) declarado después de
+`BackButton` en el árbol de `Hud` — absorbía todos los clics de la
+ventana, botón incluido. Fix: `mouse_filter=2` (IGNORE), ya que el
+overlay es puramente informativo (sin controles propios que necesiten
+recibir clics). Confirmado arreglado relanzando el juego y repitiendo
+el mismo flujo: el botón ya navega de vuelta al lobby con el overlay
+todavía visible (correcto, el pozo sigue en 0). 338/338 tests (sin
+cambio de conteo, es un `.tscn`, no añade tests). Commiteado y
+pusheado directo a `main` (`a6b2cb7`).
+
+Resto de mesas revisadas visualmente (todas con el overlay de derrota
+encima porque el pozo compartido es global): Blackjack, Dice, Crash y
+Mines renderizan bien, sin errores de layout visibles. Póker sigue sin
+reskin visual (esperado, pospuesto — ver Ampliación v1.4). Plinko/Dice
+tienen su tablero/slider llegando justo al borde derecho del área de
+diseño de 900px — no se confirmó si es intencional o un pixel-perfect
+ajustado al límite; no se tocó, no hay evidencia de que sea un bug
+real (nada se corta ni se ve mal).
+
 ## Merge de Plan 22 (2026-08-24)
 
 Diff exacto al plan (3 archivos: `roulette_betting_grid.gd`/`.tscn` +
