@@ -32,17 +32,40 @@ func _to_screen(p: Vector2) -> Vector2:
 	var y := size.y - normalized * size.y
 	return Vector2(x, y)
 
-func _draw() -> void:
+const Y_TICKS := [1.0, 1.5, 2.0, 2.5, 3.0]
+const X_TICK_STEP_SEC := 2.0
+
+func _draw_axes() -> void:
+	var font := ThemeDB.fallback_font
+	var tick_font_size := 11
+	for m in Y_TICKS:
+		var y := _to_screen(Vector2(0.0, m)).y
+		draw_line(Vector2(0, y), Vector2(size.x, y), CasinoTheme.PANEL_NAVY_MID, 1.0)
+		draw_string(font, Vector2(2.0, y - 3.0), "%.2fx" % m, HORIZONTAL_ALIGNMENT_LEFT, -1, tick_font_size, CasinoTheme.TEXT_MUTED)
+	var t := 0.0
+	while t <= TIME_WINDOW_SEC:
+		var x := _to_screen(Vector2(t, 1.0)).x
+		draw_string(font, Vector2(x - 8.0, size.y + 16.0), "%ds" % int(t), HORIZONTAL_ALIGNMENT_LEFT, -1, tick_font_size, CasinoTheme.TEXT_MUTED)
+		t += X_TICK_STEP_SEC
 	draw_line(Vector2(0, size.y), Vector2(size.x, size.y), CasinoTheme.PANEL_NAVY_LIGHT, 1.0)
 	draw_line(Vector2(0, 0), Vector2(0, size.y), CasinoTheme.PANEL_NAVY_LIGHT, 1.0)
+
+func _draw() -> void:
+	_draw_axes()
 	var raw_points := curve_points(elapsed)
 	var line_color := CasinoTheme.ACCENT_RED if state == State.CRASHED else CasinoTheme.ACCENT_GREEN
 	if elapsed > 0.0:
 		var screen_points := PackedVector2Array()
 		for p in raw_points:
 			screen_points.append(_to_screen(p))
+		var fill_points := screen_points.duplicate()
+		fill_points.append(Vector2(screen_points[screen_points.size() - 1].x, size.y))
+		fill_points.append(Vector2(screen_points[0].x, size.y))
+		draw_colored_polygon(fill_points, Color(line_color, 0.14))
 		draw_polyline(screen_points, line_color, 3.0, true)
-		draw_circle(screen_points[screen_points.size() - 1], 6.0, line_color)
+		var tip := screen_points[screen_points.size() - 1]
+		draw_circle(tip, 11.0, Color(line_color, 0.22))
+		draw_circle(tip, 6.0, line_color)
 	var font := ThemeDB.fallback_font
 	var text := "%.2fx" % current_multiplier()
 	var font_size := 48
