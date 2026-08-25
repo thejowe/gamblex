@@ -119,6 +119,12 @@ func _on_state_changed(state: Dictionary) -> void:
 	call_button.disabled = not is_my_turn
 	raise_button.disabled = not is_my_turn
 
+	var occupied_seats := 0
+	for seat in seats:
+		if seat != null:
+			occupied_seats += 1
+	start_hand_button.disabled = hand_active or occupied_seats < 2
+
 func _refresh_seats_label() -> void:
 	var seats: Array = _last_state.get("seats", [])
 	var lines: Array[String] = []
