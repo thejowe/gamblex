@@ -89,10 +89,12 @@ func _render_state(state: Dictionary) -> void:
 		var my_data = _last_players[my_id]
 		var active_round: Dictionary = my_data["active_round"]
 		var last_round: Dictionary = my_data["last_round"]
-		cash_out_button.disabled = active_round.is_empty()
-		bet_sidebar.bet_button.disabled = not active_round.is_empty()
-		var round_data: Dictionary = active_round if not active_round.is_empty() else last_round
 		var is_active := not active_round.is_empty()
+		cash_out_button.disabled = not is_active
+		bet_sidebar.bet_button.disabled = is_active
+		size_option.disabled = is_active
+		mine_count_edit.editable = not is_active
+		var round_data: Dictionary = active_round if is_active else last_round
 		if not round_data.is_empty():
 			var cell_states: Array = MinesCell.compute_cell_states(round_data, is_active)
 			for i in range(min(cell_states.size(), grid.get_child_count())):

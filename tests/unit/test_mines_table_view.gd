@@ -38,6 +38,44 @@ func test_render_state_marks_revealed_cells_safe_for_active_round():
 	assert_eq(view.grid.get_child(0).state, MinesCell.State.SAFE)
 	assert_eq(view.grid.get_child(2).state, MinesCell.State.HIDDEN)
 
+func test_size_and_mine_count_lock_while_round_is_active():
+	var view = _make_view()
+	view.size_option.select(0)
+	view._rebuild_grid()
+	var state := {
+		"players": {
+			multiplayer.get_unique_id(): {
+				"player_id": multiplayer.get_unique_id(),
+				"balance": 400,
+				"active_round": {"total_cells": 25, "mine_count": 3, "revealed": [], "amount": 50, "multiplier": 1.0},
+				"last_round": {},
+			},
+		},
+	}
+	view._render_state(state)
+	assert_true(view.size_option.disabled, "cambiar de tamaño a mitad de ronda desincroniza el grid")
+	assert_false(view.mine_count_edit.editable)
+
+func test_size_and_mine_count_unlock_once_round_ends():
+	var view = _make_view()
+	view.size_option.select(0)
+	view._rebuild_grid()
+	var my_id := multiplayer.get_unique_id()
+	var state := {
+		"players": {
+			my_id: {
+				"player_id": my_id, "balance": 450, "active_round": {},
+				"last_round": {
+					"win": true, "mine_count": 3, "total_cells": 25,
+					"revealed": [0], "mines": [1, 2, 3],
+				},
+			},
+		},
+	}
+	view._render_state(state)
+	assert_false(view.size_option.disabled)
+	assert_true(view.mine_count_edit.editable)
+
 func test_bet_sidebar_press_starts_round_with_selected_size_and_mines():
 	var view = _make_view()
 	view.table_controller.table_state = MinesTableState.new()
