@@ -1,17 +1,24 @@
 extends Control
 
-const TOTAL_CELLS := 25
+const SIZE_OPTIONS := [
+	{"label": "5 x 5", "total_cells": 25, "columns": 5},
+	{"label": "8 x 8", "total_cells": 64, "columns": 8},
+	{"label": "10 x 10", "total_cells": 100, "columns": 10},
+]
+const MinesCellScene := preload("res://scenes/ui/casino/mines_cell.tscn")
 
 @onready var table_controller: MinesTableController = $TableController
-@onready var status_label: Label = $StatusLabel
-@onready var mine_count_spinbox: SpinBox = $MineCountSpinBox
-@onready var amount_spinbox: SpinBox = $AmountSpinBox
-@onready var start_button: Button = $StartButton
+@onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
+@onready var size_option: OptionButton = $SizeOption
+@onready var mine_count_edit: LineEdit = $MineCountEdit
+@onready var mine_density_label: Label = $MineDensityLabel
 @onready var cash_out_button: Button = $CashOutButton
 @onready var grid: GridContainer = $MinesGrid
+@onready var result_flash: ColorRect = $ResultFlash
+@onready var status_label: Label = $StatusLabel
 
-var _cell_buttons: Array[Button] = []
 var _last_players: Dictionary = {}
+var _last_round_seen: Dictionary = {}
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -21,62 +28,90 @@ func _display_name(peer_id: int) -> String:
 	return persona_name if not persona_name.is_empty() else "jugador %d" % peer_id
 
 func _ready() -> void:
-	for child in grid.get_children():
-		if child is Button:
-			_cell_buttons.append(child)
-	for i in range(_cell_buttons.size()):
-		_cell_buttons[i].pressed.connect(_on_cell_pressed.bind(i))
+	for option in SIZE_OPTIONS:
+		size_option.add_item(option["label"])
+	size_option.item_selected.connect(func(_i): _rebuild_grid(); _refresh_density_label())
+	mine_count_edit.text_changed.connect(func(_t): _refresh_density_label())
 	table_controller.state_changed.connect(_on_state_changed)
-	start_button.pressed.connect(_on_start_pressed)
-	cash_out_button.pressed.connect(_on_cash_out_pressed)
+	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
+	cash_out_button.pressed.connect(func(): table_controller.cash_out())
 	NetworkManager.identities_changed.connect(_refresh_status_label)
-	_set_round_ui_active(false)
-	# Mismo gotcha que dice_table_net.gd/roulette_table_net.gd: un cliente
-	# recién llegado a esta escena puede que aún no tenga el
-	# SteamMultiplayerPeer en CONNECTED — bloquear el botón de empezar hasta
-	# entonces evita el rpc_id() fallido.
+	_rebuild_grid()
+	_refresh_density_label()
 	if not multiplayer.is_server():
 		var peer := multiplayer.multiplayer_peer
 		if peer == null or peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
-			start_button.disabled = true
+			bet_sidebar.bet_button.disabled = true
 			multiplayer.connected_to_server.connect(func():
-				start_button.disabled = false
+				bet_sidebar.bet_button.disabled = false
 				table_controller.request_state()
 			)
 		else:
 			table_controller.request_state()
 
-func _on_start_pressed() -> void:
-	table_controller.start_round(TOTAL_CELLS, int(mine_count_spinbox.value), int(amount_spinbox.value))
+func _selected_total_cells() -> int:
+	return SIZE_OPTIONS[size_option.selected]["total_cells"]
+
+func _selected_columns() -> int:
+	return SIZE_OPTIONS[size_option.selected]["columns"]
+
+func _rebuild_grid() -> void:
+	for child in grid.get_children():
+		grid.remove_child(child)
+		child.free()
+	grid.columns = _selected_columns()
+	for i in range(_selected_total_cells()):
+		var cell: MinesCell = MinesCellScene.instantiate()
+		cell.index = i
+		cell.cell_pressed.connect(_on_cell_pressed)
+		grid.add_child(cell)
+
+func _refresh_density_label() -> void:
+	var mine_count := int(mine_count_edit.text) if mine_count_edit.text.is_valid_int() else 0
+	var total := _selected_total_cells()
+	var density := (float(mine_count) / float(total)) * 100.0 if total > 0 else 0.0
+	mine_density_label.text = "%.2f%%" % density
+
+func _on_bet_pressed(amount: int) -> void:
+	var mine_count := int(mine_count_edit.text) if mine_count_edit.text.is_valid_int() else 1
+	table_controller.start_round(_selected_total_cells(), mine_count, amount)
 
 func _on_cell_pressed(index: int) -> void:
 	table_controller.reveal(index)
 
-func _on_cash_out_pressed() -> void:
-	table_controller.cash_out()
-
-func _set_round_ui_active(active: bool) -> void:
-	start_button.disabled = active
-	cash_out_button.disabled = not active
-	mine_count_spinbox.editable = not active
-	amount_spinbox.editable = not active
-	for button in _cell_buttons:
-		button.disabled = not active
-
 func _on_state_changed(state: Dictionary) -> void:
+	_render_state(state)
+
+func _render_state(state: Dictionary) -> void:
 	_last_players = state["players"]
 	var my_id := multiplayer.get_unique_id()
 	if _last_players.has(my_id):
 		var my_data = _last_players[my_id]
-		var active_round = my_data["active_round"]
-		_set_round_ui_active(not active_round.is_empty())
-		for i in range(_cell_buttons.size()):
-			if not active_round.is_empty() and active_round["revealed"].has(i):
-				_cell_buttons[i].text = "X"
-				_cell_buttons[i].disabled = true
-			else:
-				_cell_buttons[i].text = ""
+		var active_round: Dictionary = my_data["active_round"]
+		var last_round: Dictionary = my_data["last_round"]
+		cash_out_button.disabled = active_round.is_empty()
+		bet_sidebar.bet_button.disabled = not active_round.is_empty()
+		var round_data: Dictionary = active_round if not active_round.is_empty() else last_round
+		var is_active := not active_round.is_empty()
+		if not round_data.is_empty():
+			var cell_states: Array = MinesCell.compute_cell_states(round_data, is_active)
+			for i in range(min(cell_states.size(), grid.get_child_count())):
+				var cell: MinesCell = grid.get_child(i)
+				cell.state = cell_states[i]
+				cell.interactive = is_active
+		_maybe_flash_result(my_id, last_round)
 	_refresh_status_label()
+
+func _maybe_flash_result(my_id: int, last_round: Dictionary) -> void:
+	if last_round.is_empty():
+		return
+	if _last_round_seen.get(my_id, {}) == last_round:
+		return
+	_last_round_seen[my_id] = last_round
+	var flash_color: Color = CasinoTheme.ACCENT_GREEN if last_round["win"] else CasinoTheme.ACCENT_RED
+	var tween := create_tween()
+	result_flash.color = Color(flash_color.r, flash_color.g, flash_color.b, 0.3)
+	tween.tween_property(result_flash, "color:a", 0.0, 0.6)
 
 func _refresh_status_label() -> void:
 	if _last_players.is_empty():
