@@ -87,6 +87,16 @@ func test_advance_time_resolves_loss_when_multiplier_reaches_crash_point():
 	assert_eq(table.players[111].ledger.balance, 400) # perdió la apuesta
 	assert_signal_not_emitted(table, "chips_won")
 
+func test_ledger_is_not_bankrupt_while_all_in_bet_is_still_climbing():
+	var roller = CrashRoller.new()
+	roller.results = [2.00] as Array[float]
+	var table = CrashTableState.new(roller)
+	table.place_bet(111, 500)
+	assert_eq(table.players[111].ledger.balance, 0)
+	assert_false(table.players[111].ledger.is_bankrupt())
+	table.advance_time(7.072) # explota, pierde la apuesta
+	assert_true(table.players[111].ledger.is_bankrupt())
+
 func test_cash_out_fails_after_round_already_crashed():
 	var roller = CrashRoller.new()
 	roller.results = [2.00] as Array[float]

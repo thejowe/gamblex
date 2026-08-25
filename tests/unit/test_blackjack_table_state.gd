@@ -75,6 +75,23 @@ func test_full_round_multiple_seats_resolve_independently():
     assert_eq(table.seats[0].ledger.balance, 600) # 500 - 100 + 200 (gana 20 vs 17)
     assert_eq(table.seats[1].ledger.balance, 450) # 500 - 50, bust, sin pago
 
+func test_ledger_is_not_bankrupt_while_all_in_hand_is_still_active():
+    var deck = _stub_deck([
+        Card.new(10, Card.Suit.HEARTS),  # seat0 card1
+        Card.new(9, Card.Suit.HEARTS),   # dealer card1
+        Card.new(10, Card.Suit.DIAMONDS), # seat0 card2 -> seat0 = 20
+        Card.new(8, Card.Suit.SPADES),   # dealer card2 -> dealer = 17
+        Card.new(5, Card.Suit.CLUBS),    # seat0 hit -> 25 bust
+    ])
+    var table = BlackjackTableState.new(deck)
+    table.sit(0, 111)
+    table.place_bet(0, 111, 500)
+    assert_eq(table.seats[0].ledger.balance, 0)
+    assert_false(table.seats[0].ledger.is_bankrupt())
+    table.hit(0, 111) # bust, pierde la apuesta, ronda se resuelve
+    assert_false(table.round_active)
+    assert_true(table.seats[0].ledger.is_bankrupt())
+
 func test_actions_rejected_when_not_your_turn_or_not_your_seat():
     var deck = _stub_deck([
         Card.new(10, Card.Suit.HEARTS),

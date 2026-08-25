@@ -87,6 +87,17 @@ func test_spin_resolves_straight_loss():
     table.spin(0, 111)
     assert_eq(table.seats[0].ledger.balance, 400)
 
+func test_ledger_is_not_bankrupt_while_all_in_bet_is_still_spinning():
+    var wheel = RouletteWheel.new()
+    wheel.results = [8]
+    var table = RouletteTableState.new(wheel)
+    table.sit(0, 111)
+    table.place_bet(0, 111, RouletteTableState.BetType.STRAIGHT, 7, 500)
+    assert_eq(table.seats[0].ledger.balance, 0)
+    assert_false(table.seats[0].ledger.is_bankrupt())
+    table.spin(0, 111)
+    assert_true(table.seats[0].ledger.is_bankrupt())
+
 func test_spin_resolves_color_bet_win_and_loss():
     var wheel = RouletteWheel.new()
     wheel.results = [1] # 1 es rojo

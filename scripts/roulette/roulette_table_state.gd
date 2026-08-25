@@ -85,6 +85,7 @@ func spin(seat_index: int, player_id: int) -> bool:
 func _resolve_bet(seat, bet, result: int) -> void:
     if _bet_wins(bet, result):
         seat.ledger.payout(bet.amount * (_payout_multiplier(bet.type) + 1))
+    seat.ledger.resolve_bet(bet.amount)
 
 func _bet_wins(bet, result: int) -> bool:
     match bet.type:

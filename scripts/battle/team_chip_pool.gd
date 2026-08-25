@@ -20,5 +20,8 @@ func place_bet(amount: int) -> bool:
 func payout(amount: int) -> void:
 	ledger.payout(amount)
 
+func resolve_bet(amount: int) -> void:
+	ledger.resolve_bet(amount)
+
 func is_bankrupt() -> bool:
 	return ledger.is_bankrupt()

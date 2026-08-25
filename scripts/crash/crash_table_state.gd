@@ -59,6 +59,7 @@ func cash_out(player_id: int) -> bool:
 		return false
 	var payout := int(player.bet_amount * current)
 	player.ledger.payout(payout)
+	player.ledger.resolve_bet(player.bet_amount)
 	chips_won.emit(player_id, payout - player.bet_amount)
 	player.last_round = {
 		"bet_amount": player.bet_amount,
@@ -90,6 +91,7 @@ func advance_time(delta: float) -> Array:
 				"payout": 0,
 			}
 			player.is_active = false
+			player.ledger.resolve_bet(player.bet_amount)
 			crashed.append(player_id)
 	return crashed
 

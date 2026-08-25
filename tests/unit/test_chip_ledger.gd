@@ -28,3 +28,22 @@ func test_is_bankrupt_when_balance_zero():
 func test_is_not_bankrupt_with_positive_balance():
     var ledger = ChipLedger.new(1)
     assert_false(ledger.is_bankrupt())
+
+func test_is_not_bankrupt_while_last_bet_is_still_unresolved():
+    var ledger = ChipLedger.new(100)
+    ledger.place_bet(100)
+    assert_eq(ledger.balance, 0)
+    assert_false(ledger.is_bankrupt())
+
+func test_is_bankrupt_once_the_losing_bet_resolves():
+    var ledger = ChipLedger.new(100)
+    ledger.place_bet(100)
+    ledger.resolve_bet(100)
+    assert_true(ledger.is_bankrupt())
+
+func test_is_not_bankrupt_when_the_bet_resolves_with_a_win():
+    var ledger = ChipLedger.new(100)
+    ledger.place_bet(100)
+    ledger.payout(250)
+    ledger.resolve_bet(100)
+    assert_false(ledger.is_bankrupt())

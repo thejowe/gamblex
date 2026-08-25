@@ -178,6 +178,18 @@ func test_fold_awards_pot_uncontested():
     assert_eq(table.last_winner_seats, [1])
     assert_eq(table.seats[1].ledger.balance, 500 - PokerTableState.BIG_BLIND + pot_before)
 
+func test_ledger_is_not_bankrupt_while_all_in_blind_is_still_unresolved():
+    var table = PokerTableState.new()
+    var short_ledger = ChipLedger.new(PokerTableState.BIG_BLIND)
+    table.sit(0, 111)
+    table.sit(1, 222, short_ledger) # heads-up: asiento 1 es la ciega grande
+    table.start_hand()
+    assert_eq(short_ledger.balance, 0)
+    assert_false(short_ledger.is_bankrupt())
+    table.fold(0, 111) # la ciega pequeña se retira, la mano se resuelve
+    assert_false(table.hand_active)
+    assert_false(short_ledger.is_bankrupt()) # ganó el bote, no está en bancarrota
+
 func test_actions_rejected_when_not_your_turn_or_not_your_seat():
     var table = PokerTableState.new()
     table.sit(0, 111)

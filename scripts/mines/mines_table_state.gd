@@ -94,6 +94,7 @@ func cash_out(player_id: int) -> bool:
 	return true
 
 func _end_round(player: Player, round_data: Dictionary, win: bool, payout: int) -> void:
+	player.ledger.resolve_bet(round_data["amount"])
 	player.last_round = {
 		"total_cells": round_data["total_cells"],
 		"mine_count": round_data["mine_count"],

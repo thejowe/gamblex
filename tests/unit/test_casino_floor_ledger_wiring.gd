@@ -52,5 +52,13 @@ func test_goal_state_dict_reports_bankrupt_at_zero_balance():
 	var casino_floor = load("res://scripts/net/casino_floor.gd").new()
 	casino_floor.shared_pool_ledger = ChipLedger.new(500)
 	casino_floor.shared_pool_ledger.place_bet(500)
+	casino_floor.shared_pool_ledger.resolve_bet(500) # la apuesta se resolvió (se perdió)
 	var state = casino_floor._goal_state_dict()
 	assert_true(state["bankrupt"])
+
+func test_goal_state_dict_not_bankrupt_while_last_bet_is_still_unresolved():
+	var casino_floor = load("res://scripts/net/casino_floor.gd").new()
+	casino_floor.shared_pool_ledger = ChipLedger.new(500)
+	casino_floor.shared_pool_ledger.place_bet(500)
+	var state = casino_floor._goal_state_dict()
+	assert_false(state["bankrupt"])

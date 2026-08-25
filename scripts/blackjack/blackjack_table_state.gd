@@ -141,6 +141,7 @@ func _resolve_round() -> void:
         if seat == null:
             continue
         _resolve_seat_payout(seat)
+        seat.ledger.resolve_bet(seat.current_bet)
         seat.current_bet = 0
     round_active = false
 

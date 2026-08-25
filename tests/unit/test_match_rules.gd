@@ -29,9 +29,17 @@ func test_bankruptcy_ends_match_immediately_for_the_other_team():
 	var pools := [TeamChipPool.new(0, 500), TeamChipPool.new(1, 200)]
 	var rules := MatchRules.new(pools, 2000, 600.0)
 	pools[1].place_bet(200) # equipo 1 se queda a 0, bancarrota
+	pools[1].resolve_bet(200) # la apuesta se resolvió (se perdió)
 	assert_true(rules.on_balance_changed())
 	assert_eq(rules.winning_team, 0)
 	assert_eq(rules.reason, "bankruptcy")
+
+func test_match_does_not_end_while_the_losing_bet_is_still_unresolved():
+	var pools := [TeamChipPool.new(0, 500), TeamChipPool.new(1, 200)]
+	var rules := MatchRules.new(pools, 2000, 600.0)
+	pools[1].place_bet(200) # equipo 1 va all-in, la ronda no ha terminado
+	assert_false(rules.on_balance_changed())
+	assert_false(rules.finished)
 
 func test_bankruptcy_takes_priority_over_simultaneous_goal():
 	# Mismo cambio de saldo: equipo 1 llega a la meta, pero equipo 0 se queda

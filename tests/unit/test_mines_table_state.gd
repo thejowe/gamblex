@@ -90,6 +90,16 @@ func test_reveal_fails_on_already_revealed_index():
 	table.reveal(111, 10)
 	assert_false(table.reveal(111, 10))
 
+func test_ledger_is_not_bankrupt_while_all_in_round_is_still_active():
+	var roller = MinesRoller.new()
+	roller.results = [[0]] # T=2, M=1: mina en el índice 0
+	var table = MinesTableState.new(roller)
+	table.start_round(111, 2, 1, 500)
+	assert_eq(table.players[111].ledger.balance, 0)
+	assert_false(table.players[111].ledger.is_bankrupt())
+	table.reveal(111, 0) # revela la mina, pierde la apuesta
+	assert_true(table.players[111].ledger.is_bankrupt())
+
 func test_reveal_all_safe_cells_auto_cashes_out_as_win():
 	var roller = MinesRoller.new()
 	roller.results = [[0]] # T=2, M=1: única casilla segura es el índice 1

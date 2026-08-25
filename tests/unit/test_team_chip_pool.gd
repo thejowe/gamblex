@@ -26,4 +26,10 @@ func test_payout_credits_shared_pool_regardless_of_which_member_won():
 func test_is_bankrupt_reflects_shared_balance():
 	var pool := TeamChipPool.new(0, 100)
 	pool.place_bet(100)
+	pool.resolve_bet(100) # la apuesta se resolvió (se perdió), no queda en juego
 	assert_true(pool.is_bankrupt())
+
+func test_not_bankrupt_while_last_bet_is_still_unresolved():
+	var pool := TeamChipPool.new(0, 100)
+	pool.place_bet(100)
+	assert_false(pool.is_bankrupt())
