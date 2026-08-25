@@ -21,3 +21,10 @@ func test_spin_to_eventually_sets_last_result():
 	wheel.spin_to(23)
 	await wheel.spin_finished
 	assert_eq(wheel.last_result, 23)
+
+func test_spin_to_animates_ball_not_whole_wheel():
+	var wheel := _make_wheel()
+	wheel.spin_to(23)
+	await wheel.spin_finished
+	assert_almost_eq(wheel.ball_angle, wheel.angle_for_result(23), 0.0001)
+	assert_eq(wheel.rotation, 0.0)
