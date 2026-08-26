@@ -21,8 +21,8 @@ const TABLE_NODE_NAMES := [
 @onready var defeat_overlay: Control = $Hud/DefeatOverlay
 @onready var battle_controller: BattleController = $BattleController
 @onready var battle_status_label: Label = $Hud/BattleStatusLabel
-@onready var lobby_view: Control = $Lobby
-@onready var card_grid: GridContainer = $Lobby/CardGrid
+@onready var lobby_view: Control = $TablesLayer/Lobby
+@onready var card_grid: GridContainer = $TablesLayer/Lobby/CardGrid
 @onready var back_button: Button = $Hud/BackButton
 
 var shared_pool_ledger: ChipLedger
@@ -36,7 +36,7 @@ var _table_nodes: Dictionary = {}
 
 func _ready() -> void:
     for table_name in TABLE_NODE_NAMES:
-        _table_nodes[table_name] = get_node(table_name)
+        _table_nodes[table_name] = get_node("TablesLayer/" + table_name)
     for card in card_grid.get_children():
         if card is BaseButton:
             card.pressed.connect(_on_card_pressed.bind(card.name))
