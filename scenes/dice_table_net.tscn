@@ -60,24 +60,30 @@ text = "Probabilidad: 50.00%"
 
 [node name="ThresholdSlider" parent="." instance=ExtResource("5")]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 340.0
 offset_top = 200.0
-offset_right = 900.0
+offset_right = 0.0
 offset_bottom = 240.0
+grow_horizontal = 2
 
 [node name="ResultFlash" type="ColorRect" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 340.0
 offset_top = 60.0
-offset_right = 900.0
+offset_right = 0.0
 offset_bottom = 260.0
+grow_horizontal = 2
 color = Color(1, 1, 1, 0)
 mouse_filter = 2
 
 [node name="PlayersLabel" type="Label" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 340.0
 offset_top = 300.0
-offset_right = 900.0
+offset_right = 0.0
 offset_bottom = 500.0
+grow_horizontal = 2
 text = "Nadie ha tirado todavía."

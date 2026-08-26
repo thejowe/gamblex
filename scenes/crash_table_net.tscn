@@ -37,15 +37,19 @@ disabled = true
 
 [node name="CrashGraph" parent="." instance=ExtResource("5")]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 340.0
 offset_top = 80.0
-offset_right = 880.0
+offset_right = -20.0
 offset_bottom = 460.0
+grow_horizontal = 2
 
 [node name="PlayersLabel" type="Label" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 340.0
 offset_top = 480.0
-offset_right = 900.0
+offset_right = 0.0
 offset_bottom = 680.0
+grow_horizontal = 2
 text = "Nadie ha apostado todavía."

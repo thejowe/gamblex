@@ -35,10 +35,13 @@ offset_bottom = 280.0
 
 [node name="ResultsHistory" type="HBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 680.0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
 offset_top = 20.0
-offset_right = 900.0
+offset_right = 0.0
 offset_bottom = 60.0
+grow_horizontal = 0
 theme_override_constants/separation = 6
 
 [node name="SitButton" parent="." instance=ExtResource("6")]
@@ -60,14 +63,18 @@ variant = 1
 
 [node name="RouletteBettingGrid" parent="." instance=ExtResource("5")]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 20.0
 offset_top = 360.0
-offset_right = 880.0
+offset_right = -20.0
 offset_bottom = 570.0
+grow_horizontal = 2
 
 [node name="SeatsLabel" type="Label" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 20.0
 offset_top = 580.0
-offset_right = 880.0
+offset_right = -20.0
 offset_bottom = 740.0
+grow_horizontal = 2

@@ -59,25 +59,31 @@ disabled = true
 
 [node name="MinesGrid" type="GridContainer" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 340.0
 offset_top = 20.0
-offset_right = 880.0
+offset_right = -20.0
 offset_bottom = 560.0
+grow_horizontal = 2
 columns = 5
 
 [node name="ResultFlash" type="ColorRect" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 340.0
 offset_top = 20.0
-offset_right = 880.0
+offset_right = -20.0
 offset_bottom = 560.0
+grow_horizontal = 2
 color = Color(1, 1, 1, 0)
 mouse_filter = 2
 
 [node name="StatusLabel" type="Label" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 340.0
 offset_top = 580.0
-offset_right = 880.0
+offset_right = -20.0
 offset_bottom = 780.0
+grow_horizontal = 2
 text = "Nadie ha jugado todavía."
