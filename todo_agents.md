@@ -103,7 +103,7 @@ Prompt para la próxima sesión pilar, igual que siempre:
 | 20 | `plan20-plinko-visual` | Reskin visual de Plinko: tablero de clavijas con bola animada y fila de multiplicadores | `feature/plinko-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
 | 21 | `plan21-free-mode-shared-pool` | Fix: pozo compartido real en Modo Libre (reemplaza `CollectiveGoal` acumulativo) + pantalla de derrota si el pozo llega a 0 | `feature/free-mode-shared-pool` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — confirmado funcionando en vivo |
 | 22 | `plan22-roulette-grid-overflow-fix` | Fix: grid de 37 números de Ruleta se sale de la ventana (columnas compartidas con apuestas de fuera más anchas) | `feature/roulette-grid-overflow-fix` (mergeado) | ✅ Completado, mergeado a `main` (`2fc5bb1`) — código+tests verificados, visual pendiente de confirmar (ver nota) |
-| 23 | `plan23-responsive-layout` | Layout responsive real: aplicar a las 6 mesas restantes (Ruleta/Póker/Dice/Crash/Mines/Plinko) la conversión de offsets absolutos a anchors que ya se hizo en Blackjack/lobby/HUD | `main` (directo, sin rama) | 🔓 Desbloqueado, spec+plan ya escritos, Blackjack ya en `main` (`0b9568d`) como referencia |
+| 23 | `plan23-responsive-layout` | Layout responsive real: aplicar a las 6 mesas restantes (Ruleta/Póker/Dice/Crash/Mines/Plinko) la conversión de offsets absolutos a anchors que ya se hizo en Blackjack/lobby/HUD | `main` (directo, sin rama) | ✅ Completado, mergeado a `main` (`d9427ac` + fix de causa raíz `ca10e2d`) — ver nota abajo |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -749,9 +749,45 @@ aplicar la receta). Aplica el mismo tratamiento a las 6 mesas restantes
 ampliación de pixel art (`assets/pixels/`) — no comparte archivos,
 puede correr en paralelo si el usuario quiere.
 
-**Sin confirmar en vivo todavía** — pendiente que el usuario (o una
-sesión con clic fiable) confirme que Blackjack ya no tiene barras negras
-en un monitor panorámico real.
+**Plan 23 completado (2026-08-25).** El agente aplicó la conversión a
+las 5 mesas que de verdad la necesitaban (Ruleta, Dice, Crash, Mines,
+Plinko — `d9427ac`); Póker no necesitó nada (ningún nodo tenía offsets
+pegados al borde viejo, máximo `offset_right=700` de 900). Revisó los
+`.gd` de las 6 mesas por constantes 900/1080 hardcodeadas — ninguna,
+mismo patrón limpio que Blackjack.
+
+**Bug real encontrado y arreglado por el propio agente, más importante
+que el trabajo original (`ca10e2d`):** la conversión de anchors de
+`0b9568d` y la del propio Plan 23 **nunca funcionó en tiempo de
+ejecución**. Causa raíz verificada con `print()` real desde
+`godot --headless`: `Lobby` y las 7 mesas eran hijas directas de
+`CasinoFloor` (`Node2D`) — `Node2D` SÍ es un `CanvasItem` (a diferencia
+de no tener padre ninguno), así que
+`Control::get_parent_anchorable_rect()` no cae al rect del viewport como
+pasa cuando no hay ningún `CanvasItem` por encima; usa la implementación
+base de `Node2D`, que devuelve un `Rect2` vacío (0x0). Cualquier anchor
+no-cero (todo lo tocado en `0b9568d`/Plan 23) se resolvía contra un
+rect degenerado — colapsaba a coordenadas negativas/fuera de pantalla.
+Por eso el título del lobby se veía cortado por la izquierda y toda la
+UI seguía pegada a la esquina superior-izquierda pese a los anchors bien
+puestos. El `Hud` nunca tuvo este bug porque es `CanvasLayer`, no
+`Control` — no es un `CanvasItem`, así que sí caía correctamente al
+viewport.
+
+Fix: nuevo `CanvasLayer` `TablesLayer` como padre de `Lobby` y las 7
+mesas (mismo patrón que ya usaba `Hud`), rutas `$Lobby`/`get_node` en
+`casino_floor.gd` actualizadas. Confirmado con el mismo método de
+`print()` que los rects ahora sí coinciden con el viewport real.
+349/349 tests (ningún test comprobaba las rutas viejas).
+
+**Verificado por esta sesión pilar tras el merge:** 349/349 tests en
+verde de nuevo, `git status` limpio (descartado el reformateo
+tabs/espacios de siempre en `casino_floor.gd`, gotcha ya conocido).
+
+**Sigue pendiente:** confirmación visual real del usuario jugando (clic
+sintético no fiable en este entorno) — que ya no haya barras negras en
+un monitor panorámico y que las 7 mesas se vean bien a pantalla
+completa.
 
 ## Barrida exhaustiva de las 7 mesas (2026-08-24)
 
