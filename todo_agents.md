@@ -784,10 +784,9 @@ mesas (mismo patrón que ya usaba `Hud`), rutas `$Lobby`/`get_node` en
 verde de nuevo, `git status` limpio (descartado el reformateo
 tabs/espacios de siempre en `casino_floor.gd`, gotcha ya conocido).
 
-**Sigue pendiente:** confirmación visual real del usuario jugando (clic
-sintético no fiable en este entorno) — que ya no haya barras negras en
-un monitor panorámico y que las 7 mesas se vean bien a pantalla
-completa.
+**Confirmado en vivo por el usuario (2026-08-25):** ya no hay barras
+negras, pantalla completa bien en su monitor panorámico. Ampliación
+v1.6 cerrada del todo.
 
 ## Barrida exhaustiva de las 7 mesas (2026-08-24)
 
