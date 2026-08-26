@@ -24,33 +24,43 @@ layout_mode = 1
 
 [node name="DeckIcon" type="Control" parent="."]
 layout_mode = 0
-offset_left = 820.0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -80.0
 offset_top = 20.0
-offset_right = 890.0
+offset_right = -10.0
 offset_bottom = 90.0
+grow_horizontal = 0
 
 [node name="DealerCards" type="Control" parent="."]
 layout_mode = 0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 900.0
-offset_bottom = 1080.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="DealerValueLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 420.0
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -30.0
 offset_top = 190.0
-offset_right = 480.0
+offset_right = 30.0
 offset_bottom = 220.0
+grow_horizontal = 2
 text = "0"
 horizontal_alignment = 1
 
 [node name="SeatsRoot" type="Control" parent="."]
 layout_mode = 0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 900.0
-offset_bottom = 1080.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="BetSidebarPanel" parent="." instance=ExtResource("6")]
 layout_mode = 0
@@ -61,51 +71,71 @@ offset_bottom = 260.0
 
 [node name="SitButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
 offset_left = 25.0
-offset_top = 900.0
+offset_top = -180.0
 offset_right = 155.0
-offset_bottom = 940.0
+offset_bottom = -140.0
+grow_vertical = 0
 text = "Sentarse"
 
 [node name="DoubleButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
 offset_left = 169.0
-offset_top = 900.0
+offset_top = -180.0
 offset_right = 299.0
-offset_bottom = 940.0
+offset_bottom = -140.0
+grow_vertical = 0
 text = "DOUBLE"
 disabled = true
 
 [node name="HitButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
 offset_left = 313.0
-offset_top = 900.0
+offset_top = -180.0
 offset_right = 443.0
-offset_bottom = 940.0
+offset_bottom = -140.0
+grow_vertical = 0
 text = "HIT"
 variant = 1
 
 [node name="StandButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
 offset_left = 457.0
-offset_top = 900.0
+offset_top = -180.0
 offset_right = 587.0
-offset_bottom = 940.0
+offset_bottom = -140.0
+grow_vertical = 0
 text = "STAND"
 variant = 2
 
 [node name="SplitButton" parent="." instance=ExtResource("5")]
 layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
 offset_left = 601.0
-offset_top = 900.0
+offset_top = -180.0
 offset_right = 731.0
-offset_bottom = 940.0
+offset_bottom = -140.0
+grow_vertical = 0
 text = "SPLIT"
 disabled = true
 
 [node name="CasinoHudBar" parent="." instance=ExtResource("4")]
 layout_mode = 0
+anchor_right = 1.0
+anchor_top = 1.0
+anchor_bottom = 1.0
 offset_left = 0.0
-offset_top = 1000.0
-offset_right = 900.0
-offset_bottom = 1080.0
+offset_top = -80.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 0
