@@ -103,6 +103,7 @@ Prompt para la próxima sesión pilar, igual que siempre:
 | 20 | `plan20-plinko-visual` | Reskin visual de Plinko: tablero de clavijas con bola animada y fila de multiplicadores | `feature/plinko-visual` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) |
 | 21 | `plan21-free-mode-shared-pool` | Fix: pozo compartido real en Modo Libre (reemplaza `CollectiveGoal` acumulativo) + pantalla de derrota si el pozo llega a 0 | `feature/free-mode-shared-pool` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — confirmado funcionando en vivo |
 | 22 | `plan22-roulette-grid-overflow-fix` | Fix: grid de 37 números de Ruleta se sale de la ventana (columnas compartidas con apuestas de fuera más anchas) | `feature/roulette-grid-overflow-fix` (mergeado) | ✅ Completado, mergeado a `main` (`2fc5bb1`) — código+tests verificados, visual pendiente de confirmar (ver nota) |
+| 23 | `plan23-responsive-layout` | Layout responsive real: aplicar a las 6 mesas restantes (Ruleta/Póker/Dice/Crash/Mines/Plinko) la conversión de offsets absolutos a anchors que ya se hizo en Blackjack/lobby/HUD | `main` (directo, sin rama) | 🔓 Desbloqueado, spec+plan ya escritos, Blackjack ya en `main` (`0b9568d`) como referencia |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -701,6 +702,56 @@ encima de forma no determinista, lo que parece un bug random pero es
 solo higiene de proceso. Antes de automatizar clics: `Get-Process |
 Where MainWindowTitle -like "Casino Pixel*"` y confirmar que da
 exactamente 1 resultado antes de tocar nada.
+
+## Ampliación v1.6: layout responsive real, canvas fijo → adapta a cualquier resolución (2026-08-25)
+
+Usuario reportó barras negras jugando en su monitor panorámico (el
+`window/size/mode=3` fullscreen del 24-08 seguía siendo correcto — el
+problema real era `window/stretch/aspect="keep"` sobre un canvas de
+diseño 900x1080 vertical, letterboxing en cualquier monitor 16:9/16:10
+normal). Se ofrecieron dos opciones: (B) canvas fijo panorámico
+1600x900, menos trabajo pero solo cubre bien aspect ratios cercanos a
+16:9; (A) `stretch/aspect="expand"` + convertir los nodos de offsets
+absolutos a anchors reales, se adapta a cualquier resolución sin barra
+nunca, más trabajo. **Usuario eligió A.**
+
+Detalle completo, decisión, y receta de conversión nodo-por-nodo:
+`docs/superpowers/specs/2026-08-25-responsive-layout-design.md`.
+Confirmado el comportamiento exacto de `canvas_items`+`expand` contra la
+documentación oficial de Godot antes de tocar nada (no se adivinó).
+
+**Hallazgo que abarató el trabajo:** la lógica de posicionamiento en
+GDScript (`blackjack_table_net.gd seat_anchor()`, y todos los
+componentes de `scripts/ui/casino/` que dibujan a mano) ya calculaba
+todo relativo a `size` del `Control` en tiempo de ejecución, no contra
+constantes 900/1080 hardcodeadas — el problema real estaba casi
+enteramente en los `.tscn` (nodos con `layout_mode=0` pegados a la
+esquina superior-izquierda por defecto en vez de anclados al borde que
+les corresponde).
+
+**Hecho directo por esta sesión pilar** (fix de layout acotado, mismo
+criterio que los fixes directos anteriores de esta sesión — no logic de
+juego): `project.godot` (`stretch/aspect` → `"expand"`),
+`casino_floor.tscn` (lobby título/grid de tarjetas, labels de HUD, botón
+volver) y `blackjack_table_net.tscn` completo (icono de mazo, contenedor
+de cartas/asientos, label de valor del dealer, fila de botones de
+acción, barra HUD) convertidos de offsets absolutos a anchors reales.
+349/349 tests en verde (ningún test comprueba offsets/anchors exactos).
+Commiteado y pusheado directo a `main` (`0b9568d`). **Blackjack sirve de
+referencia probada** para el resto.
+
+Creado `plan23-responsive-layout`, **desbloqueado**, spec y plan
+completos ya escritos por esta sesión pilar (metodología + tabla de
+conversión + referencia al diff real de Blackjack, no fabrica anchors
+nuevos por mesa a ciegas — cada agente debe leer su propio `.tscn` y
+aplicar la receta). Aplica el mismo tratamiento a las 6 mesas restantes
+(Ruleta, Póker, Dice, Crash, Mines, Plinko). Independiente de la
+ampliación de pixel art (`assets/pixels/`) — no comparte archivos,
+puede correr en paralelo si el usuario quiere.
+
+**Sin confirmar en vivo todavía** — pendiente que el usuario (o una
+sesión con clic fiable) confirme que Blackjack ya no tiene barras negras
+en un monitor panorámico real.
 
 ## Barrida exhaustiva de las 7 mesas (2026-08-24)
 
