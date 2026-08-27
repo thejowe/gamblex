@@ -1,6 +1,6 @@
 # Lista de assets pixel art — grid base 32px
 
-Una carpeta por cada asset individual (104 en total) — mete la imagen
+Una carpeta por cada asset individual (108 en total) — mete la imagen
 dentro de la carpeta que le corresponde, con el mismo nombre que la
 carpeta (ej. `common/chips/chip_1/chip_1.png`). Así el agente que los
 integre no tiene que adivinar qué archivo es cuál.
@@ -64,14 +64,30 @@ No hay dado físico en el código (es un slider, no un cubo 1-6).
 ## hud/
 
 `icon_pot/` `icon_crown_a/` `icon_crown_b/` `icon_win/` `icon_lose/`
+`defeat_bg/` (fondo a pantalla completa de `Hud/DefeatOverlay`, hoy un
+`ColorRect` liso — Plan 21) `victory_bg/` (fondo para cuando exista una
+pantalla de victoria real — **hoy no existe en el código, solo hay texto
+en una label en Modo Batalla**, esta carpeta es para cuando se construya)
 
 ## lobby/ — 7 tarjetas de selección de juego
 
 `card_blackjack/` `card_roulette/` `card_poker/` `card_dice/`
 `card_crash/` `card_mines/` `card_plinko/`
 
+## inicio/ — pantalla de inicio / sala de grupo (`LobbyMenu`, Plan 24)
+
+`lobby_bg/` (fondo de la pantalla donde eliges modo, creas/te unes a una
+sala Steam, y esperas a los invitados — misma escena para ambos casos,
+`scenes/lobby_menu.tscn`)
+
+## carga/ — pantalla de carga
+
+`loading_bg/` (opcional — hoy no existe ninguna pantalla de carga en el
+código, ni siquiera el splash de Godot está personalizado; esta carpeta
+es para cuando se construya)
+
 ---
 
-104 carpetas creadas. Ve rellenando las que puedas — no hace falta
+108 carpetas creadas. Ve rellenando las que puedas — no hace falta
 completarlas todas para empezar (fichas+cartas+botones ya es un lote
 razonable para el primer agente de pixel art).
