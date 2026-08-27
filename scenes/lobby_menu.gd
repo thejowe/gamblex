@@ -2,8 +2,10 @@ extends Control
 
 @onready var create_button: Button = $CreateButton
 @onready var invite_button: Button = $InviteButton
+@onready var cancel_button: Button = $CancelButton
 @onready var members_label: Label = $MembersLabel
 @onready var match_type_option: OptionButton = $MatchTypeOption
+@onready var error_label: Label = $ErrorLabel
 
 var _transitioned: bool = false
 
@@ -16,17 +18,36 @@ func _ready() -> void:
 	match_type_option.add_item("4v4", TeamAssignment.MatchType.FOUR_V_FOUR)
 	create_button.pressed.connect(_on_create_pressed)
 	invite_button.pressed.connect(_on_invite_pressed)
-	invite_button.disabled = true
+	cancel_button.pressed.connect(_on_cancel_pressed)
 	SteamManager.lobby_ready.connect(_on_lobby_ready)
 	SteamManager.lobby_join_failed.connect(_on_lobby_join_failed)
+	SteamManager.steam_ready.connect(_on_steam_ready)
 	Steam.lobby_chat_update.connect(_on_lobby_chat_update)
+	_reset_to_idle()
+	if not SteamManager.is_ready:
+		_on_steam_ready(false)
+	if not SteamManager.last_disconnect_reason.is_empty():
+		_show_error(SteamManager.last_disconnect_reason)
+		SteamManager.last_disconnect_reason = ""
+
+func _on_steam_ready(ok: bool) -> void:
+	create_button.disabled = not ok
+	if not ok:
+		_show_error("Steam no está disponible ahora mismo")
 
 func _on_create_pressed() -> void:
 	create_button.disabled = true
+	cancel_button.visible = true
 	var match_type: int = match_type_option.get_selected_id()
 	SteamManager.chosen_match_type = match_type
 	var max_members: int = FREE_MODE_MAX_MEMBERS if match_type == -1 else TeamAssignment.team_size_for(match_type) * 2
 	SteamManager.create_lobby(max_members)
+
+func _on_cancel_pressed() -> void:
+	if SteamManager.current_lobby_id > 0:
+		Steam.leaveLobby(SteamManager.current_lobby_id)
+	SteamManager.reset()
+	_reset_to_idle()
 
 func _on_invite_pressed() -> void:
 	Steam.activateGameOverlayInviteDialog(SteamManager.current_lobby_id)
@@ -41,6 +62,9 @@ func _on_lobby_ready(lobby_id: int, is_owner: bool) -> void:
 
 func _on_lobby_join_failed(reason: String) -> void:
 	push_error("LobbyMenu: %s" % reason)
+	SteamManager.reset()
+	_reset_to_idle()
+	_show_error(reason)
 
 func _on_lobby_chat_update(_lobby_id: int, _change_id: int, _making_change_id: int, _chat_state: int) -> void:
 	_refresh_members()
@@ -65,3 +89,14 @@ func _refresh_members() -> void:
 		var member_id: int = Steam.getLobbyMemberByIndex(lobby_id, i)
 		names.append(Steam.getFriendPersonaName(member_id))
 	members_label.text = "Jugadores: %s" % ", ".join(names)
+
+func _reset_to_idle() -> void:
+	create_button.disabled = false
+	invite_button.disabled = true
+	cancel_button.visible = false
+	members_label.text = "Jugadores: "
+	error_label.visible = false
+
+func _show_error(message: String) -> void:
+	error_label.text = message
+	error_label.visible = true
