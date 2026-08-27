@@ -104,6 +104,7 @@ Prompt para la próxima sesión pilar, igual que siempre:
 | 21 | `plan21-free-mode-shared-pool` | Fix: pozo compartido real en Modo Libre (reemplaza `CollectiveGoal` acumulativo) + pantalla de derrota si el pozo llega a 0 | `feature/free-mode-shared-pool` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — confirmado funcionando en vivo |
 | 22 | `plan22-roulette-grid-overflow-fix` | Fix: grid de 37 números de Ruleta se sale de la ventana (columnas compartidas con apuestas de fuera más anchas) | `feature/roulette-grid-overflow-fix` (mergeado) | ✅ Completado, mergeado a `main` (`2fc5bb1`) — código+tests verificados, visual pendiente de confirmar (ver nota) |
 | 23 | `plan23-responsive-layout` | Layout responsive real: aplicar a las 6 mesas restantes (Ruleta/Póker/Dice/Crash/Mines/Plinko) la conversión de offsets absolutos a anchors que ya se hizo en Blackjack/lobby/HUD | `main` (directo, sin rama) | ✅ Completado, mergeado a `main` (`d9427ac` + fix de causa raíz `ca10e2d`) — ver nota abajo |
+| 24 | `plan24-room-lifecycle` | Conectar `LobbyMenu` (huérfana hoy) como pantalla de inicio real: crear/unir/cancelar sala Steam, errores visibles, "Salir de la sala" desde CasinoFloor | `feature/room-lifecycle` | 🟢 **DESBLOQUEADO**, spec y plan ya escritos por la sesión pilar |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -787,6 +788,38 @@ tabs/espacios de siempre en `casino_floor.gd`, gotcha ya conocido).
 **Confirmado en vivo por el usuario (2026-08-25):** ya no hay barras
 negras, pantalla completa bien en su monitor panorámico. Ampliación
 v1.6 cerrada del todo.
+
+## Plan 24: ciclo de vida de sala + pantalla de inicio real (2026-08-26)
+
+El usuario pidió pausar reskin visual (Póker sigue pospuesto) y
+"perfeccionar la aplicación base": crear salas / interfaces de inicio.
+Investigando antes de diseñar nada, esta sesión pilar encontró un
+hallazgo real no documentado hasta ahora: **la app empaquetada no tiene
+forma de crear ni unirse a una sala Steam.** `scenes/lobby_menu.tscn`/`.gd`
+(la única pantalla que llama `SteamManager.create_lobby()`/`join_lobby()`)
+no está referenciada desde ningún otro script — `project.godot` arranca
+directo en `casino_floor.tscn`, así que `NetworkManager` nunca crea un
+`SteamMultiplayerPeer` real. Los playtests con 2 cuentas documentados
+arriba (Plan 13, barrida del 24-08) casi con certeza lanzaron
+`lobby_menu.tscn` a mano desde el editor (F6), no la app tal como arranca
+hoy.
+
+Diseño confirmado con el usuario, pregunta por pregunta (detalle completo
+en `docs/superpowers/specs/2026-08-26-room-lifecycle-design.md`):
+arreglar y completar `LobbyMenu` como pantalla de inicio real (no solo
+conectar `main_scene` sin más), añadir "Salir de la sala" desde
+`CasinoFloor` (hoy no existe forma de dejar una sala Steam en curso sin
+cerrar la app), mantener el mínimo de 2 jugadores sin cambios (no hay modo
+"jugar solo"), y añadir feedback de error visible + botón "Cancelar" (hoy
+los fallos de Steam solo se ven en consola). Fuera de alcance explícito:
+reskin visual de `LobbyMenu`, Póker, vaciado de asiento cuando un
+invitado se desconecta a mitad de partida.
+
+Creado `plan24-room-lifecycle`, **desbloqueado**, spec y plan de
+implementación completos (6 tareas con TDD, código GDScript incluido) ya
+escritos por esta sesión pilar. Rama `feature/room-lifecycle`, worktree
+aislado desde el primer commit. No toca ninguna mesa ni Póker — cero
+riesgo de conflicto con trabajo futuro.
 
 ## Barrida exhaustiva de las 7 mesas (2026-08-24)
 
