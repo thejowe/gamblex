@@ -24,6 +24,7 @@ const TABLE_NODE_NAMES := [
 @onready var lobby_view: Control = $TablesLayer/Lobby
 @onready var card_grid: GridContainer = $TablesLayer/Lobby/CardGrid
 @onready var back_button: Button = $Hud/BackButton
+@onready var exit_room_button: Button = $Hud/ExitRoomButton
 
 var shared_pool_ledger: ChipLedger
 var _pool_unlocked: bool = false
@@ -41,6 +42,8 @@ func _ready() -> void:
         if card is BaseButton:
             card.pressed.connect(_on_card_pressed.bind(card.name))
     back_button.pressed.connect(_on_back_pressed)
+    exit_room_button.pressed.connect(_on_exit_room_pressed)
+    multiplayer.server_disconnected.connect(_on_server_disconnected)
     _refresh_room_visibility()
 
     _is_battle_mode = SteamManager.chosen_match_type != -1
@@ -115,9 +118,26 @@ func _on_back_pressed() -> void:
     _lobby.return_to_lobby()
     _refresh_room_visibility()
 
+func _on_exit_room_pressed() -> void:
+    _leave_room("")
+
+func _on_server_disconnected() -> void:
+    _leave_room("El host cerró la sala.")
+
+func _leave_room(reason: String) -> void:
+    if multiplayer.multiplayer_peer != null:
+        multiplayer.multiplayer_peer.close()
+    if SteamManager.current_lobby_id > 0:
+        Steam.leaveLobby(SteamManager.current_lobby_id)
+    SteamManager.reset()
+    NetworkManager.reset()
+    SteamManager.last_disconnect_reason = reason
+    get_tree().change_scene_to_file("res://scenes/lobby_menu.tscn")
+
 func _refresh_room_visibility() -> void:
     lobby_view.visible = _lobby.is_in_lobby()
     back_button.visible = not _lobby.is_in_lobby()
+    exit_room_button.visible = _lobby.is_in_lobby()
     for table_name in _table_nodes:
         _table_nodes[table_name].visible = _lobby.is_active(table_name)
 
