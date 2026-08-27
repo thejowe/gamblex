@@ -53,3 +53,6 @@ func _on_peer_connected(id: int) -> void:
 
 func _on_peer_disconnected(id: int) -> void:
 	print("Peer desconectado: %d" % id)
+
+func reset() -> void:
+	peer_steam_ids.clear()
