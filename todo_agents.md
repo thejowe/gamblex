@@ -104,7 +104,7 @@ Prompt para la próxima sesión pilar, igual que siempre:
 | 21 | `plan21-free-mode-shared-pool` | Fix: pozo compartido real en Modo Libre (reemplaza `CollectiveGoal` acumulativo) + pantalla de derrota si el pozo llega a 0 | `feature/free-mode-shared-pool` (mergeado) | ✅ Completado, mergeado a `main` (`c38e9a6`) — confirmado funcionando en vivo |
 | 22 | `plan22-roulette-grid-overflow-fix` | Fix: grid de 37 números de Ruleta se sale de la ventana (columnas compartidas con apuestas de fuera más anchas) | `feature/roulette-grid-overflow-fix` (mergeado) | ✅ Completado, mergeado a `main` (`2fc5bb1`) — código+tests verificados, visual pendiente de confirmar (ver nota) |
 | 23 | `plan23-responsive-layout` | Layout responsive real: aplicar a las 6 mesas restantes (Ruleta/Póker/Dice/Crash/Mines/Plinko) la conversión de offsets absolutos a anchors que ya se hizo en Blackjack/lobby/HUD | `main` (directo, sin rama) | ✅ Completado, mergeado a `main` (`d9427ac` + fix de causa raíz `ca10e2d`) — ver nota abajo |
-| 24 | `plan24-room-lifecycle` | Conectar `LobbyMenu` (huérfana hoy) como pantalla de inicio real: crear/unir/cancelar sala Steam, errores visibles, "Salir de la sala" desde CasinoFloor | `feature/room-lifecycle` | 🟢 **DESBLOQUEADO**, spec y plan ya escritos por la sesión pilar |
+| 24 | `plan24-room-lifecycle` | Conectar `LobbyMenu` (huérfana hoy) como pantalla de inicio real: crear/unir/cancelar sala Steam, errores visibles, "Salir de la sala" desde CasinoFloor | `feature/room-lifecycle` (mergeado) | ✅ Completado, mergeado a `main` (`9c95682`) — código+tests verificados línea a línea, visual pendiente de confirmar (ver nota) |
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
@@ -820,6 +820,38 @@ implementación completos (6 tareas con TDD, código GDScript incluido) ya
 escritos por esta sesión pilar. Rama `feature/room-lifecycle`, worktree
 aislado desde el primer commit. No toca ninguna mesa ni Póker — cero
 riesgo de conflicto con trabajo futuro.
+
+**Merge de Plan 24 (2026-08-26).** Diff exacto al plan, línea por línea
+(6 commits en la rama: 5 tareas de código + 1 de housekeeping trackeando
+los `.uid` nuevos que Godot genera para los tests). Verificado por esta
+sesión pilar antes de mergear: caché de clases reconstruida, 359/359
+tests (349 previos + 10 nuevos exactamente como preveía el plan: 2
+`SteamManager`, 1 `NetworkManager`, 5 `LobbyMenu`, 2 `CasinoFloor`), ambas
+escenas (`lobby_menu.tscn` como `main_scene` nuevo, `casino_floor.tscn`)
+cargan headless sin error real (el único error en consola es el
+`Steam init failed` esperado por no tener Steam corriendo en esta
+verificación, no un fallo de carga). Sin conflictos al mergear (`9c95682`).
+Mismo gotcha de siempre con el worktree: no se pudo borrar del disco
+(`Permission denied`, probablemente Godot con el directorio abierto tras
+los runs de verificación) pero sí se desregistró de `git worktree list` —
+queda basura física en `.claude/worktrees/feature+room-lifecycle/` para
+borrar a mano cuando se libere.
+
+**Sin confirmar todavía:** playtest real con 2 clientes Steam del flujo
+completo (crear sala → invitar → jugar → "Salir de la sala" → el otro ve
+"El host cerró la sala." si le tocó salir a él) — el agente lo dejó
+explícito en su reporte, no lo tiene disponible en su sesión, y esta
+verificación de pilar tampoco lo cubre (solo headless, sin Steam en vivo).
+Pendiente que el usuario lo pruebe.
+
+**Housekeeping detectado, no de este plan, aparte:** hay 6 worktrees de
+ramas ya mergeadas hace tiempo que nunca se limpiaron
+(`feature+battle-mode`, `feature+battle-sync-fix`, `feature+lobby`,
+`feature+poker`, `feature+roulette`, `feature+roulette-visual`, en
+`.claude/worktrees/`) — siguen registrados en `git worktree list` y
+ocupando disco. No se tocan en esta sesión (no es parte del encargo
+actual), pero la próxima sesión pilar debería limpiarlos con
+`git worktree remove` si el usuario lo confirma.
 
 ## Barrida exhaustiva de las 7 mesas (2026-08-24)
 
