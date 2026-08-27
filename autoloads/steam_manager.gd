@@ -8,6 +8,8 @@ var steam_id: int = 0
 var steam_username: String = ""
 var current_lobby_id: int = 0
 var chosen_match_type: int = -1
+var is_ready: bool = false
+var last_disconnect_reason: String = ""
 
 func _ready() -> void:
 	Steam.lobby_created.connect(_on_lobby_created)
@@ -21,7 +23,12 @@ func _ready() -> void:
 		steam_id = Steam.getSteamID()
 		steam_username = Steam.getPersonaName()
 		print("Steam initialized OK for user: %s (%d)" % [steam_username, steam_id])
+	is_ready = ok
 	steam_ready.emit(ok)
+
+func reset() -> void:
+	current_lobby_id = 0
+	chosen_match_type = -1
 
 func _process(_delta: float) -> void:
 	Steam.run_callbacks()
