@@ -44,6 +44,7 @@ func _on_max_pressed() -> void:
 	amount = max_amount
 
 func _on_bet_pressed() -> void:
+	AudioManager.play_sfx("chip")
 	bet_pressed.emit(amount)
 
 func _commit_typed_amount(new_text: String) -> void:

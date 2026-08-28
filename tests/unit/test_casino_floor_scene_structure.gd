@@ -21,3 +21,12 @@ func test_exit_room_button_visible_in_lobby_back_button_hidden():
 	add_child_autofree(root)
 	assert_true(root.get_node("Hud/ExitRoomButton").visible)
 	assert_false(root.get_node("Hud/BackButton").visible)
+
+func test_card_pressed_and_back_pressed_switch_music_without_error():
+	var scene = load("res://scenes/casino_floor.tscn")
+	var root = scene.instantiate()
+	add_child_autofree(root)
+	root._on_card_pressed("BlackjackCard")
+	assert_eq(AudioManager._current_track_name, "table")
+	root._on_back_pressed()
+	assert_eq(AudioManager._current_track_name, "lobby")

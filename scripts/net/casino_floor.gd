@@ -113,10 +113,12 @@ func _on_card_pressed(card_name: String) -> void:
         return
     _lobby.select(table_name)
     _refresh_room_visibility()
+    AudioManager.play_music("table")
 
 func _on_back_pressed() -> void:
     _lobby.return_to_lobby()
     _refresh_room_visibility()
+    AudioManager.play_music("lobby")
 
 func _on_exit_room_pressed() -> void:
     _leave_room("")

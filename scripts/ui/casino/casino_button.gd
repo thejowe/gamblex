@@ -55,6 +55,7 @@ func _on_hover_end() -> void:
 	tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1)
 
 func _on_press() -> void:
+	AudioManager.play_sfx("click")
 	var tween := create_tween()
 	tween.tween_property(self, "scale", Vector2(0.95, 0.95), 0.05)
 
