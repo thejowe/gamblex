@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scenes/roulette_table_net.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/net/roulette_table_controller.gd" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/roulette_wheel_display.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/roulette_betting_grid.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/help_overlay.tscn" id="7"]
 
 [node name="RouletteTableNet" type="Control"]
 layout_mode = 3
@@ -78,3 +79,23 @@ offset_top = 580.0
 offset_right = -20.0
 offset_bottom = 740.0
 grow_horizontal = 2
+
+[node name="HelpButton" parent="." instance=ExtResource("6")]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -56.0
+offset_top = 70.0
+offset_right = -20.0
+offset_bottom = 106.0
+grow_horizontal = 0
+text = "?"
+
+[node name="HelpOverlay" parent="." instance=ExtResource("7")]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
