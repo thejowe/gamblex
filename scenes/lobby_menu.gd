@@ -29,6 +29,7 @@ func _ready() -> void:
 	if not SteamManager.last_disconnect_reason.is_empty():
 		_show_error(SteamManager.last_disconnect_reason)
 		SteamManager.last_disconnect_reason = ""
+	AudioManager.play_music("lobby")
 
 func _on_steam_ready(ok: bool) -> void:
 	create_button.disabled = not ok
