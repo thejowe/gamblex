@@ -42,6 +42,53 @@ sesión pilar para evitar conflictos entre ramas.
 
 ---
 
+## Cierre de sesión (2026-08-27)
+
+Estado al cerrar: **Planes 1-31 completados y mergeados a `main`**
+(`494785a`), working tree limpio, todo pusheado a `origin/main`. Ningún
+agente desbloqueado esperando prompt ahora mismo — las 7 mesas tienen
+reskin visual completo, Ampliación v1.7 (audio/ajustes/pausa/tutorial/
+victoria-derrota/carga/créditos/logros/icono) y Ampliación v1.8 (Póker)
+cerradas del todo.
+
+Sesión larga: auditoría completa del proyecto pedida por el usuario
+("compáralo con juegos exitosos, qué falta") → 6 agentes nuevos (25-30)
+escritos (uno a mano por ser fundacional, 5 en forks paralelos — un
+fork "reportó éxito" sin escribir nada real, detectado verificando
+disco, relanzado) → los 6 verificados y mergeados con 2 bugs reales
+encontrados y arreglados por esta sesión antes de cerrar (mensaje de
+resultado al revés en Plan 26, test descartado en silencio por GUT en
+Plan 29) → verificación en vivo con Steam real pedida explícitamente
+por el usuario, encontró y arregló un tercer bug real (splash SVG
+inválido) → usuario aportó referencia de Póker → Plan 31 escrito,
+verificado (Blackjack sin regresión confirmado) y mergeado.
+
+Pendiente real, no urgente:
+- **Confirmación visual en vivo de todo lo de hoy** (Ampliación v1.7
+  completa más allá de LobbyMenu/Ajustes/Créditos, y Plan 31/Póker):
+  bloqueado por tener solo una cuenta Steam disponible en esta máquina
+  — Modo Libre necesita 2 miembros reales para que el host entre a
+  `CasinoFloor`. `PauseMenu`, `HelpOverlay` por mesa, `LoadingScreen`
+  real, Victoria/Derrota, y la mesa de Póker completa solo se
+  confirmaron por código + 429/429 tests, no visualmente en vivo.
+- **Playtest real de 2 clientes Steam en Modo Batalla**: sigue sin
+  confirmarse (bloqueador de siempre, sin cambios desde el cierre
+  anterior).
+- **6 worktrees viejos sin limpiar** (`feature+battle-mode`,
+  `feature+battle-sync-fix`, `feature+lobby`, `feature+poker`,
+  `feature+roulette`, `feature+roulette-visual`) — mergeados hace mucho,
+  detectados en cierres anteriores, nunca se han limpiado. No urgente.
+- **Basura sin trackear en la raíz** (pngs/webp de referencia sueltos +
+  sus `.import`, `tests/unit/test_poker_table_view.gd.uid`) — mismo
+  inventario de siempre, nunca confirmado con el usuario si limpiar o
+  dejar.
+
+Sin ampliación nueva propuesta todavía — el roadmap de pulido visible
+en la auditoría de esta sesión está cerrado del todo. Próximo paso
+natural, sin agente creado: ampliación de pixel art real (108 carpetas
+reservadas en `assets/pixels/ASSETS.md`, casi todas vacías) para
+reemplazar el dibujo procedural — o lo que el usuario traiga.
+
 ## Cierre de sesión (2026-08-24)
 
 Estado al cerrar por hoy: **Planes 1-22 completados y mergeados a
