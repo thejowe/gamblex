@@ -187,13 +187,25 @@ concreto necesita un tamaño distinto (p. ej. `roulette_wheel`, que es
 circular y grande), se documenta como excepción ahí mismo, nunca en
 silencio.
 
-## Decisiones que requieren confirmación del usuario
+## Decisiones que requerían confirmación del usuario — RESUELTAS (2026-08-28)
 
-- Tamaño exacto de `roulette_wheel` (probablemente >1 celda, pendiente
-  de ver la referencia a escala real en la mesa).
-- Si los 7 fondos de pantalla completa (`lobby_bg`, `loading_bg`,
-  `victory_bg`, `defeat_bg`, `settings_bg`, `pause_bg`, `credits_bg`,
-  `help_bg`) comparten un único "master de composición" (misma
-  estructura de vignette/marco, cambia solo motivo central) o son libres.
-  Propuesta por defecto: comparten master, igual que las 7 tarjetas de
-  lobby — se documenta en `ART_ASSET_PLAN.md` como `BACKGROUND_MASTER`.
+- **Fondos compartidos (`BACKGROUND_MASTER`):** confirmado por el
+  usuario — "fondo compartido de momento". Ya estaba de facto así en
+  `ASSET_REGISTRY.md` (5/8 fondos reusan `BACKGROUND_MASTER` tal cual:
+  loading/settings/pause/credits/help; lobby/victory/defeat se ganaron
+  generación propia por ser pantallas de bienvenida/resultado con
+  identidad propia) — este bullet quedó desactualizado tras esa
+  generación, ya no es una decisión abierta.
+- **Tamaño de `roulette_wheel` en escena:** el usuario pidió calcularlo.
+  `roulette_wheel.png` nativo es 124×124 (`ASSET_REGISTRY.md`). El
+  contenedor real en `roulette_table_net.tscn` es
+  `RouletteWheelDisplay` (`scripts/ui/casino/roulette_wheel_display.gd`),
+  `custom_minimum_size = Vector2(RADIUS*2, RADIUS*2)` con `RADIUS = 130.0`
+  → **260×260 px**. Escala entera más cercana sin interpolar (regla de
+  pixel art: nunca escalar a un factor no entero): **×2 → 248×248 px**,
+  centrado dentro del contenedor de 260×260 (6px de margen por lado,
+  no invade el anillo exterior que dibuja `draw_arc` en `RADIUS` exacto).
+  ×3 (372×372) desborda el contenedor y obligaría a rediseñar el layout
+  — descartado. Implementación (`TextureRect` detrás de
+  `RouletteWheelDisplay`, tamaño fijo 248×248, mismo centro) es tarea de
+  código (`pilar.md`/agente de mesa), no de `CasinoArtDirector`.

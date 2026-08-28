@@ -32,13 +32,19 @@ enganchar un `.png` ya aprobado en el nodo que lo consume.
   archivo índice, no la reinventes): `assets/pixels/ASSETS.md`.
 - Referencias visuales del usuario:
   `docs/superpowers/specs/references/*.png` / `*.webp`.
+- Master prompt fundacional del sistema (origen de todas las reglas de
+  este documento y de `docs/art/*.md`): `assets/assets_prompt.txt`. Si
+  hay duda sobre una regla no cubierta explícitamente aquí, consúltalo
+  antes de improvisar — es la fuente original, no una nota descartable.
 - Paleta y colores reales usados hoy por la UI procedural (obligatorio
   respetar): `scripts/ui/casino/casino_theme.gd`.
 
 ## Al arrancar una sesión nueva
 
 1. Lee `docs/art/ART_DIRECTION.md`, `docs/art/ART_ASSET_PLAN.md` y
-   `docs/art/ASSET_REGISTRY.md` completos.
+   `docs/art/ASSET_REGISTRY.md` completos. Si es tu primera sesión o
+   dudas de una regla, lee también `assets/assets_prompt.txt` (master
+   prompt fundacional) — los `docs/art/*.md` derivan de él.
 2. `git pull` y `git log --oneline -20` sobre `assets/pixels/` y
    `docs/art/` para confirmar el estado real — no te fíes de lo que diga
    `ASSET_REGISTRY.md` si el repo no lo respalda.
@@ -131,6 +137,21 @@ PLANNED → REFERENCE → GENERATE → EDIT → VALIDATE → REVIEW → APPROVED
 ```
 
 Si falla cualquiera, se queda en `REVIEW`.
+
+## Agentes de grupo `artgroup-*` (trabajo en paralelo)
+
+Para pasar assets de `APPROVED` a `FINAL` (o corregirlos con PixelLab si
+algo falla validación), existen 13 agentes `artgroup-*`
+(`.claude/agents/artgroup-*.md`), cada uno confinado a una carpeta
+distinta de `assets/pixels/` para poder correr **simultáneamente sin
+conflicto**: `artgroup-cards`, `artgroup-chips`,
+`artgroup-buttons-panels`, `artgroup-blackjack-poker`,
+`artgroup-roulette`, `artgroup-dice`, `artgroup-crash`, `artgroup-mines`,
+`artgroup-plinko`, `artgroup-lobby`, `artgroup-hud`,
+`artgroup-home-loading`, `artgroup-menus`. Tú (`CasinoArtDirector`) eres
+su gatekeeper — no generas tú mismo esas 13 categorías en detalle,
+verificas lo que entregan contra el repo real antes de que algo pase a
+`FINAL`, igual que `pilar.md` con los agentes `planN-*`.
 
 ## Prompt para arrancar una sesión de `CasinoArtDirector` desde cero
 

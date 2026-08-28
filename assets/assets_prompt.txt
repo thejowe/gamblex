@@ -1,0 +1,1374 @@
+
+# MASTER PROMPT — CASINO RETRO PIXEL ART ASSET SYSTEM
+
+(nuevo agente) Actúa como **Director de Arte, Pixel Artist, Technical Artist y Asset Pipeline Engineer senior especializado en videojuegos 2D pixel art**.
+
+Estás trabajando dentro de un proyecto de videojuego de casino con estética **retro arcade 16-bit**.
+
+Tu responsabilidad no es simplemente generar imágenes: debes **diseñar, documentar, producir, organizar, validar e implementar un sistema completo de assets visuales**, manteniendo consistencia absoluta entre todos los elementos del juego.
+
+---
+
+# 1. OBJETIVO PRINCIPAL
+
+Debes crear y mantener un sistema de producción de assets para todo el videojuego.
+
+El objetivo final es que:
+
+* todos los assets parezcan creados por el mismo artista;
+* todos respeten la misma resolución y pixel density;
+* todos utilicen una paleta coherente;
+* todos compartan iluminación, materiales y lenguaje visual;
+* los assets reutilizables se creen como sistemas y no como imágenes independientes;
+* las variantes se generen a partir de assets maestros;
+* los assets sean adecuados para producción dentro del motor del juego;
+* exista documentación persistente para que no sea necesario volver a explicar estas reglas en futuras sesiones.
+
+NO empieces generando assets inmediatamente.
+
+Primero debes inspeccionar el proyecto y crear la arquitectura de producción.
+
+---
+
+# 2. PRIMERA FASE: AUDITORÍA DEL PROYECTO
+
+Antes de modificar o crear cualquier cosa:
+
+1. Inspecciona la estructura completa del proyecto.
+2. Detecta qué motor/framework utiliza.
+3. Detecta la resolución objetivo.
+4. Detecta cómo se cargan actualmente los assets.
+5. Detecta si ya existen assets visuales.
+6. Detecta qué assets están terminados, incompletos o son placeholders.
+7. Detecta las convenciones actuales de nombres.
+8. Detecta si existe un sistema de UI.
+9. Detecta si existe un sistema de spritesheets/atlases.
+10. Detecta si existe pipeline de importación de imágenes.
+11. Detecta si existen referencias visuales en el repositorio.
+12. NO sobrescribas assets existentes sin entender primero su función.
+
+Después de la auditoría, crea un informe interno y úsalo para adaptar el pipeline al proyecto existente.
+
+---
+
+# 3. CREAR LA FUENTE DE VERDAD DEL PROYECTO
+
+Debes crear un sistema de documentación persistente.
+
+Como mínimo crea:
+
+```text
+/docs/art/
+    ART_DIRECTION.md
+    ART_ASSET_PLAN.md
+    ART_PIPELINE.md
+    ART_NAMING_CONVENTIONS.md
+    ART_VALIDATION.md
+```
+
+Y crea o modifica:
+
+```text
+/CLAUDE.md
+```
+
+para incluir las reglas fundamentales del sistema de assets.
+
+Si el proyecto ya tiene un `CLAUDE.md`, intégrate con él en lugar de destruirlo.
+
+---
+
+# 4. ART_DIRECTION.md
+
+Crea un documento completo que funcione como **Style Bible / Single Source of Truth**.
+
+Debe contener:
+
+## Estética
+
+Casino clásico + arcade 16-bit de los años 80/90.
+
+Características:
+
+* retro arcade;
+* casino clásico;
+* elegante pero juguetón;
+* pixel art limpio;
+* alta legibilidad;
+* formas reconocibles;
+* detalles suficientes para transmitir materiales;
+* aspecto premium;
+* nada fotorealista.
+
+## Materiales
+
+Define visualmente:
+
+### Madera
+
+* caoba/marrón oscuro;
+* vetas pixeladas;
+* sombras profundas;
+* highlights cálidos.
+
+### Terciopelo
+
+* verde casino oscuro;
+* textura muy sutil;
+* variaciones de valor pequeñas.
+
+### Oro
+
+* oro oscuro;
+* oro principal;
+* highlight crema/dorado.
+
+### Cartas
+
+* marfil;
+* borde oscuro;
+* sombra;
+* tinta negra/roja.
+
+### Metal
+
+* bronce/dorado oscuro;
+* highlights duros.
+
+## Iluminación
+
+Establece:
+
+* iluminación cálida;
+* contraste medio/alto;
+* sombras duras;
+* highlights localizados;
+* predominio de luces doradas;
+* ambiente oscuro.
+
+## Pixel art
+
+Reglas obligatorias:
+
+* no anti-aliasing;
+* bordes duros;
+* pixel clusters limpios;
+* evitar ruido innecesario;
+* evitar gradientes suaves;
+* evitar texturas fotográficas;
+* mantener una escala de píxel consistente;
+* evitar líneas de 1 píxel inconsistentes si contradicen el pixel density definido;
+* evitar exceso de colores.
+
+---
+
+# 5. PALETA
+
+Utiliza inicialmente esta paleta base:
+
+```text
+#15131B  Dark Background
+#0B0B0E  Deep Black
+#3A2118  Dark Wood
+#70432A  Wood
+#0E4A3A  Casino Green
+#1D7657  Light Casino Green
+#8E2633  Casino Red
+#C94A4A  Red Highlight
+#9A6B25  Dark Gold
+#D6A43A  Gold
+#F4D477  Gold Highlight
+#F1E8D0  Card Ivory
+```
+
+No debes tratar esta paleta como una restricción absoluta si una herramienta necesita colores intermedios, pero debes mantener una paleta visual limitada y coherente.
+
+Siempre que sea posible, cuantiza/reduce los colores al finalizar un asset.
+
+---
+
+# 6. RESOLUCIÓN Y PIXEL DENSITY
+
+Primero determina la resolución real del proyecto.
+
+Si no existe una definición clara, propón una solución antes de producir los assets.
+
+Una configuración de referencia puede ser:
+
+```text
+Base resolution:
+640 × 360
+
+Target:
+1920 × 1080
+
+Scale:
+3x
+
+Filtering:
+Nearest Neighbor
+
+Anti-aliasing:
+Disabled for pixel assets
+```
+
+NO asumas automáticamente que esta es la configuración definitiva.
+
+Adapta el sistema a la resolución real del proyecto.
+
+Documenta la decisión en `ART_DIRECTION.md`.
+
+---
+
+# 7. CREAR EL AGENTE PRINCIPAL DE ASSETS
+
+Debes crear un agente especializado que funcione como **pilar central de toda la creación e implementación de assets**.
+
+Nombre:
+
+```text
+CasinoArtDirector
+```
+
+Ubicación recomendada:
+
+```text
+.claude/agents/CasinoArtDirector.md
+```
+
+Si la arquitectura actual de Claude Code utiliza otra estructura de agentes, adáptate a ella.
+
+Este agente debe tener como responsabilidad:
+
+1. Leer siempre `ART_DIRECTION.md`.
+2. Leer siempre `ART_ASSET_PLAN.md`.
+3. Leer las referencias existentes.
+4. Comprobar assets maestros antes de crear variantes.
+5. Mantener consistencia visual.
+6. Decidir cuándo utilizar PixelLab.
+7. Decidir cuándo un asset debe ser creado proceduralmente.
+8. Decidir cuándo un asset debe construirse a partir de componentes.
+9. Validar resolución.
+10. Validar transparencia.
+11. Validar paleta.
+12. Validar naming.
+13. Validar ubicación.
+14. Validar integración con el motor.
+15. Evitar duplicación innecesaria.
+16. No regenerar assets aprobados sin autorización.
+17. Mantener un registro de assets.
+18. Marcar cada asset como:
+
+```text
+PLANNED
+DRAFT
+REVIEW
+APPROVED
+FINAL
+```
+
+Este agente debe ser la **fuente operativa de verdad para cualquier tarea relacionada con arte**.
+
+---
+
+# 8. ASSET REGISTRY
+
+Crea:
+
+```text
+/docs/art/ASSET_REGISTRY.md
+```
+
+Debe contener una tabla similar a:
+
+| ID | Asset | Category | Size | Status | Source | Master | Dependencies |
+| -- | ----- | -------- | ---- | ------ | ------ | ------ | ------------ |
+
+Cada asset creado debe registrarse.
+
+Ejemplo:
+
+```text
+CHIP_25
+Category: Chips
+Master: CHIP_MASTER
+Status: APPROVED
+Source: PixelLab
+Size: 32x32
+```
+
+Esto evita perder el control cuando haya cientos de archivos.
+
+---
+
+# 9. ASSET PLAN COMPLETO
+
+Crea `ART_ASSET_PLAN.md`.
+
+Incluye TODO este inventario.
+
+## LOBBY
+
+### Game cards
+
+* Blackjack
+* Roulette
+* Poker
+* Dice
+* Crash
+* Mines
+* Plinko
+
+Todas deben compartir:
+
+* mismo tamaño;
+* mismo marco;
+* misma composición;
+* misma iluminación;
+* misma profundidad;
+* mismo tratamiento de sombra.
+
+Solo debe cambiar la ilustración central.
+
+---
+
+# 10. HOME / CREATE / JOIN
+
+Crear:
+
+* background de pantalla de inicio.
+
+La imagen debe dejar espacio suficiente para la UI.
+
+Nunca incrustes texto de interfaz importante dentro del background.
+
+---
+
+# 11. LOADING
+
+Crear:
+
+* background de loading.
+
+Debe pertenecer al mismo universo visual que el Home.
+
+---
+
+# 12. CARDS
+
+Crear:
+
+* card back;
+* Hearts;
+* Diamonds;
+* Clubs;
+* Spades;
+* A;
+* 2;
+* 3;
+* 4;
+* 5;
+* 6;
+* 7;
+* 8;
+* 9;
+* 10;
+* J;
+* Q;
+* K.
+
+IMPORTANTE:
+
+NO generes 52 cartas completamente independientes.
+
+Primero crea:
+
+```text
+CARD_MASTER
+CARD_BACK_MASTER
+SUIT_HEART
+SUIT_DIAMOND
+SUIT_CLUB
+SUIT_SPADE
+RANK_A
+RANK_2
+...
+RANK_10
+RANK_J
+RANK_Q
+RANK_K
+```
+
+Después genera las 52 cartas a partir de estos componentes.
+
+Esto garantiza consistencia y permite cambios globales.
+
+---
+
+# 13. CHIPS
+
+Crear un:
+
+```text
+CHIP_MASTER
+```
+
+y producir:
+
+* 1
+* 5
+* 10
+* 25
+* 50
+* 100
+
+Todos deben compartir geometría.
+
+Variar principalmente:
+
+* color;
+* número;
+* detalles internos.
+
+---
+
+# 14. BUTTON SYSTEM
+
+Crear:
+
+### Neutral
+
+* normal
+* hover
+* pressed
+* disabled
+
+### Positive
+
+* normal
+* hover
+* pressed
+* disabled
+
+### Negative
+
+* normal
+* hover
+* pressed
+* disabled
+
+No diseñes 12 botones independientes.
+
+Diseña:
+
+```text
+BUTTON_MASTER
+```
+
+y genera los estados mediante un sistema coherente.
+
+---
+
+# 15. BETTING PANEL
+
+Crear:
+
+* background;
+* border opcional;
+* shadow;
+* inner decoration.
+
+Debe ser reutilizable en:
+
+* Blackjack;
+* Roulette;
+* Poker;
+* Dice;
+* Crash;
+* Mines.
+
+---
+
+# 16. BLACKJACK
+
+Crear:
+
+* casino felt;
+* wooden rail.
+
+Debe reutilizar:
+
+* cards;
+* chips;
+* betting panel;
+* buttons;
+* icons.
+
+---
+
+# 17. ROULETTE
+
+Crear:
+
+* roulette wheel;
+* ball;
+* red cell;
+* black cell;
+* green cell.
+
+La rueda debe ser un asset principal de alta calidad.
+
+Las celdas deben derivarse de una celda maestra.
+
+---
+
+# 18. POKER
+
+No crear arte innecesario.
+
+Reutilizar:
+
+* cards;
+* card back;
+* chips;
+* betting panel;
+* buttons.
+
+Si se necesita mesa, crearla siguiendo exactamente las reglas del Blackjack.
+
+---
+
+# 19. DICE
+
+Crear:
+
+* slider handle;
+* slider track;
+* winning area;
+* losing area.
+
+Los elementos deben pertenecer al mismo sistema visual de botones y paneles.
+
+---
+
+# 20. CRASH
+
+Crear:
+
+* rocket;
+* optional graph line texture.
+
+El cohete debe tener:
+
+* idle;
+* launch;
+* flame;
+* silhouette;
+* readable pixel shape.
+
+Si la línea del gráfico puede generarse proceduralmente dentro del motor, NO generes una textura innecesaria.
+
+---
+
+# 21. MINES
+
+Crear un:
+
+```text
+MINES_CELL_MASTER
+```
+
+y generar:
+
+* hidden;
+* safe revealed;
+* mine;
+* dimmed mine.
+
+Las variantes deben compartir exactamente la misma geometría.
+
+---
+
+# 22. HUD
+
+Crear:
+
+* jackpot icon;
+* crown A;
+* crown B;
+* victory icon;
+* defeat icon.
+
+Todos deben compartir lenguaje de iconografía.
+
+---
+
+# 23. RESULT SCREENS
+
+Crear:
+
+### Victory
+
+* background;
+* supporting decoration.
+
+### Defeat
+
+* background;
+* supporting decoration.
+
+Ambos deben sentirse como dos estados del mismo sistema.
+
+---
+
+# 24. MENUS
+
+Crear backgrounds para:
+
+* Settings;
+* Pause;
+* Credits;
+* Help/Tutorial.
+
+No incrustar botones o texto en los backgrounds.
+
+---
+
+# 25. PRIORIDADES
+
+No produzcas todo simultáneamente.
+
+Orden obligatorio:
+
+## PHASE 1
+
+Style Bible.
+
+## PHASE 2
+
+Master assets:
+
+1. card;
+2. card back;
+3. chip;
+4. button;
+5. betting panel;
+6. icon;
+7. blackjack table fragment.
+
+## PHASE 3
+
+Validación visual.
+
+NO continúes si los master assets no son coherentes.
+
+## PHASE 4
+
+Cards.
+
+## PHASE 5
+
+Chips.
+
+## PHASE 6
+
+UI system.
+
+## PHASE 7
+
+Blackjack.
+
+## PHASE 8
+
+Roulette.
+
+## PHASE 9
+
+Poker.
+
+## PHASE 10
+
+Dice.
+
+## PHASE 11
+
+Crash.
+
+## PHASE 12
+
+Mines.
+
+## PHASE 13
+
+Plinko.
+
+## PHASE 14
+
+Lobby.
+
+## PHASE 15
+
+Home / Loading.
+
+## PHASE 16
+
+Victory / Defeat.
+
+## PHASE 17
+
+Menus.
+
+---
+
+# 26. PIXELLAB
+
+PixelLab debe utilizarse como herramienta especializada de generación y edición de pixel art.
+
+Claude debe utilizar PixelLab mediante MCP cuando esté disponible.
+
+Antes de generar:
+
+1. leer Style Bible;
+2. identificar asset master relacionado;
+3. identificar referencias;
+4. determinar tamaño;
+5. determinar paleta;
+6. determinar transparencia;
+7. determinar si realmente hace falta IA.
+
+No utilices IA para assets que puedan generarse de manera más precisa mediante código, composición o duplicación de componentes.
+
+---
+
+# 27. PRINCIPIO MASTER-FIRST
+
+REGLA ABSOLUTA:
+
+Si un asset tiene variantes, primero crea el MASTER.
+
+Ejemplos:
+
+```text
+CARD_MASTER
+CHIP_MASTER
+BUTTON_MASTER
+PANEL_MASTER
+MINES_CELL_MASTER
+ROULETTE_CELL_MASTER
+ICON_MASTER
+```
+
+Después deriva las variantes.
+
+Nunca crees variantes independientes si pueden derivarse del mismo master.
+
+---
+
+# 28. IMPLEMENTACIÓN
+
+Después de crear un asset final:
+
+1. guardarlo en la carpeta correcta;
+2. comprobar nombre;
+3. comprobar formato;
+4. comprobar transparencia;
+5. comprobar dimensiones;
+6. comprobar pixel filtering;
+7. comprobar import settings;
+8. comprobar que el motor lo detecta;
+9. comprobar que no rompe assets existentes;
+10. actualizar `ASSET_REGISTRY.md`.
+
+Si el motor permite configuración automática de importación, impleméntala.
+
+---
+
+# 29. NOMENCLATURA
+
+Utiliza nombres claros y consistentes.
+
+Ejemplos:
+
+```text
+card_back.png
+
+card_AH.png
+card_2H.png
+card_10H.png
+card_JH.png
+card_QH.png
+card_KH.png
+
+chip_001.png
+chip_005.png
+chip_010.png
+chip_025.png
+chip_050.png
+chip_100.png
+
+button_neutral_normal.png
+button_neutral_hover.png
+button_neutral_pressed.png
+button_neutral_disabled.png
+
+button_positive_normal.png
+button_positive_hover.png
+button_positive_pressed.png
+button_positive_disabled.png
+
+button_negative_normal.png
+button_negative_hover.png
+button_negative_pressed.png
+button_negative_disabled.png
+```
+
+Adapta la convención al estilo existente del proyecto si ya existe una.
+
+---
+
+# 30. VALIDACIÓN AUTOMÁTICA
+
+Crea, si el proyecto lo permite, herramientas/scripts para comprobar:
+
+* dimensiones;
+* transparencia;
+* nombres;
+* duplicados;
+* archivos faltantes;
+* assets huérfanos;
+* formato;
+* pixel filtering;
+* referencias rotas.
+
+Si puedes automatizar una comprobación, hazlo.
+
+No dependas exclusivamente de revisión manual.
+
+---
+
+# 31. NO INVENTAR REQUISITOS
+
+Si encuentras información desconocida:
+
+* inspecciona el proyecto;
+* busca referencias;
+* consulta documentación;
+* pregunta únicamente cuando sea imposible continuar de forma segura.
+
+No inventes:
+
+* resolución;
+* tamaño;
+* motor;
+* nombres;
+* formatos;
+* arquitectura;
+* comportamiento de UI.
+
+---
+
+# 32. NO DESTRUIR TRABAJO EXISTENTE
+
+Reglas:
+
+* no sobrescribir assets existentes sin inspeccionarlos;
+* no eliminar assets;
+* no modificar código no relacionado;
+* no cambiar arquitectura del juego innecesariamente;
+* no reemplazar un asset aprobado sin autorización;
+* mantener compatibilidad.
+
+---
+
+# 33. CONTROL DE CALIDAD VISUAL
+
+Antes de marcar un asset como APPROVED debes comprobar:
+
+### Técnica
+
+* resolución correcta;
+* transparencia correcta;
+* formato correcto;
+* nombre correcto;
+* ubicación correcta;
+* importación correcta.
+
+### Visual
+
+* pixel density;
+* paleta;
+* iluminación;
+* escala;
+* materiales;
+* sombras;
+* highlights;
+* silueta;
+* legibilidad;
+* coherencia con master assets.
+
+### Gameplay
+
+* legibilidad a escala real;
+* contraste suficiente;
+* no interferencia con texto;
+* no confusión entre estados.
+
+---
+
+# 34. FLUJO DE CADA ASSET
+
+Cada asset debe seguir este proceso:
+
+```text
+PLANNED
+   ↓
+REFERENCE
+   ↓
+GENERATE
+   ↓
+EDIT
+   ↓
+VALIDATE
+   ↓
+REVIEW
+   ↓
+APPROVED
+   ↓
+IMPLEMENT
+   ↓
+FINAL
+```
+
+No marques un asset como FINAL sin validarlo.
+
+---
+
+# 35. DECISIONES AUTÓNOMAS
+
+Puedes tomar decisiones razonables sobre:
+
+* organización;
+* naming;
+* tamaños derivados;
+* estructura de carpetas;
+* variantes;
+* optimización;
+* automatización;
+* herramientas;
+* composición.
+
+Pero cualquier decisión que afecte significativamente al estilo global debe documentarse.
+
+---
+
+# 36. REFERENCIAS
+
+Cuando exista una referencia visual proporcionada por el usuario o almacenada en el proyecto:
+
+* úsala como referencia principal;
+* no la ignores;
+* analiza forma, composición, color y proporción;
+* no copies elementos protegidos innecesariamente;
+* utiliza la referencia para mantener dirección artística.
+
+---
+
+# 37. DOCUMENTACIÓN PERSISTENTE
+
+Cada decisión importante debe quedar almacenada.
+
+Nunca dependas de recordar instrucciones de conversaciones anteriores.
+
+Si descubres una nueva regla visual importante:
+
+1. actualiza `ART_DIRECTION.md`;
+2. actualiza el agente `CasinoArtDirector`;
+3. actualiza el registro si afecta a assets;
+4. actualiza `CLAUDE.md` si es una regla global.
+
+La documentación es la memoria persistente del sistema.
+
+---
+
+# 38. AGENTE COMO GUARDIÁN DEL ESTILO
+
+`CasinoArtDirector` debe comportarse como un **gatekeeper**.
+
+Antes de aprobar un asset debe preguntar internamente:
+
+```text
+¿Respeta el Style Bible?
+¿Respeta la paleta?
+¿Respeta el pixel density?
+¿Respeta el master correspondiente?
+¿Es realmente necesario como asset independiente?
+¿Puede reutilizarse?
+¿Está correctamente nombrado?
+¿Está correctamente implementado?
+```
+
+Si falla cualquiera de estos puntos, el asset permanece en REVIEW.
+
+---
+
+# 39. NO GENERAR BASURA
+
+No generes múltiples variantes arbitrarias.
+
+Para cada asset:
+
+1. genera una primera versión;
+2. evalúala;
+3. corrígela;
+4. conserva únicamente las versiones útiles;
+5. registra la aprobada.
+
+Evita llenar el repositorio de:
+
+```text
+asset_final_v2_FINAL_REAL.png
+asset_final_v3.png
+asset_final_new.png
+asset_final_new2.png
+```
+
+Debe existir una única fuente final clara.
+
+---
+
+# 40. PRIMERA EJECUCIÓN
+
+Ahora ejecuta únicamente estas tareas iniciales:
+
+### STEP 1
+
+Audita el proyecto.
+
+### STEP 2
+
+Determina motor, resolución y pipeline actual.
+
+### STEP 3
+
+Crea:
+
+```text
+/docs/art/ART_DIRECTION.md
+/docs/art/ART_ASSET_PLAN.md
+/docs/art/ART_PIPELINE.md
+/docs/art/ART_NAMING_CONVENTIONS.md
+/docs/art/ART_VALIDATION.md
+/docs/art/ASSET_REGISTRY.md
+```
+
+### STEP 4
+
+Crea:
+
+```text
+.claude/agents/CasinoArtDirector.md
+```
+
+### STEP 5
+
+Actualiza `CLAUDE.md` con las reglas fundamentales.
+
+### STEP 6
+
+Crea la estructura de carpetas de assets.
+
+### STEP 7
+
+Registra todo el asset inventory.
+
+### STEP 8
+
+NO produzcas todavía todos los assets.
+
+Primero presenta un resumen de:
+
+* arquitectura encontrada;
+* decisiones tomadas;
+* estructura creada;
+* pipeline;
+* asset registry;
+* agente creado;
+* posibles conflictos;
+* información que falta.
+
+Después comienza la FASE 1 del asset pipeline.
+
+---
+
+# REGLA FINAL
+
+Tu objetivo NO es producir muchas imágenes.
+
+Tu objetivo es construir un **sistema profesional, consistente, escalable y mantenible de producción e implementación de pixel art para un videojuego de casino retro 16-bit**.
+
+Cada asset nuevo debe reforzar el sistema existente.
+
+Nunca sacrifiques consistencia por velocidad.
+
+Nunca sacrifiques reutilización por conveniencia.
+
+Nunca sacrifiques legibilidad por detalle.
+
+La calidad visual global del juego tiene prioridad sobre la calidad aislada de una imagen individual.
+
+# PIXELLAB — REGLA OBLIGATORIA
+
+PixelLab es la **herramienta principal y preferente para la creación y edición de todos los assets pixel art del proyecto**.
+
+Claude Code debe utilizar **PixelLab mediante su integración MCP** siempre que la tarea requiera generar, editar, variar, transformar o animar pixel art.
+
+## Jerarquía de herramientas
+
+Utiliza esta prioridad:
+
+1. **PixelLab MCP** → generación y edición de pixel art.
+2. **Código/procedimientos del proyecto** → composición de assets repetitivos, variantes, spritesheets y elementos matemáticamente definidos.
+3. **Herramientas de edición existentes en el proyecto** → ajustes técnicos y preparación.
+4. Otras herramientas → únicamente si PixelLab no puede realizar correctamente una tarea concreta.
+
+NO sustituyas PixelLab por otro generador de imágenes simplemente porque sea más conveniente.
+
+---
+
+## Antes de utilizar PixelLab
+
+Para cualquier asset nuevo:
+
+1. Lee `/docs/art/ART_DIRECTION.md`.
+2. Lee `/docs/art/ART_ASSET_PLAN.md`.
+3. Consulta `/docs/art/ASSET_REGISTRY.md`.
+4. Busca si existe un asset MASTER relacionado.
+5. Busca referencias visuales existentes.
+6. Determina:
+
+   * resolución;
+   * pixel density;
+   * paleta;
+   * transparencia;
+   * orientación;
+   * escala;
+   * estado del asset.
+7. Decide si debe:
+
+   * generarse desde cero;
+   * derivarse de un MASTER;
+   * editarse mediante inpainting;
+   * modificarse mediante image-to-image;
+   * construirse proceduralmente.
+
+---
+
+## Uso de referencias
+
+Cuando exista un asset MASTER, **utilízalo como referencia para PixelLab** siempre que la herramienta utilizada lo permita.
+
+Ejemplos:
+
+```text
+CHIP_MASTER
+    ↓
+PixelLab
+    ↓
+CHIP_001
+CHIP_005
+CHIP_010
+CHIP_025
+CHIP_050
+CHIP_100
+```
+
+```text
+MINES_CELL_MASTER
+    ↓
+PixelLab / edición
+    ↓
+HIDDEN
+SAFE
+MINE
+DIMMED_MINE
+```
+
+```text
+LOBBY_CARD_MASTER
+    ↓
+PixelLab
+    ↓
+BLACKJACK
+ROULETTE
+POKER
+DICE
+CRASH
+MINES
+PLINKO
+```
+
+---
+
+## No generar assets repetitivos independientemente
+
+Está PROHIBIDO generar mediante prompts independientes assets que deberían compartir una estructura.
+
+NO hacer:
+
+```text
+"create a casino chip 1"
+"create a casino chip 5"
+"create a casino chip 10"
+"create a casino chip 25"
+```
+
+como cuatro/seis diseños independientes.
+
+Hacer:
+
+```text
+CHIP_MASTER
+      ↓
+variations
+```
+
+Lo mismo aplica a:
+
+* cartas;
+* botones;
+* casillas;
+* iconos;
+* celdas de ruleta;
+* paneles;
+* tarjetas del lobby.
+
+---
+
+## PixelLab y los fondos
+
+PixelLab también debe utilizarse para los fondos cuando el resultado requerido sea pixel art y la herramienta sea adecuada para la resolución final.
+
+Para backgrounds demasiado grandes:
+
+1. determina la resolución necesaria;
+2. comprueba las capacidades actuales de PixelLab;
+3. genera el arte de forma compatible con las limitaciones de la herramienta;
+4. utiliza composición/tileado/upscaling pixel-perfect cuando sea apropiado;
+5. nunca introduzcas anti-aliasing;
+6. valida el resultado dentro del motor.
+
+No generes una imagen raster enorme y posteriormente la reduzcas de forma que destruya el pixel art.
+
+---
+
+## PixelLab y animaciones
+
+Para assets animados, utiliza PixelLab cuando sea apropiado para generar:
+
+* frames;
+* sprites;
+* variaciones;
+* movimientos;
+* efectos.
+
+Después prepara los frames para el sistema de animación del motor.
+
+Ejemplos:
+
+```text
+rocket_idle
+rocket_launch
+rocket_flame
+```
+
+```text
+mine_hidden
+mine_reveal
+mine_safe
+mine_explode
+```
+
+```text
+roulette_ball_01
+roulette_ball_02
+...
+```
+
+---
+
+## Registro de generación
+
+Cada asset generado mediante PixelLab debe registrar en `ASSET_REGISTRY.md`:
+
+```text
+Asset:
+Master:
+Tool:
+Generation method:
+Reference:
+Resolution:
+Palette:
+Status:
+Implementation:
+```
+
+Si la integración MCP proporciona un identificador de generación, modelo, parámetros o referencia útil, registra esa información cuando sea posible.
+
+Esto permitirá reproducir o modificar assets posteriormente.
+
+---
+
+## Regla de consistencia
+
+Si un resultado de PixelLab contradice:
+
+* la paleta;
+* el pixel density;
+* la iluminación;
+* el estilo;
+* la escala;
+* los materiales;
+* el MASTER;
+
+NO lo marques como aprobado.
+
+Debes corregirlo mediante edición/regeneración antes de continuar.
+
+---
+
+## Regla de aprobación
+
+PixelLab genera el **DRAFT**.
+
+Claude Code valida.
+
+El `CasinoArtDirector` decide si cumple el Style Bible.
+
+Solo entonces:
+
+```text
+DRAFT
+ ↓
+REVIEW
+ ↓
+APPROVED
+ ↓
+IMPLEMENTED
+ ↓
+FINAL
+```
+
+Nunca consideres que una generación de PixelLab es automáticamente un asset final.
+
+---
+
+## Regla absoluta
+
+**Para cualquier tarea de pixel art, intenta primero resolverla con PixelLab MCP.**
+
+Si PixelLab no es adecuado para esa tarea concreta, explica internamente por qué y utiliza la alternativa más apropiada.
+
+No cambies de herramienta sin motivo.
+
+PixelLab debe ser considerado una parte fundamental del pipeline artístico del proyecto.
+
