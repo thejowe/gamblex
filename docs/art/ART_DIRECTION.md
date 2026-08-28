@@ -170,9 +170,12 @@ Celdas de ruleta:           32×32   (1×1 celda)
 Botones (button_*):         96×32   (3×1 celdas)
 Cartas (card_*):            64×96   (2×3 celdas)
 Fichas de lobby (card_*):   192×256 (6×8 celdas)
-Fondos de pantalla completa: 225×270 lienzo base → escalado ×4 nearest
-                             a 900×1080 (mantiene el aspecto real del
-                             viewport, pixel size real = 4px)
+Fondos de pantalla completa: 220×264 lienzo base → escalado ×4 nearest
+                             a 880×1056 dentro de 900×1080 (mantiene el
+                             aspecto 5:6 real del viewport, pixel size
+                             real = 4px; 225×270 original descartado —
+                             PixelLab exige lados divisibles por 4 en
+                             este rango de tamaño)
 
 Filtrado: Nearest Neighbor (Godot import: Filter=Off, Mipmaps=Off)
 Anti-aliasing: desactivado para todo asset pixel art

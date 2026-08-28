@@ -40,7 +40,7 @@ geometría simple, no necesitan un master de imagen).
 | ROULETTE_CELL_MASTER | Ruleta | — | N/A (geometría por código, sin PNG standalone) | 3 celdas |
 | LOBBY_CARD_MASTER | Lobby | 96×128 | APPROVED | 7 tarjetas |
 | ICON_MASTER | HUD | 32×32 | APPROVED | 5 iconos |
-| BACKGROUND_MASTER | Fondos | 225×270 | CONFIRMADO — aplica a los 8 fondos, mismo marco/vignette, motivo central cambia | 8 fondos |
+| BACKGROUND_MASTER | Fondos | 220×264 | APPROVED — usado tal cual en 5/8 fondos (loading/settings/pause/credits/help); lobby/victory/defeat se ganaron generación propia | 8 fondos |
 
 Decisión (usuario, 2026-08-28): los 7 masters de FASE 2 quedan
 `APPROVED` tal cual (pip de trébol decorativo en CARD_MASTER y iconos
@@ -259,8 +259,13 @@ icono reusable — el juego usa un slider, no un cubo físico).
 | icon_crown_b | 28×28 | APPROVED |
 | icon_win | 28×28 | APPROVED |
 | icon_lose | 28×28 | APPROVED |
-| victory_bg | 225×270→900×1080 | PLANNED |
-| defeat_bg | 225×270→900×1080 | PLANNED |
+| victory_bg | 220×264 | APPROVED |
+| defeat_bg | 220×264 | APPROVED |
+
+Fondos método: `victory_bg` y `defeat_bg` generados individualmente con
+PixelLab pixflux (mood propio: estallido dorado de luz vs. vignette rojo
+somero) — no comparten `BACKGROUND_MASTER`, se ganan su propia identidad
+por ser pantallas de resultado. 2 generaciones (20/40 del trial).
 
 Iconos método: `ICON_MASTER` limpiado + pictograma a mano por código
 (Pillow, formas geométricas sin anti-aliasing) — pila de monedas
@@ -268,23 +273,62 @@ Iconos método: `ICON_MASTER` limpiado + pictograma a mano por código
 verde (`ACCENT_GREEN`, win), X roja (`ACCENT_RED`, lose). 0
 generaciones PixelLab.
 
-## Home / Loading (2)
+## Home / Loading (2) — FASE 15 completa (2026-08-28)
 
 | ID | Tamaño | Status |
 |---|---|---|
-| lobby_bg (`inicio/`) | 225×270→900×1080 | PLANNED |
-| loading_bg (`carga/`) | 225×270→900×1080 | PLANNED |
+| lobby_bg (`inicio/`) | 220×264 | APPROVED |
+| loading_bg (`carga/`) | 220×264 | APPROVED (= `BACKGROUND_MASTER`) |
 
-## Menús (4)
+`lobby_bg` generado aparte con PixelLab (más rico: cartas/fichas
+insinuadas en las esquinas, pantalla de bienvenida). `loading_bg`
+reutiliza `BACKGROUND_MASTER` tal cual — es una pantalla de tránsito de
+menos de un segundo, no necesita identidad propia.
+
+## Menús (4) — FASE 17 completa (2026-08-28)
 
 | ID | Tamaño | Status |
 |---|---|---|
-| settings_bg | 225×270→900×1080 | PLANNED |
-| pause_bg | 225×270→900×1080 | PLANNED |
-| credits_bg | 225×270→900×1080 | PLANNED |
-| help_bg | 225×270→900×1080 | PLANNED |
+| settings_bg | 220×264 | APPROVED (= `BACKGROUND_MASTER`) |
+| pause_bg | 220×264 | APPROVED (= `BACKGROUND_MASTER`) |
+| credits_bg | 220×264 | APPROVED (= `BACKGROUND_MASTER`) |
+| help_bg | 220×264 | APPROVED (= `BACKGROUND_MASTER`) |
+
+Los 4 reutilizan `BACKGROUND_MASTER` tal cual — son pantallas de menú
+neutrales donde el contenido real (texto de ajustes, créditos, reglas)
+va encima; generar 4 variantes distintas habría sido ruido visual sin
+propósito (regla 39, "no generar basura"). 1 generación PixelLab para
+`BACKGROUND_MASTER` (19/40 del trial en total, incluye lobby+victory+
+defeat = 4 generaciones de esta fase).
 
 ---
+
+## Cierre — sistema completo (2026-08-28)
+
+**111/112 assets finales `APPROVED`** (todos salvo `crash_line_texture`,
+descartado a propósito — ver FASE 11). Póker se queda en 0 assets
+propios a propósito (reutiliza cards/chips/panel de fieltro). **9/9
+masters `APPROVED`** (2 de ellos, `ROULETTE_CELL_MASTER` y el "master"
+de celdas de Mines, no tienen PNG standalone — son funciones de código
+compartidas, documentado en cada sección).
+
+**20/40 generaciones PixelLab usadas** en total — el resto (91 assets)
+se derivó 100% por código (Pillow) desde los masters aprobados o
+reutilizando otros assets ya aprobados, siguiendo la jerarquía de
+`ART_PIPELINE.md`.
+
+**Pendiente real, no bloqueante:**
+- Integración en escena: la mayoría de estos PNGs no están enganchados
+  todavía — Ruleta/Dice/Mines/Plinko/Crash siguen dibujándose por
+  código en producción (`_draw()`/`StyleBoxFlat`). Sustituir ese dibujo
+  procedural por estos PNGs es tarea de código, no de
+  `CasinoArtDirector` — coordínalo con la sesión pilar (`pilar.md`)
+  cuando quieras esa migración.
+- `roulette_wheel` (tamaño real definitivo) y el resto de tamaños
+  "variable" siguen sin confirmar contra la escena real hasta que se
+  hagan esa integración.
+- Duplicados sueltos en la raíz del repo (`crash.png`, etc.) siguen sin
+  resolver — ver `ART_DIRECTION.md`.
 
 Total assets finales: 112 (coincide con `assets/pixels/ASSETS.md`).
 Total masters: 9. Total filas de trabajo: 121.
