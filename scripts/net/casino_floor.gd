@@ -203,9 +203,9 @@ func _on_match_state_changed(state: Dictionary) -> void:
     if state["finished"]:
         msg += " — FIN (equipo %d, %s)" % [state["winning_team"], state["reason"]]
         if my_team == state["winning_team"]:
-            _show_result_overlay(victory_overlay, "¡GANASTE!", "Tu equipo ganó — %s" % _reason_label(state["reason"]))
+            _show_result_overlay(victory_overlay, "¡GANASTE!", "Tu equipo ganó — %s" % _reason_label(state["reason"], true))
         elif my_team != -1:
-            _show_result_overlay(defeat_overlay, "PERDISTE", "Tu equipo perdió — %s" % _reason_label(state["reason"]))
+            _show_result_overlay(defeat_overlay, "PERDISTE", "Tu equipo perdió — %s" % _reason_label(state["reason"], false))
     _state_line = msg
     _refresh_battle_label()
     if my_team != -1:
@@ -229,10 +229,10 @@ func _show_result_overlay(overlay: Control, title: String, message: String) -> v
     if overlay == victory_overlay:
         _play_victory_pulse(overlay.get_node("Panel"))
 
-func _reason_label(reason: String) -> String:
+func _reason_label(reason: String, i_won: bool) -> String:
     match reason:
-        "goal_reached": return "el equipo rival llegó antes a la meta"
-        "bankrupt": return "tu equipo se quedó sin fichas"
+        "goal_reached": return "tu equipo llegó antes a la meta" if i_won else "el equipo rival llegó antes a la meta"
+        "bankrupt": return "el equipo rival se quedó sin fichas" if i_won else "tu equipo se quedó sin fichas"
         _: return reason
 
 func _play_victory_pulse(panel: Control) -> void:
