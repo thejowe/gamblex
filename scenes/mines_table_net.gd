@@ -6,6 +6,7 @@ const SIZE_OPTIONS := [
 	{"label": "10 x 10", "total_cells": 100, "columns": 10},
 ]
 const MinesCellScene := preload("res://scenes/ui/casino/mines_cell.tscn")
+const RULES_TEXT := "Mines: elige tamano de grid (5x5, 8x8 o 10x10) y cuantas minas ocultas quieres. Cada casilla segura que destapas sube el multiplicador de tu apuesta — puedes retirar en cualquier momento para cobrar. Si destapas una mina pierdes la apuesta entera. Mas minas o mas casillas destapadas = multiplicador mas alto, pero mas riesgo."
 
 @onready var table_controller: MinesTableController = $TableController
 @onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
@@ -16,6 +17,8 @@ const MinesCellScene := preload("res://scenes/ui/casino/mines_cell.tscn")
 @onready var grid: GridContainer = $MinesGrid
 @onready var result_flash: ColorRect = $ResultFlash
 @onready var status_label: Label = $StatusLabel
+@onready var help_button: CasinoButton = $HelpButton
+@onready var help_overlay: HelpOverlay = $HelpOverlay
 
 var _last_players: Dictionary = {}
 var _last_round_seen: Dictionary = {}
@@ -35,6 +38,7 @@ func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
 	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
 	cash_out_button.pressed.connect(func(): table_controller.cash_out())
+	help_button.pressed.connect(func(): help_overlay.set_rules_text(RULES_TEXT); help_overlay.open())
 	NetworkManager.identities_changed.connect(_refresh_status_label)
 	_rebuild_grid()
 	_refresh_density_label()
