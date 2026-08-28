@@ -79,7 +79,9 @@ func _go_to_casino_floor() -> void:
 	if _transitioned:
 		return
 	_transitioned = true
-	get_tree().change_scene_to_file("res://scenes/casino_floor.tscn")
+	var loading: LoadingScreen = preload("res://scenes/ui/casino/loading_screen.tscn").instantiate()
+	add_child(loading)
+	loading.fade_and_change_scene("res://scenes/casino_floor.tscn")
 
 func _refresh_members() -> void:
 	var lobby_id := SteamManager.current_lobby_id
