@@ -52,6 +52,15 @@ func _ready() -> void:
 		else:
 			table_controller.request_state()
 
+func seat_anchor_oval(seat_index: int, seat_count: int) -> Vector2:
+	var center := Vector2(size.x / 2.0, size.y * 0.42)
+	var radius := Vector2(size.x * 0.42, size.y * 0.32)
+	# Empieza en la parte inferior-central (hueco para tus propias cartas,
+	# igual que la referencia) y reparte el resto en sentido horario.
+	var start_angle := PI / 2.0 + (PI / float(seat_count))
+	var angle := start_angle + TAU * float(seat_index) / float(seat_count)
+	return center + Vector2(cos(angle) * radius.x, sin(angle) * radius.y)
+
 func _on_sit_pressed() -> void:
 	var seats: Array = _last_state.get("seats", [])
 	var seat_index := 0
