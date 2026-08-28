@@ -42,3 +42,19 @@ func test_play_sfx_known_name_no_error() -> void:
 func test_play_sfx_unknown_name_warns_no_crash() -> void:
 	AudioManager.play_sfx("nombre_inventado")
 	pass_test("no crashea con nombre desconocido")
+
+func test_play_music_no_error() -> void:
+	AudioManager.play_music("lobby")
+	AudioManager.play_music("table")
+	pass_test("no crashea")
+
+func test_play_music_same_track_is_noop() -> void:
+	AudioManager.play_music("lobby")
+	var player_before := AudioManager._current_music_player
+	AudioManager.play_music("lobby")
+	assert_eq(AudioManager._current_music_player, player_before)
+
+func test_stop_music_no_error() -> void:
+	AudioManager.play_music("table")
+	AudioManager.stop_music()
+	pass_test("no crashea al parar música")
