@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scenes/poker_table_net.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/net/poker_table_controller.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/help_overlay.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/felt_table_panel.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/seat_avatar.tscn" id="6"]
 
 [node name="PokerTableNet" type="Control"]
 layout_mode = 3
@@ -17,85 +19,287 @@ script = ExtResource("1")
 [node name="PokerTableController" type="Node" parent="."]
 script = ExtResource("2")
 
-[node name="CommunityLabel" type="Label" parent="."]
+[node name="FeltTablePanel" parent="." instance=ExtResource("5")]
+layout_mode = 1
+rules_text_top = ""
+rules_text_bottom = ""
+full_oval = true
+
+[node name="SeatsRoot" type="Control" parent="."]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 700.0
-offset_bottom = 44.0
-text = "Mesa: "
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Seat0" type="Control" parent="SeatsRoot"]
+layout_mode = 0
+
+[node name="Avatar" parent="SeatsRoot/Seat0" instance=ExtResource("6")]
+layout_mode = 0
+offset_left = -28.0
+offset_top = -28.0
+offset_right = 28.0
+offset_bottom = 28.0
+
+[node name="InfoLabel" type="Label" parent="SeatsRoot/Seat0"]
+layout_mode = 0
+offset_left = -70.0
+offset_top = 32.0
+offset_right = 70.0
+offset_bottom = 64.0
+text = "Asiento 0: libre"
+
+[node name="Seat1" type="Control" parent="SeatsRoot"]
+layout_mode = 0
+
+[node name="Avatar" parent="SeatsRoot/Seat1" instance=ExtResource("6")]
+layout_mode = 0
+offset_left = -28.0
+offset_top = -28.0
+offset_right = 28.0
+offset_bottom = 28.0
+
+[node name="InfoLabel" type="Label" parent="SeatsRoot/Seat1"]
+layout_mode = 0
+offset_left = -70.0
+offset_top = 32.0
+offset_right = 70.0
+offset_bottom = 64.0
+text = "Asiento 1: libre"
+
+[node name="Seat2" type="Control" parent="SeatsRoot"]
+layout_mode = 0
+
+[node name="Avatar" parent="SeatsRoot/Seat2" instance=ExtResource("6")]
+layout_mode = 0
+offset_left = -28.0
+offset_top = -28.0
+offset_right = 28.0
+offset_bottom = 28.0
+
+[node name="InfoLabel" type="Label" parent="SeatsRoot/Seat2"]
+layout_mode = 0
+offset_left = -70.0
+offset_top = 32.0
+offset_right = 70.0
+offset_bottom = 64.0
+text = "Asiento 2: libre"
+
+[node name="Seat3" type="Control" parent="SeatsRoot"]
+layout_mode = 0
+
+[node name="Avatar" parent="SeatsRoot/Seat3" instance=ExtResource("6")]
+layout_mode = 0
+offset_left = -28.0
+offset_top = -28.0
+offset_right = 28.0
+offset_bottom = 28.0
+
+[node name="InfoLabel" type="Label" parent="SeatsRoot/Seat3"]
+layout_mode = 0
+offset_left = -70.0
+offset_top = 32.0
+offset_right = 70.0
+offset_bottom = 64.0
+text = "Asiento 3: libre"
+
+[node name="Seat4" type="Control" parent="SeatsRoot"]
+layout_mode = 0
+
+[node name="Avatar" parent="SeatsRoot/Seat4" instance=ExtResource("6")]
+layout_mode = 0
+offset_left = -28.0
+offset_top = -28.0
+offset_right = 28.0
+offset_bottom = 28.0
+
+[node name="InfoLabel" type="Label" parent="SeatsRoot/Seat4"]
+layout_mode = 0
+offset_left = -70.0
+offset_top = 32.0
+offset_right = 70.0
+offset_bottom = 64.0
+text = "Asiento 4: libre"
+
+[node name="Seat5" type="Control" parent="SeatsRoot"]
+layout_mode = 0
+
+[node name="Avatar" parent="SeatsRoot/Seat5" instance=ExtResource("6")]
+layout_mode = 0
+offset_left = -28.0
+offset_top = -28.0
+offset_right = 28.0
+offset_bottom = 28.0
+
+[node name="InfoLabel" type="Label" parent="SeatsRoot/Seat5"]
+layout_mode = 0
+offset_left = -70.0
+offset_top = 32.0
+offset_right = 70.0
+offset_bottom = 64.0
+text = "Asiento 5: libre"
+
+[node name="CommunityRoot" type="Control" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="PotLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 56.0
-offset_right = 300.0
-offset_bottom = 80.0
+offset_left = -70.0
+offset_top = -70.0
+offset_right = 70.0
+offset_bottom = -46.0
 text = "Bote: 0"
+horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 320.0
-offset_top = 56.0
-offset_right = 700.0
-offset_bottom = 80.0
+offset_left = -120.0
+offset_top = 60.0
+offset_right = 120.0
+offset_bottom = 84.0
 text = "Esperando reparto"
+horizontal_alignment = 1
 
-[node name="SeatsLabel" type="Label" parent="."]
+[node name="SitButton" parent="." instance=ExtResource("3")]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 92.0
-offset_right = 700.0
-offset_bottom = 300.0
-text = "Asiento 0: libre"
-
-[node name="SitButton" type="Button" parent="."]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 320.0
-offset_right = 140.0
-offset_bottom = 356.0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -365.0
+offset_top = -56.0
+offset_right = -255.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
 text = "Sentarse"
 
-[node name="StartHandButton" type="Button" parent="."]
+[node name="StartHandButton" parent="." instance=ExtResource("3")]
 layout_mode = 0
-offset_left = 160.0
-offset_top = 320.0
-offset_right = 300.0
-offset_bottom = 356.0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -241.0
+offset_top = -56.0
+offset_right = -131.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
 text = "Repartir"
+variant = 1
 
-[node name="FoldButton" type="Button" parent="."]
+[node name="FoldButton" parent="." instance=ExtResource("3")]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 370.0
-offset_right = 140.0
-offset_bottom = 406.0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -117.0
+offset_top = -56.0
+offset_right = -7.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
 text = "Retirarse"
+variant = 2
 
-[node name="CheckButton" type="Button" parent="."]
+[node name="CheckButton" parent="." instance=ExtResource("3")]
 layout_mode = 0
-offset_left = 160.0
-offset_top = 370.0
-offset_right = 280.0
-offset_bottom = 406.0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+offset_top = -56.0
+offset_right = 117.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
 text = "Pasar"
 
-[node name="CallButton" type="Button" parent="."]
+[node name="CallButton" parent="." instance=ExtResource("3")]
 layout_mode = 0
-offset_left = 300.0
-offset_top = 370.0
-offset_right = 420.0
-offset_bottom = 406.0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 131.0
+offset_top = -56.0
+offset_right = 241.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
 text = "Igualar"
+variant = 1
 
-[node name="RaiseButton" type="Button" parent="."]
+[node name="RaiseButton" parent="." instance=ExtResource("3")]
 layout_mode = 0
-offset_left = 440.0
-offset_top = 370.0
-offset_right = 560.0
-offset_bottom = 406.0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 255.0
+offset_top = -56.0
+offset_right = 365.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
 text = "Subir"
+variant = 1
+
+[node name="RaiseValueLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -132.0
+offset_right = 120.0
+offset_bottom = -108.0
+horizontal_alignment = 1
+text = "Subir a: 0"
+visible = false
+
+[node name="RaiseSlider" type="HSlider" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -104.0
+offset_right = 90.0
+offset_bottom = -84.0
+grow_horizontal = 2
+grow_vertical = 0
+visible = false
+
+[node name="ConfirmRaiseButton" parent="." instance=ExtResource("3")]
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 100.0
+offset_top = -108.0
+offset_right = 190.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "OK"
+variant = 1
+visible = false
 
 [node name="HelpButton" parent="." instance=ExtResource("3")]
 layout_mode = 0
