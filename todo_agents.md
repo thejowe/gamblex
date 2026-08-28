@@ -208,10 +208,63 @@ triviales (auto-resolubles a mano) en `casino_floor.tscn`/
 (botones nuevos en `LobbyMenu`, nodos nuevos bajo `Hud`).
 
 **Con esto, la Ampliación v1.7 completa (Agentes 25-30) está mergeada a
-`main`.** Pendiente real, no urgente: playtest en vivo de audio/pausa/
-ajustes/logros con Steam corriendo (headless no puede confirmar sonido
-real ni que los logros se disparen contra el backend de Steamworks, que
-tampoco existe de verdad para este proyecto todavía).
+`main`.**
+
+## Verificación en vivo real (2026-08-27, pedida explícitamente por el usuario)
+
+Steam no estaba corriendo — lanzado por esta sesión pilar, login ya
+guardado (mismo usuario "Jowe el vende trufas" de sesiones anteriores).
+Juego lanzado real (`--path .`, sin `--editor`), un solo proceso con
+ventana confirmado antes de automatizar clics (mismo gotcha de siempre:
+2+ ventanas superpuestas dan clics no deterministas). Método de
+siempre: `PrintWindow` para capturar, `SetForegroundWindow`+
+`SetCursorPos`+`mouse_event` para clics — funcionó de forma fiable en
+esta sesión (usuario no estaba usando el escritorio en paralelo).
+
+**Confirmado funcionando de verdad:**
+- `LobbyMenu` arranca limpio, "Crear partida" se habilita solo cuando
+  Steam está listo (confirmado con timing: primeros 5-8s tras lanzar,
+  "Crear partida"/"Invitar amigos" aparecen deshabilitados hasta que
+  `steam_ready` llega).
+- Botón "Ajustes" abre `SettingsMenu` con estilo `CasinoTheme` correcto
+  (panel navy, borde dorado). **Persistencia de volumen confirmada
+  real**: al abrir, "Música" ya aparecía en Mute y los sliders en
+  valores no-default — cargados de un `user://settings.cfg` de una
+  sesión de prueba anterior (probablemente del propio Agente 29). Se
+  volvió a togglear Mute de Música y Pantalla completa con clic real,
+  ambos checkboxes reaccionaron. "Cerrar" vuelve a `LobbyMenu` sin
+  romper nada.
+- Botón "Créditos" navega a `credits_menu.tscn` — texto correcto
+  (Godot Engine/GodotSteam/GUT, licencia MIT cada uno), "‹ Volver"
+  regresa limpio a `LobbyMenu`.
+- "Crear partida" en Modo Libre crea una sala Steam real — `Jugadores:`
+  muestra el nombre real de Steam del usuario, "Cancelar"/"Invitar
+  amigos" se habilitan. Cancelado limpio después sin dejar la sala
+  huérfana.
+- Icono de la app (`assets/icon.svg`, ficha de casino navy/dorado) carga
+  sin error en `config/icon` (SVG sí soportado ahí).
+
+**Bug real encontrado y arreglado en el mismo hallazgo (`143c248`):**
+`boot_splash/image="res://assets/icon.svg"` — Godot **solo admite PNG**
+para el splash de arranque, SVG no. El log de consola mostraba el error
+exacto (`"The only supported format is PNG. Loading default splash."`)
+y caía en silencio al robot de Godot de siempre — justo lo que Plan 30
+quería evitar y nadie había detectado porque headless no imprime el
+mismo log de arranque de la misma forma / nadie miró la consola con
+atención. Reemplazado por `boot_splash/show_image=false` (deja solo
+`boot_splash/bg_color`, el navy del tema) — confirmado sin error tras
+relanzar. 414/414 tests siguen en verde tras el fix.
+
+**No confirmado en esta sesión, sigue pendiente (bloqueador real, no
+nuevo):** `PauseMenu`, `HelpOverlay` (tutorial por mesa), `LoadingScreen`
+en la transición real, y las pantallas de Victoria/Derrota solo se
+alcanzan dentro de `CasinoFloor`, que en Modo Libre necesita **2
+miembros reales en la sala** para que el host transicione — esta sesión
+solo tiene una cuenta Steam disponible, mismo bloqueador documentado
+desde Plan 13. SFX/música proceduales tampoco se pueden confirmar al
+oído por esta sesión (agente de IA, no tiene oídos) — sí se confirmó por
+log que `AudioManager` no lanza ningún error en los eventos disparados
+(música de lobby, clics de botón) durante toda la sesión de prueba.
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
