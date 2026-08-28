@@ -3,24 +3,53 @@
 Estado real de cada asset. `CasinoArtDirector` es el único que edita
 este archivo. Estados: `PLANNED` `DRAFT` `REVIEW` `APPROVED` `FINAL`.
 
-Al arrancar esta sesión: **112/112 assets en `PLANNED`, 0 masters
-creados.** Ningún PNG existe todavía en `assets/pixels/` (solo
-`.gitkeep`). Ver resumen de auditoría en el cierre de esta sesión.
+Estado tras FASE 2 (2026-08-28): **7/9 masters de FASE 2 en `REVIEW`**
+(generados con PixelLab MCP, validados visualmente contra
+`ART_DIRECTION.md`, pendientes de tu aprobación explícita antes de
+`APPROVED`). `MINES_CELL_MASTER` y `ROULETTE_CELL_MASTER` no son de
+FASE 2 (les toca en FASE 12/8) — siguen en `PLANNED`.
+`BACKGROUND_MASTER` sigue `PLANNED` (pendiente de que confirmes si
+aplica). 105/112 assets finales siguen en `PLANNED` — nada de FASE 4+
+se ha generado todavía.
 
-## Masters (9 — a crear en FASE 2, carpeta `_masters/` aún no existe)
+## Masters (9)
 
 | ID | Categoría | Tamaño | Status | Deriva |
 |---|---|---|---|---|
-| CARD_MASTER | Cartas | 64×96 | PLANNED | 52 cartas |
-| CARD_BACK_MASTER | Cartas | 64×96 | PLANNED | card_back |
-| CHIP_MASTER | Fichas | 32×32 | PLANNED | 6 fichas |
-| BUTTON_MASTER | UI | 96×32 | PLANNED | 12 botones |
-| PANEL_MASTER | UI (fieltro) | variable | PLANNED | bet_sidebar_bg, panel_border, felt_table_bg |
+| CARD_MASTER | Cartas | 64×96 | REVIEW | 52 cartas |
+| CARD_BACK_MASTER | Cartas | 64×96 | REVIEW | card_back |
+| CHIP_MASTER | Fichas | 32×32 | REVIEW | 6 fichas |
+| BUTTON_MASTER | UI | 96×32 | REVIEW | 12 botones |
+| PANEL_MASTER | UI (fieltro) | 256×144 | REVIEW | bet_sidebar_bg, panel_border |
 | MINES_CELL_MASTER | Mines | 32×32 | PLANNED | 4 casillas |
 | ROULETTE_CELL_MASTER | Ruleta | 32×32 | PLANNED | 3 celdas |
 | LOBBY_CARD_MASTER | Lobby | 192×256 | PLANNED | 7 tarjetas |
-| ICON_MASTER | HUD | 32×32 | PLANNED | 5 iconos |
+| ICON_MASTER | HUD | 32×32 | REVIEW | 5 iconos |
 | BACKGROUND_MASTER | Fondos | 225×270 | PLANNED (pendiente confirmar con usuario) | 8 fondos |
+
+## Detalle de generación — FASE 2 (7 masters, PixelLab MCP `create_image_pixflux`)
+
+| Asset | Tool | Method | Resolution | Palette | Status | Nota |
+|---|---|---|---|---|---|---|
+| CARD_MASTER | PixelLab pixflux | text2img, opaco sobre fondo oscuro (retry tras fallo transparente) | 64×96 | ivory `#F5F5F0` + borde marrón | REVIEW | Trae un pip de trébol decorativo en la esquina — al derivar las 52 cartas en FASE 4, sustituir ese pip por el rank/suit real vía `inpaint_image`, no reutilizarlo literalmente |
+| CARD_BACK_MASTER | PixelLab pixflux | text2img, opaco sobre fondo negro (retry) | 64×96 | `#1C5C3A` + `#E8C468` | REVIEW | — |
+| CHIP_MASTER | PixelLab pixflux | text2img, opaco sobre fondo oscuro (retry) | 32×32 | off-white + oro, notches de borde | REVIEW | Falta aplicar color por denominación en FASE 5 (derivar, no regenerar desde cero) |
+| BUTTON_MASTER | PixelLab pixflux | text2img, transparente (funcionó a la primera — relleno navy oscuro) | 96×32 | `#1C2733` + `#E8C468` | REVIEW | Solo estado "normal" — hover/pressed/disabled se derivan en FASE 6 |
+| PANEL_MASTER | PixelLab pixflux | text2img, opaco | 256×144 | `#5C3A20`/`#8A5A34` madera + `#1C5C3A` fieltro + `#E8C468` | REVIEW | — |
+| ICON_MASTER | PixelLab pixflux | text2img, transparente (funcionó a la primera — relleno navy oscuro) | 32×32 | `#131B26` + `#E8C468` | REVIEW | Placeholder de badge — el pictograma interior se añade por icono en FASE 6 |
+| felt_table_bg (fragmento FASE 2, no es master de variantes) | PixelLab pixflux | text2img, opaco | 320×180 | `#1C5C3A`/`#2F8F5B` fieltro + `#5C3A20`/`#8A5A34` madera + `#E8C468` | REVIEW | Trae 4 iconos de palo decorativos en el riel superior — evaluar si se conservan en el `felt_table_bg` final de FASE 7 o se piden sin ellos |
+
+Gotcha documentado en `ART_PIPELINE.md`: `no_background=true` con
+rellenos claros (ivory/off-white) borra el relleno junto al fondo en
+`create_image_pixflux` — CARD_MASTER/CARD_BACK_MASTER/CHIP_MASTER
+necesitaron un segundo intento opacos sobre fondo oscuro. 3 generaciones
+descartadas (1 fallo original de CARD_MASTER + 2 reintentos), 10
+generaciones usadas de 40 en el trial.
+
+Archivos en `assets/pixels/_masters/` (nuevo, creado en esta fase):
+`CARD_MASTER.png`, `CARD_BACK_MASTER.png`, `CHIP_MASTER.png`,
+`BUTTON_MASTER.png`, `PANEL_MASTER.png`, `ICON_MASTER.png`,
+`felt_table_bg_fragment.png`.
 
 ## Cartas — `common/cards/` (53) — Master: CARD_MASTER / CARD_BACK_MASTER
 

@@ -111,6 +111,26 @@ method`, `Reference`, `Resolution`, `Palette`, `Status`,
 generación, se guarda ahí para poder reproducir o iterar el asset sin
 regenerar desde cero.
 
+## Gotcha conocido: `no_background=true` con rellenos claros (pixflux)
+
+Detectado generando `CARD_MASTER`/`CARD_BACK_MASTER`/`CHIP_MASTER` en
+FASE 2: `create_image_pixflux` con `no_background=true` **borra
+regiones grandes de relleno claro/casi blanco** (ivory, off-white) junto
+con el fondo real — el resultado sale prácticamente en blanco/vacío
+(un PNG de ~100 bytes). Pasa con rellenos claros; los rellenos oscuros
+(navy, verde oscuro, madera) no tienen este problema.
+
+Mitigación que funcionó: generar esos assets con `no_background=false`
+sobre un fondo plano oscuro de contraste explícito en el prompt ("on a
+plain flat dark charcoal/black background"), y recortar la transparencia
+real en el paso de implementación/derivación (edición manual o
+`edit_image`/`inpaint_image` sobre el resultado ya correcto), nunca en
+la misma llamada que define el relleno claro.
+
+Regla: si un asset nuevo tiene un relleno mayoritariamente claro
+(ivory, blanco, crema), generarlo primero opaco sobre fondo oscuro de
+contraste, validar el relleno, y solo después extraer transparencia.
+
 ## Consistencia
 
 Si un resultado de PixelLab contradice paleta, pixel density,
