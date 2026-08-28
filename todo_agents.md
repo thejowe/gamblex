@@ -105,6 +105,62 @@ Prompt para la próxima sesión pilar, igual que siempre:
 | 22 | `plan22-roulette-grid-overflow-fix` | Fix: grid de 37 números de Ruleta se sale de la ventana (columnas compartidas con apuestas de fuera más anchas) | `feature/roulette-grid-overflow-fix` (mergeado) | ✅ Completado, mergeado a `main` (`2fc5bb1`) — código+tests verificados, visual pendiente de confirmar (ver nota) |
 | 23 | `plan23-responsive-layout` | Layout responsive real: aplicar a las 6 mesas restantes (Ruleta/Póker/Dice/Crash/Mines/Plinko) la conversión de offsets absolutos a anchors que ya se hizo en Blackjack/lobby/HUD | `main` (directo, sin rama) | ✅ Completado, mergeado a `main` (`d9427ac` + fix de causa raíz `ca10e2d`) — ver nota abajo |
 | 24 | `plan24-room-lifecycle` | Conectar `LobbyMenu` (huérfana hoy) como pantalla de inicio real: crear/unir/cancelar sala Steam, errores visibles, "Salir de la sala" desde CasinoFloor | `feature/room-lifecycle` (mergeado) | ✅ Completado, mergeado a `main` (`9c95682`) — código+tests verificados línea a línea, visual pendiente de confirmar (ver nota) |
+| 25 | `plan25-audio-foundation` | Fundación de audio: autoload `AudioManager`, música+SFX generados proceduralmente (`AudioStreamGenerator`, sin pipeline de audio real), buses `Master`/`Music`/`SFX`, volumen persistido. Fundacional — 26/29/30 dependen de su contrato público | `feature/audio-foundation` | 🔓 **DESBLOQUEADO, lanzar primero y solo** — 26/29 bloqueados hasta que mergee |
+| 26 | `plan26-victory-defeat-screens` | Pantallas de victoria (nueva, Modo Batalla) y derrota (mejora el `ColorRect` liso actual) temporales/procedurales, con SFX de `AudioManager` | `feature/victory-defeat-screens` | 🔒 BLOQUEADO hasta que `plan25` mergee a `main` |
+| 27 | `plan27-loading-screen` | Pantalla de carga/transición procedural para el corte seco Lobby→CasinoFloor | `feature/loading-screen` | 🔓 **DESBLOQUEADO, sin dependencias** |
+| 28 | `plan28-tutorial-help` | Componente `HelpOverlay` + botón "?" con reglas reales de cada juego en las 7 mesas | `feature/tutorial-help` | 🔓 **DESBLOQUEADO, sin dependencias** |
+| 29 | `plan29-settings-pause-menu` | `SettingsMenu` (volumen vía `AudioManager`, fullscreen/ventana, salir a escritorio) + `PauseMenu` (ESC/`ui_cancel`, nunca pausa el árbol de escena — multijugador) | `feature/settings-pause-menu` | 🔒 BLOQUEADO hasta que `plan25` mergee a `main` |
+| 30 | `plan30-achievements-credits-icon` | Logros de Steam (API GodotSteam confirmada), pantalla de créditos, icono/splash (SVG a mano, sin arte real) | `feature/achievements-credits-icon` | 🔓 **DESBLOQUEADO, sin dependencia dura** — conflictos textuales esperados con 26/29 en `casino_floor.gd`/`lobby_menu.tscn`, los resuelve pilar al mergear |
+
+## Ampliación v1.7: pulido de producto — audio, UI de sistema, polish (2026-08-27)
+
+El usuario pidió una auditoría completa del proyecto comparada contra
+juegos casino/party exitosos y "todo lo que falte, ni que sea mínimo".
+Hallazgos (grep exhaustivo en `scripts/`/`scenes/`/`autoloads/`/
+`project.godot`, excluyendo worktrees/addons): **cero audio** (ni un
+`AudioStreamPlayer` en todo el repo), **cero pantalla de ajustes** (sin
+control de volumen, sin toggle fullscreen/ventana, sin salir a
+escritorio limpio), **cero créditos**, **cero pantalla de carga**
+(confirmado explícito en `assets/pixels/ASSETS.md`), **cero pantalla de
+victoria real** (Modo Batalla solo tiene texto en un `Label`, confirmado
+en el mismo doc), **cero menú de pausa** (`project.godot` no define ni
+una acción `[input]`), **cero tutorial/ayuda** por mesa, **cero
+logros**. Comparado contra el estándar de Evolution Gaming/PokerStars/
+Stumble Guys/Balatro.
+
+Decisión de diseño transversal: mismo criterio "sin pipeline de arte
+real" que ya usó Plan 14 para lo visual — audio generado
+proceduralmente con `AudioStreamGenerator` (Plan 25), pantallas
+temporales dibujadas por código con `CasinoTheme` (Plan 26), icono en
+SVG a mano (Plan 30). Nada bloqueado esperando assets reales que aún no
+existen.
+
+Seis agentes nuevos (25-30), specs y planes completos ya escritos (la
+sesión pilar escribió Plan 25 a mano por ser el fundacional; 5 forks en
+paralelo de esta misma sesión pilar escribieron 26-30, mismo patrón que
+los forks de Plan 18-20 en la Ampliación v1.4 — un fork del lote inicial
+"completó" sin escribir nada real (0 tool calls, respuesta genérica);
+detectado por verificación de archivos en disco antes de confiar en la
+notificación, relanzado, el reintento sí escribió los 3 archivos de
+verdad). Cadena de dependencias real (no solo textual): `plan26` y
+`plan29` llaman a `AudioManager.play_sfx`/`set_bus_volume_db` de
+`plan25`, así que **no arrancan hasta que `plan25` esté mergeado a
+`main`** — mismo criterio que "Dice primero" en la Ampliación v1.1.
+`plan27`, `plan28` y `plan30` no dependen de nadie y pueden lanzarse ya
+mismo en paralelo con `plan25`.
+
+**Orden de lanzamiento recomendado:**
+1. `plan25-audio-foundation` — solo, primero (fundacional).
+   En paralelo con él, si se quiere ir más rápido: `plan27-loading-screen`
+   y `plan28-tutorial-help` (sin dependencias, sin tocar archivos de 25).
+2. Tras mergear `plan25`: `plan26-victory-defeat-screens`,
+   `plan29-settings-pause-menu`, `plan30-achievements-credits-icon` en
+   paralelo (más `plan27`/`plan28` si no se lanzaron ya en el paso 1).
+3. Conflictos textuales esperados al mergear (mismo patrón que siempre,
+   los resuelve pilar): `plan26`/`plan29`/`plan30` pueden tocar
+   `casino_floor.gd`/`lobby_menu.tscn` a la vez; `plan28` toca las 7
+   escenas de mesa (riesgo de conflicto si algún otro agente también las
+   toca, ninguno de 25/26/27/29/30 las toca hoy).
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
