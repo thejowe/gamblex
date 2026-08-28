@@ -23,7 +23,7 @@ func test_pause_menu_exit_room_requested_calls_existing_exit_logic() -> void:
 	# _on_exit_room_pressed llama a Steam/multiplayer; en vez de disparar
 	# esa cadena completa en un test unitario, confirmamos que la señal
 	# del PauseMenu queda conectada exactamente a esa función existente.
-	var connections := floor.pause_menu.exit_room_requested.get_connections()
+	var connections: Array = floor.pause_menu.exit_room_requested.get_connections()
 	var found := false
 	for c in connections:
 		if c["callable"].get_method() == "_on_exit_room_pressed":
