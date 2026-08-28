@@ -71,6 +71,7 @@ func _maybe_flash_result() -> void:
 	if _last_round_seen.get(my_id, {}) == last_round:
 		return
 	_last_round_seen[my_id] = last_round
+	AudioManager.play_sfx("dice")
 	var flash_color: Color = CasinoTheme.ACCENT_GREEN if last_round["win"] else CasinoTheme.ACCENT_RED
 	var tween := create_tween()
 	result_flash.color = Color(flash_color.r, flash_color.g, flash_color.b, 0.35)
