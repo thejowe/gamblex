@@ -231,9 +231,17 @@ No ejecutar sin decidir el tratamiento (opción más simple: usar
 sustituirlo, conservando el borde de color).
 
 ### Oleada 4 — decorativo sobre lógica dinámica (opcional, bajo impacto)
-11. `crash_graph.gd`: cambiar el `draw_circle` de la punta por
-    `crash_rocket_<state>.png` (idle si no ha empezado, flame si está
-    subiendo). Aislado, una función.
+11. `crash_graph.gd` — **EJECUTADA (2026-08-28).** El marcador de punta
+    ahora es `crash_rocket_flame.png` (ancla base/llama exactamente en
+    el punto final de la curva, nariz hacia arriba) mientras
+    `state != CRASHED`; en `CRASHED` se conserva el círculo rojo
+    original (no hay asset de "explosión", y el círculo ya comunica
+    bien el impacto). `crash_rocket_idle`/`_launch` quedan sin usar
+    aquí — no hay un momento en el código actual donde `state` sea
+    "arrancando pero sin subir todavía" que los necesite; quedan en la
+    librería para cuando se quiera ese matiz. `texture_filter` nearest
+    añadido en `_init()` (no existía antes en este script).
+    Verificado: 429/429 tests GUT.
 12. `roulette_wheel_display.gd`: `roulette_wheel.png` como fondo
     decorativo detrás del dibujo actual (que sigue siendo la fuente de
     verdad interactiva). Requiere decidir si vale la pena el doble

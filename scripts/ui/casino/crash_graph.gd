@@ -3,6 +3,8 @@ extends Control
 
 enum State { IDLE, RISING, CRASHED, CASHED_OUT }
 
+const ROCKET_FLAME_PATH := "res://assets/pixels/crash/crash_rocket/crash_rocket_flame.png"
+
 const TIME_WINDOW_SEC := 12.0
 const MULTIPLIER_CEIL := 3.0
 
@@ -35,6 +37,15 @@ func _to_screen(p: Vector2) -> Vector2:
 const Y_TICKS := [1.0, 1.5, 2.0, 2.5, 3.0]
 const X_TICK_STEP_SEC := 2.0
 
+func _init() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+
+func _draw_rocket(tip: Vector2) -> void:
+	var tex := load(ROCKET_FLAME_PATH)
+	var rocket_size: Vector2 = tex.get_size()
+	var top_left := tip - Vector2(rocket_size.x / 2.0, rocket_size.y)
+	draw_texture_rect(tex, Rect2(top_left, rocket_size), false)
+
 func _draw_axes() -> void:
 	var font := ThemeDB.fallback_font
 	var tick_font_size := 11
@@ -64,8 +75,11 @@ func _draw() -> void:
 		draw_colored_polygon(fill_points, Color(line_color, 0.14))
 		draw_polyline(screen_points, line_color, 3.0, true)
 		var tip := screen_points[screen_points.size() - 1]
-		draw_circle(tip, 11.0, Color(line_color, 0.22))
-		draw_circle(tip, 6.0, line_color)
+		if state == State.CRASHED:
+			draw_circle(tip, 11.0, Color(line_color, 0.22))
+			draw_circle(tip, 6.0, line_color)
+		else:
+			_draw_rocket(tip)
 	var font := ThemeDB.fallback_font
 	var text := "%.2fx" % current_multiplier()
 	var font_size := 48
