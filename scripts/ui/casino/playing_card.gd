@@ -3,12 +3,9 @@ extends Control
 
 signal flip_completed
 
-const CARD_SIZE := Vector2(70, 100)
-const SUIT_SYMBOLS := {
-	0: "♥",  # Card.Suit.HEARTS
-	1: "♦",  # Card.Suit.DIAMONDS
-	2: "♣",  # Card.Suit.CLUBS
-	3: "♠",  # Card.Suit.SPADES
+const CARD_SIZE := Vector2(52, 86)  # tamaño real de card_*.png (FASE 4)
+const SUIT_NAMES := {
+	0: "hearts", 1: "diamonds", 2: "clubs", 3: "spades",
 }
 const RANK_LABELS := {
 	1: "A", 11: "J", 12: "Q", 13: "K",
@@ -30,6 +27,7 @@ const RANK_LABELS := {
 func _init() -> void:
 	custom_minimum_size = CARD_SIZE
 	pivot_offset = CARD_SIZE / 2.0
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func rank_label() -> String:
 	return RANK_LABELS.get(rank, str(rank))
@@ -37,26 +35,16 @@ func rank_label() -> String:
 func _is_red() -> bool:
 	return suit == 0 or suit == 1
 
+func _texture_path() -> String:
+	if not face_up:
+		return "res://assets/pixels/common/cards/card_back/card_back.png"
+	var suit_name: String = SUIT_NAMES[suit]
+	var rank_name := rank_label()
+	return "res://assets/pixels/common/cards/card_%s_%s/card_%s_%s.png" % [suit_name, rank_name, suit_name, rank_name]
+
 func _draw() -> void:
-	var rect := Rect2(Vector2.ZERO, CARD_SIZE)
-	if face_up:
-		draw_rect(rect, CasinoTheme.CARD_WHITE)
-		draw_rect(rect, CasinoTheme.CARD_BLACK, false, 1.5)
-		var color := CasinoTheme.CARD_RED if _is_red() else CasinoTheme.CARD_BLACK
-		var font := ThemeDB.fallback_font
-		var symbol: String = SUIT_SYMBOLS[suit]
-		draw_string(font, Vector2(6, 16), rank_label(), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, color)
-		draw_string(font, Vector2(6, 32), symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, color)
-		var big_size := font.get_string_size(symbol, HORIZONTAL_ALIGNMENT_CENTER, -1, 28)
-		draw_string(font, CARD_SIZE / 2.0 - big_size / 2.0 + Vector2(0, big_size.y * 0.3), symbol, HORIZONTAL_ALIGNMENT_CENTER, -1, 28, color)
-	else:
-		draw_rect(rect, Color("1c3f6e"))
-		draw_rect(rect, CasinoTheme.CARD_WHITE, false, 1.5)
-		var step := 10
-		var x := step
-		while x < CARD_SIZE.x:
-			draw_line(Vector2(x, 0), Vector2(x, CARD_SIZE.y), Color("2a5490"), 1.0)
-			x += step
+	var tex := load(_texture_path())
+	draw_texture_rect(tex, Rect2(Vector2.ZERO, CARD_SIZE), false)
 
 func flip() -> void:
 	var tween := create_tween()

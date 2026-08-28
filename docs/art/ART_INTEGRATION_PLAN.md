@@ -182,14 +182,20 @@ todavía — pendiente que alguien lo abra y lo mire (ART_VALIDATION.md
 "Gameplay" lo exige, ningún test lo puede confirmar).
 
 ### Oleada 3 — tamaño/geometría a reconciliar
-8. `playing_card.gd`: mapear `(suit, rank)` a
-   `card_<suit>_<rank>.png`/`card_back.png` según `face_up`. Requiere
-   decidir: ¿se regenera `CARD_SIZE` a 52×86 (tamaño real del asset) o
-   se estira la textura a 70×100 (tamaño actual)? Recomendación:
-   regenerar `CARD_SIZE` al tamaño real del asset y dejar que el layout
-   de cada mesa absorba la diferencia — estirar pixel art rompe la
-   nitidez. Esto es lo único de esta oleada que toca más de un archivo
-   (cualquier escena que asuma `CARD_SIZE = (70,100)` a mano).
+
+8. `playing_card.gd`: **EJECUTADA (2026-08-28).** `CARD_SIZE` pasó de
+   `(70,100)` a `(52,86)` (tamaño real de `card_*.png`). Se confirmó
+   antes de tocarlo que nada más en el repo asume el literal
+   `(70,100)`: `poker_table_net.gd` lee `card.CARD_SIZE.y` en
+   runtime (se adapta solo), `blackjack_table_net.gd` no asume tamaño
+   de carta en ningún punto. `_draw()` ahora carga
+   `card_<suit>_<rank>.png`/`card_back.png` vía `SUIT_NAMES` +
+   `rank_label()` (el mapeo de rango ya devolvía exactamente "2".."10"/
+   "A"/"J"/"Q"/"K", igual que el naming de archivo). `SUIT_SYMBOLS`
+   quedó muerto tras el cambio (ya no se dibuja el glifo Unicode) y se
+   borró. Verificado: 429/429 tests GUT, incluidos
+   `test_blackjack_table_scene_structure.gd`/
+   `test_poker_table_scene_structure.gd` (no asumen tamaño de carta).
 9. `felt_table_panel.gd`: **riesgo más alto de la oleada** — hoy dibuja
    un óvalo *paramétrico* que se adapta a cualquier `size` del
    contenedor (usado en Blackjack Y Póker con `full_oval` distinto).
