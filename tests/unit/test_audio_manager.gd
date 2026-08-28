@@ -28,3 +28,17 @@ func test_save_settings_preserves_foreign_sections() -> void:
 	var check := ConfigFile.new()
 	check.load(AudioManager.SETTINGS_PATH)
 	assert_true(check.get_value("display", "fullscreen", false))
+
+func test_play_sfx_known_name_no_error() -> void:
+	AudioManager.play_sfx("click")
+	AudioManager.play_sfx("chip")
+	AudioManager.play_sfx("card")
+	AudioManager.play_sfx("dice")
+	AudioManager.play_sfx("spin")
+	AudioManager.play_sfx("win")
+	AudioManager.play_sfx("lose")
+	pass_test("no crashea con ningún nombre válido")
+
+func test_play_sfx_unknown_name_warns_no_crash() -> void:
+	AudioManager.play_sfx("nombre_inventado")
+	pass_test("no crashea con nombre desconocido")
