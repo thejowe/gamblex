@@ -158,22 +158,28 @@ Riesgo real observado: mínimo en los 3 componentes ejecutados. El resto
 de la oleada original resultó tener más matices de lo esperado — ya
 corregido arriba antes de tocar código.
 
-### Oleada 2 — componentes con estado simple (enum → textura)
-5. `casino_button.gd`: sustituir `_style()` (StyleBoxFlat) por
-   `StyleBoxTexture` cargando `button_<variant>_<state>.png` según
-   `variant` + el estado real de `Button` (normal/hover/pressed/
-   disabled ya existen como StyleBox slots nativos de Godot — encaja
-   perfecto, `add_theme_stylebox_override` acepta cualquier StyleBox).
-6. `casino_chip.gd`: `_draw()` → `draw_texture_rect()` con
-   `chip_<denomination>.png`; si `denomination` no está en el diccionario
-   (huérfano según `CasinoTheme.chip_color`), fallback a dibujo
-   vectorial actual (no todos los denominaciones tienen PNG).
-7. `mines_cell.gd`: `_draw()` → textura según `state`
-   (`mines_cell_hidden/safe/mine/mine_dim.png`), conserva
-   `_animate_reveal()` intacto (anima `scale`, no `_draw`).
+### Oleada 2 — componentes con estado simple (enum → textura) — EJECUTADA (2026-08-28)
 
-Riesgo: bajo. Tests de estos 3 solo verifican la propiedad pública, no
-el método de dibujo.
+5. `casino_button.gd`: `_style()` (StyleBoxFlat) → `StyleBoxTexture`
+   cacheado por `variant_state` (`_style_cache` estático, evita recargar
+   la misma textura por cada botón instanciado). `color_for_variant()`
+   y `VARIANT_COLORS` se dejaron intactos (el test los verifica
+   directamente).
+6. `casino_chip.gd`: `_draw()` intenta `chip_<denomination>.png` si la
+   denominación está en `KNOWN_DENOMINATIONS` (1/5/10/25/50/100); si no,
+   cae al dibujo vectorial original (renombrado `_draw_vector_fallback()`)
+   — cubre denominaciones huérfanas sin asset.
+7. `mines_cell.gd`: `_draw()` → textura por `state` vía diccionario
+   `STATE_TEXTURE_PATHS`. Se borró `_draw_diamond()` (quedó muerto tras
+   el cambio, sin otras referencias). `_animate_reveal()` intacto —
+   anima `scale`, no toca `_draw()`.
+
+Los 3 llevan `texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST` en
+`_init()` para que el pixel art no salga difuminado al escalar.
+
+Verificado: 429/429 tests GUT. Sin verificación visual en el editor
+todavía — pendiente que alguien lo abra y lo mire (ART_VALIDATION.md
+"Gameplay" lo exige, ningún test lo puede confirmar).
 
 ### Oleada 3 — tamaño/geometría a reconciliar
 8. `playing_card.gd`: mapear `(suit, rank)` a

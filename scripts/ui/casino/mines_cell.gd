@@ -15,9 +15,17 @@ signal cell_pressed(index: int)
 		if state == State.SAFE and not was_safe and is_inside_tree():
 			_animate_reveal()
 
+const STATE_TEXTURE_PATHS := {
+	State.HIDDEN: "res://assets/pixels/mines/mines_cell_hidden/mines_cell_hidden.png",
+	State.SAFE: "res://assets/pixels/mines/mines_cell_safe/mines_cell_safe.png",
+	State.MINE: "res://assets/pixels/mines/mines_cell_mine/mines_cell_mine.png",
+	State.MINE_DIM: "res://assets/pixels/mines/mines_cell_mine_dim/mines_cell_mine_dim.png",
+}
+
 func _init() -> void:
 	custom_minimum_size = Vector2(48, 48)
 	pivot_offset = Vector2(24, 24)
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func _animate_reveal() -> void:
 	scale = Vector2(0.8, 0.8)
@@ -33,28 +41,8 @@ func _on_gui_pressed() -> void:
 		cell_pressed.emit(index)
 
 func _draw() -> void:
-	var rect := Rect2(Vector2.ZERO, size)
-	match state:
-		State.HIDDEN:
-			draw_rect(rect, CasinoTheme.PANEL_NAVY_MID)
-			draw_rect(rect, CasinoTheme.PANEL_NAVY_LIGHT, false, 1.5)
-		State.SAFE:
-			draw_rect(rect, CasinoTheme.PANEL_NAVY_MID)
-			_draw_diamond(CasinoTheme.ACCENT_GREEN, 1.0)
-		State.MINE:
-			draw_rect(rect, CasinoTheme.PANEL_NAVY_MID)
-			draw_circle(size / 2.0, size.x * 0.28, CasinoTheme.ACCENT_RED)
-		State.MINE_DIM:
-			draw_rect(rect, CasinoTheme.PANEL_NAVY_MID)
-			draw_circle(size / 2.0, size.x * 0.28, Color(CasinoTheme.ACCENT_RED, 0.4))
-
-func _draw_diamond(color: Color, alpha: float) -> void:
-	var c := size / 2.0
-	var r := size.x * 0.32
-	var points := PackedVector2Array([
-		c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0),
-	])
-	draw_colored_polygon(points, Color(color, alpha))
+	var tex := load(STATE_TEXTURE_PATHS[state])
+	draw_texture_rect(tex, Rect2(Vector2.ZERO, size), false)
 
 static func compute_cell_states(round_data: Dictionary, is_active: bool) -> Array:
 	var total_cells: int = round_data.get("total_cells", 0)

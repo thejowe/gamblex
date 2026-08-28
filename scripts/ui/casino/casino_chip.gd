@@ -3,6 +3,7 @@ extends Control
 
 const RADIUS := 24.0
 const NOTCH_COUNT := 12
+const KNOWN_DENOMINATIONS := [1, 5, 10, 25, 50, 100]
 
 @export var denomination: int = 50:
 	set(value):
@@ -11,8 +12,16 @@ const NOTCH_COUNT := 12
 
 func _init() -> void:
 	custom_minimum_size = Vector2(RADIUS * 2, RADIUS * 2)
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func _draw() -> void:
+	if denomination in KNOWN_DENOMINATIONS:
+		var tex := load("res://assets/pixels/common/chips/chip_%d/chip_%d.png" % [denomination, denomination])
+		draw_texture_rect(tex, Rect2(Vector2.ZERO, size), false)
+		return
+	_draw_vector_fallback()
+
+func _draw_vector_fallback() -> void:
 	var center := size / 2.0
 	var color := CasinoTheme.chip_color(denomination)
 	draw_circle(center, RADIUS, color)

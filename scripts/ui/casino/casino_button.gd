@@ -9,6 +9,16 @@ const VARIANT_COLORS := {
 	Variant.NEGATIVE: Color("b23b3b"),
 }
 
+const VARIANT_NAMES := {
+	Variant.NEUTRAL: "neutral",
+	Variant.POSITIVE: "positive",
+	Variant.NEGATIVE: "negative",
+}
+
+const STATES := ["normal", "hover", "pressed", "disabled"]
+
+static var _style_cache: Dictionary = {}
+
 @export var variant: Variant = Variant.NEUTRAL:
 	set(value):
 		variant = value
@@ -26,25 +36,17 @@ func _ready() -> void:
 	button_up.connect(_on_release)
 
 func _apply_styles() -> void:
-	var base_color := color_for_variant(variant)
-	add_theme_stylebox_override("normal", _style(base_color))
-	add_theme_stylebox_override("hover", _style(base_color.lightened(0.15)))
-	add_theme_stylebox_override("pressed", _style(base_color.darkened(0.2)))
-	add_theme_stylebox_override("disabled", _style(base_color.darkened(0.4), 0.5))
+	var variant_name: String = VARIANT_NAMES[variant]
+	for state in STATES:
+		add_theme_stylebox_override(state, _texture_style(variant_name, state))
 
-func _style(color: Color, alpha: float = 1.0) -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(color.r, color.g, color.b, alpha)
-	box.corner_radius_top_left = 6
-	box.corner_radius_top_right = 6
-	box.corner_radius_bottom_left = 6
-	box.corner_radius_bottom_right = 6
-	box.border_width_left = 1
-	box.border_width_top = 1
-	box.border_width_right = 1
-	box.border_width_bottom = 1
-	box.border_color = CasinoTheme.TEXT_CREAM
-	return box
+func _texture_style(variant_name: String, state: String) -> StyleBoxTexture:
+	var key := "%s_%s" % [variant_name, state]
+	if not _style_cache.has(key):
+		var box := StyleBoxTexture.new()
+		box.texture = load("res://assets/pixels/common/buttons/button_%s/button_%s.png" % [key, key])
+		_style_cache[key] = box
+	return _style_cache[key]
 
 func _on_hover_start() -> void:
 	var tween := create_tween()
