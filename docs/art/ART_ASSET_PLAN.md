@@ -19,7 +19,11 @@ variantes, el MASTER correspondiente debe estar `APPROVED`:
 CARD_MASTER         → 52 cartas + card_back
 CHIP_MASTER          → chip_1 … chip_100 (6)
 BUTTON_MASTER         → 12 estados (3 variantes × 4 estados)
-PANEL_MASTER (fieltro) → felt_table_bg, bet_sidebar_bg, panel_border
+PANEL_MASTER (fieltro) → felt_table_bg (Blackjack/Póker)
+(sin master de imagen) → bet_sidebar_bg, panel_border — geometría por
+                          código con tokens PANEL_NAVY_* (corrección de
+                          FASE 6, ver ASSET_REGISTRY.md: el código real
+                          de BetSidebarPanel usa panel oscuro, no fieltro)
 MINES_CELL_MASTER    → hidden, safe, mine, mine_dim (4)
 ROULETTE_CELL_MASTER  → red, black, green (3)
 LOBBY_CARD_MASTER    → 7 tarjetas de juego

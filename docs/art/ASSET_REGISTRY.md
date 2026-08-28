@@ -3,14 +3,29 @@
 Estado real de cada asset. `CasinoArtDirector` es el único que edita
 este archivo. Estados: `PLANNED` `DRAFT` `REVIEW` `APPROVED` `FINAL`.
 
-Estado tras FASE 2 (2026-08-28): **7/9 masters de FASE 2 en `REVIEW`**
-(generados con PixelLab MCP, validados visualmente contra
-`ART_DIRECTION.md`, pendientes de tu aprobación explícita antes de
-`APPROVED`). `MINES_CELL_MASTER` y `ROULETTE_CELL_MASTER` no son de
-FASE 2 (les toca en FASE 12/8) — siguen en `PLANNED`.
-`BACKGROUND_MASTER` sigue `PLANNED` (pendiente de que confirmes si
-aplica). 105/112 assets finales siguen en `PLANNED` — nada de FASE 4+
-se ha generado todavía.
+Estado tras FASE 2-7 (2026-08-28): **7/9 masters `APPROVED`**, y
+**73/112 assets finales `APPROVED`** (52 cartas + card_back, 6 fichas,
+12 botones, 2 paneles, 5 iconos HUD, 1 felt_table_bg). Todo FASE 4-7 se
+derivó **por código (Pillow) a partir de los masters ya aprobados —
+0 generaciones nuevas de PixelLab**, siguiendo la jerarquía de
+herramientas de `ART_PIPELINE.md` (regla 2: composición por código para
+lo repetitivo/derivado de un master). 10/40 generaciones del trial
+siguen siendo las únicas usadas, las de FASE 2.
+
+`MINES_CELL_MASTER` y `ROULETTE_CELL_MASTER` no son de FASE 2 (les toca
+en FASE 12/8) — siguen en `PLANNED`. `BACKGROUND_MASTER` confirmado,
+pendiente de generarse en FASE 15-17. 39/112 assets finales
+(ruleta, póker si aplica, dice, crash, mines, plinko, lobby, home/carga,
+victoria/derrota, menús) siguen `PLANNED`.
+
+**Corrección de plan encontrada en FASE 6:** `ART_ASSET_PLAN.md` tenía
+mal asignado `PANEL_MASTER` como master de `bet_sidebar_bg`/
+`panel_border`. El código real (`scripts/ui/casino/bet_sidebar_panel.gd`)
+usa `CasinoTheme.PANEL_NAVY_MID`, familia panel oscuro — no fieltro.
+`PANEL_MASTER` (fieltro) se queda reservado para Blackjack/Póker;
+`bet_sidebar_bg`/`panel_border` se generaron directamente por código con
+los tokens `PANEL_NAVY_DARK/MID/LIGHT`, sin master de por medio (son
+geometría simple, no necesitan un master de imagen).
 
 ## Masters (9)
 
@@ -60,43 +75,71 @@ Archivos en `assets/pixels/_masters/` (nuevo, creado en esta fase):
 
 | ID | Tamaño | Status | Source |
 |---|---|---|---|
-| card_back | 64×96 | PLANNED | — |
-| card_hearts_A … card_hearts_K (13) | 64×96 | PLANNED | — |
-| card_diamonds_A … card_diamonds_K (13) | 64×96 | PLANNED | — |
-| card_clubs_A … card_clubs_K (13) | 64×96 | PLANNED | — |
-| card_spades_A … card_spades_K (13) | 64×96 | PLANNED | — |
+| card_back | 52×86 | APPROVED | CARD_BACK_MASTER, fondo neutro eliminado por flood-fill |
+| card_hearts_A … card_hearts_K (13) | 52×86 | APPROVED | CARD_MASTER + pip/rango por código (Pillow) |
+| card_diamonds_A … card_diamonds_K (13) | 52×86 | APPROVED | ídem |
+| card_clubs_A … card_clubs_K (13) | 52×86 | APPROVED | ídem |
+| card_spades_A … card_spades_K (13) | 52×86 | APPROVED | ídem |
+
+Método: `CARD_MASTER` limpiado (fondo neutro fuera, pips de trébol
+horneados parcheados con el ivory de base, borde negro redibujado a
+mano porque el de la IA era demasiado desaturado y se perdía al quitar
+el fondo — ver nota en `ART_PIPELINE.md`), escalado a 52×86 (tamaño real
+de `CARD_BACK_MASTER` recortado). Palo y rango: matrices de píxel a mano
+(4 palos) + fuente bitmap de PIL binarizada a alfa 0/255 (sin
+anti-aliasing) para el rango, en la esquina superior izquierda y su
+espejo a 180° en la inferior derecha. 0 generaciones PixelLab.
 
 ## Fichas — `common/chips/` (6) — Master: CHIP_MASTER
 
 | ID | Tamaño | Status | Color (`CasinoTheme.CHIP_COLORS`) |
 |---|---|---|---|
-| chip_1 | 32×32 | PLANNED | `#E8E8E8` |
-| chip_5 | 32×32 | PLANNED | `#C0392B` |
-| chip_10 | 32×32 | PLANNED | `#2E6DA4` |
-| chip_25 | 32×32 | PLANNED | `#2F8F5B` |
-| chip_50 | 32×32 | PLANNED | `#E07B1F` |
-| chip_100 | 32×32 | PLANNED | `#1A1A1A` |
+| chip_1 | 22×22 | APPROVED | `#E8E8E8` |
+| chip_5 | 22×22 | APPROVED | `#C0392B` |
+| chip_10 | 22×22 | APPROVED | `#2E6DA4` |
+| chip_25 | 22×22 | APPROVED | `#2F8F5B` |
+| chip_50 | 22×22 | APPROVED | `#E07B1F` |
+| chip_100 | 22×22 | APPROVED | `#1A1A1A` |
+
+Método: `CHIP_MASTER` limpiado, cuerpo recoloreado por denominación
+preservando luminancia (aro dorado y notches oscuros del borde
+detectados por hue/brillo y no recoloreados), número compuesto con
+fuente bitmap de PIL binarizada. 0 generaciones PixelLab.
 
 ## Botones — `common/buttons/` (12) — Master: BUTTON_MASTER
 
 | ID | Tamaño | Status |
 |---|---|---|
-| button_neutral_normal / hover / pressed / disabled | 96×32 | PLANNED ×4 |
-| button_positive_normal / hover / pressed / disabled | 96×32 | PLANNED ×4 |
-| button_negative_normal / hover / pressed / disabled | 96×32 | PLANNED ×4 |
+| button_neutral_normal / hover / pressed / disabled | 93×30 | APPROVED ×4 |
+| button_positive_normal / hover / pressed / disabled | 93×30 | APPROVED ×4 |
+| button_negative_normal / hover / pressed / disabled | 93×30 | APPROVED ×4 |
 
-## Paneles — `common/panels/` (2) — Master: PANEL_MASTER
+Método: `BUTTON_MASTER` limpiado, cuerpo recoloreado por variante
+(navy/verde/rojo, borde dorado preservado por hue), 4 estados por
+brillo/desaturación (hover +18% brillo, pressed −22%, disabled
+desaturado 65% + alfa 75%). 0 generaciones PixelLab.
+
+## Paneles — `common/panels/` (2) — Sin master de imagen (geometría por código)
 
 | ID | Tamaño | Status |
 |---|---|---|
-| bet_sidebar_bg | variable (ver `BetSidebarPanel`) | PLANNED |
-| panel_border | variable (opcional) | PLANNED |
+| bet_sidebar_bg | 96×144 | APPROVED |
+| panel_border | 96×144 | APPROVED |
+
+Método: rect redondeado por código con gradiente vertical
+`PANEL_NAVY_LIGHT`→`PANEL_NAVY_DARK` + borde `PANEL_NAVY_LIGHT` 2-3px,
+tokens reales de `CasinoTheme` (no `PANEL_MASTER`, ver corrección de
+plan arriba). 0 generaciones PixelLab.
 
 ## Blackjack (1)
 
 | ID | Tamaño | Status |
 |---|---|---|
-| felt_table_bg | variable | PLANNED |
+| felt_table_bg | 320×180 | APPROVED |
+
+Fragmento de FASE 2 (`felt_table_bg_fragment`, PixelLab pixflux)
+adoptado tal cual como asset final — aprobado explícitamente por el
+usuario con los iconos de palo decorativos incluidos.
 
 ## Póker (0 — carpeta vacía a propósito, reutiliza cards/chips/panel)
 
@@ -154,17 +197,23 @@ Archivos en `assets/pixels/_masters/` (nuevo, creado en esta fase):
 | card_mines | 192×256 | PLANNED |
 | card_plinko | 192×256 | PLANNED |
 
-## HUD — `hud/` (7) — Iconos: Master ICON_MASTER; fondos: BACKGROUND_MASTER?
+## HUD — `hud/` (7) — Iconos: Master ICON_MASTER; fondos: BACKGROUND_MASTER
 
 | ID | Tamaño | Status |
 |---|---|---|
-| icon_pot | 32×32 | PLANNED |
-| icon_crown_a | 32×32 | PLANNED |
-| icon_crown_b | 32×32 | PLANNED |
-| icon_win | 32×32 | PLANNED |
-| icon_lose | 32×32 | PLANNED |
+| icon_pot | 28×28 | APPROVED |
+| icon_crown_a | 28×28 | APPROVED |
+| icon_crown_b | 28×28 | APPROVED |
+| icon_win | 28×28 | APPROVED |
+| icon_lose | 28×28 | APPROVED |
 | victory_bg | 225×270→900×1080 | PLANNED |
 | defeat_bg | 225×270→900×1080 | PLANNED |
+
+Iconos método: `ICON_MASTER` limpiado + pictograma a mano por código
+(Pillow, formas geométricas sin anti-aliasing) — pila de monedas
+(pot), corona simple (crown_a), corona con gema roja (crown_b), check
+verde (`ACCENT_GREEN`, win), X roja (`ACCENT_RED`, lose). 0
+generaciones PixelLab.
 
 ## Home / Loading (2)
 
