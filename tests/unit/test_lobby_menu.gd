@@ -39,3 +39,26 @@ func test_on_steam_ready_true_enables_create():
 	add_child_autofree(root)
 	root._on_steam_ready(true)
 	assert_false(root.get_node("CreateButton").disabled)
+
+func test_go_to_casino_floor_instances_loading_screen():
+	var scene = load("res://scenes/lobby_menu.tscn")
+	var root = scene.instantiate()
+	add_child_autofree(root)
+	root._go_to_casino_floor()
+	var found := false
+	for child in root.get_children():
+		if child is LoadingScreen:
+			found = true
+	assert_true(found, "falta un hijo LoadingScreen tras _go_to_casino_floor")
+
+func test_go_to_casino_floor_is_idempotent():
+	var scene = load("res://scenes/lobby_menu.tscn")
+	var root = scene.instantiate()
+	add_child_autofree(root)
+	root._go_to_casino_floor()
+	root._go_to_casino_floor()
+	var count := 0
+	for child in root.get_children():
+		if child is LoadingScreen:
+			count += 1
+	assert_eq(count, 1, "una segunda llamada no debe instanciar otro LoadingScreen")
