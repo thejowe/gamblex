@@ -62,3 +62,11 @@ func test_go_to_casino_floor_is_idempotent():
 		if child is LoadingScreen:
 			count += 1
 	assert_eq(count, 1, "una segunda llamada no debe instanciar otro LoadingScreen")
+
+func test_settings_button_opens_settings_menu():
+	var scene = load("res://scenes/lobby_menu.tscn")
+	var root = scene.instantiate()
+	add_child_autofree(root)
+	assert_false(root.settings_menu.visible)
+	root.settings_button.pressed.emit()
+	assert_true(root.settings_menu.visible)

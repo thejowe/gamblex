@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/net/casino_floor.gd" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://scenes/crash_table_net.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/mines_table_net.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/plinko_table_net.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/pause_menu.tscn" id="10"]
 
 [sub_resource type="StyleBoxFlat" id="CardNormal"]
 bg_color = Color(0.043, 0.184, 0.098, 1)
@@ -348,3 +349,5 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 text = "Tu equipo ganó"
+
+[node name="PauseMenu" parent="Hud" instance=ExtResource("10")]
