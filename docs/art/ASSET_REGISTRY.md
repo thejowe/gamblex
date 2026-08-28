@@ -566,13 +566,13 @@ icono reusable — el juego usa un slider, no un cubo físico).
 
 | ID | Tamaño | Status |
 |---|---|---|
-| icon_pot | 28×28 | APPROVED |
-| icon_crown_a | 28×28 | APPROVED |
-| icon_crown_b | 28×28 | APPROVED |
-| icon_win | 28×28 | APPROVED |
-| icon_lose | 28×28 | APPROVED |
-| victory_bg | 220×264 | APPROVED |
-| defeat_bg | 220×264 | APPROVED |
+| icon_pot | 28×28 | FINAL |
+| icon_crown_a | 28×28 | FINAL |
+| icon_crown_b | 28×28 | FINAL |
+| icon_win | 28×28 | FINAL |
+| icon_lose | 28×28 | FINAL |
+| victory_bg | 220×264 | FINAL |
+| defeat_bg | 220×264 | FINAL |
 
 Fondos método: `victory_bg` y `defeat_bg` generados individualmente con
 PixelLab pixflux (mood propio: estallido dorado de luz vs. vignette rojo
@@ -584,6 +584,33 @@ Iconos método: `ICON_MASTER` limpiado + pictograma a mano por código
 (pot), corona simple (crown_a), corona con gema roja (crown_b), check
 verde (`ACCENT_GREEN`, win), X roja (`ACCENT_RED`, lose). 0
 generaciones PixelLab.
+
+Excepción de resolución documentada: `ART_DIRECTION.md` fija el grid de
+iconos HUD en 32×32, pero los 5 entregados miden 28×28 — recorte del
+margen transparente del `ICON_MASTER` (32×32) a la caja real del
+pictograma, uniforme en los 5, sin romper el grid base de 32px (el
+hueco de 2px por lado queda implícito al colocarlos en una celda de
+32×32 en el nodo que los consuma). No es una desviación de escala entre
+iconos — los 5 comparten exactamente 28×28 y el mismo anillo dorado de
+borde, cumpliendo "escala coherente con los demás assets de su
+categoría".
+
+Validación FINAL (2026-08-28, `artgroup-hud`): 7/7 archivos verificados
+contra `ART_VALIDATION.md` — resolución correcta (28×28 iconos con
+excepción documentada arriba, 220×264 fondos), sin halo de
+anti-aliasing (alfa binario 0/255 en los 5 iconos, comprobado por
+script), `.import` con `compress/mode=0` y `mipmaps/generate=false` en
+los 7. Corrección aplicada: los 7 `.import` traían
+`process/fix_alpha_border=true` (contradice `ART_PIPELINE.md`, que pide
+`false` para pixel art — mismo defecto ya corregido antes en
+`roulette/`); se corrigieron a `false` sin regenerar el PNG (ajuste de
+`.import`, no de pixel art — no hizo falta PixelLab). Los 5 iconos
+comparten lenguaje de iconografía (anillo dorado + interior navy) y son
+legibles a escala real de HUD. Pendiente fuera de este scope: ninguno
+de los 7 assets está referenciado todavía en `scenes/` (`victory_bg`/
+`defeat_bg` ya documentado en `ART_INTEGRATION_PLAN.md`; los 5 iconos no
+aparecen ahí y tampoco tienen nodo consumidor — ambos casos son
+integración de `pilar.md`, no de este agente).
 
 ## Home / Loading (2) — FASE 15 completa (2026-08-28)
 
@@ -624,14 +651,14 @@ en `assets/pixels/roulette/`, commit `8a6dee2`). Corregidos a `false`
 en ambos `.import` — `compress/mode=0` y `mipmaps/generate=false` ya
 estaban correctos, no hizo falta regenerar el PNG ni usar PixelLab.
 
-## Menús (4) — FASE 17 completa (2026-08-28)
+## Menús (4) — FASE 17 completa (2026-08-28) — validado `artgroup-menus` (2026-08-28)
 
 | ID | Tamaño | Status |
 |---|---|---|
-| settings_bg | 220×264 | APPROVED (= `BACKGROUND_MASTER`) |
-| pause_bg | 220×264 | APPROVED (= `BACKGROUND_MASTER`) |
-| credits_bg | 220×264 | APPROVED (= `BACKGROUND_MASTER`) |
-| help_bg | 220×264 | APPROVED (= `BACKGROUND_MASTER`) |
+| settings_bg | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
+| pause_bg | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
+| credits_bg | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
+| help_bg | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
 
 Los 4 reutilizan `BACKGROUND_MASTER` tal cual — son pantallas de menú
 neutrales donde el contenido real (texto de ajustes, créditos, reglas)
@@ -639,6 +666,33 @@ va encima; generar 4 variantes distintas habría sido ruido visual sin
 propósito (regla 39, "no generar basura"). 1 generación PixelLab para
 `BACKGROUND_MASTER` (19/40 del trial en total, incluye lobby+victory+
 defeat = 4 generaciones de esta fase).
+
+Validación `ART_VALIDATION.md` (`artgroup-menus`, 2026-08-28): los 4 PNG
+en disco son idénticos byte a byte a `assets/pixels/_masters/BACKGROUND_MASTER.png`
+(mismo sha256, 220×264, RGBA, alfa 100% opaco sin borde transparente —
+confirma "reutiliza tal cual"). Sin texto de UI incrustado (solo marco
+ornamental dorado en las 4 esquinas sobre fondo navy con vignette
+central); espacio central libre amplio para el contenido real de cada
+menú. `.import` de los 4: `compress/mode=0`, `mipmaps/generate=false`
+ya correctos; se corrigió `process/fix_alpha_border` de `true` a
+`false` en los 4 (inofensivo visualmente por ser 100% opacos sin borde
+alfa, pero desviaba del estándar de `ART_PIPELINE.md` — mismo fix ya
+aplicado antes a `roulette_wheel`, commit `8a6dee2`). Filtro nearest en
+nodo: N/A para `settings_bg`/`pause_bg`/`help_bg` (no integrados en
+escena — sus overlays modales usan `ColorRect` semitransparente a
+propósito, ver nota de integración abajo); `credits_bg` sí está
+integrado en `credits_menu.tscn` (`TextureRect` de fondo a pantalla
+completa, `texture_filter = 1` NEAREST) — el registro no lo reflejaba
+antes de esta validación.
+
+**Nota de integración (no es tarea de `artgroup-menus`, informativo
+para `pilar.md`):** `settings_menu.gd`/`pause_menu.gd`/`help_overlay.gd`
+quedaron fuera de Oleada 1 — son overlays modales sobre gameplay en
+curso, su `Backdrop` es un `ColorRect(PANEL_NAVY_DARK, 0.85)`
+semitransparente a propósito; sustituirlo por `settings_bg`/`pause_bg`/
+`help_bg` opacos taparía la partida en marcha. Decisión de tratamiento
+(imagen con alfa parcial sobre el `Dim` actual, o dejarlo tal cual)
+sigue pendiente y abierta — no se cierra aquí.
 
 ---
 
