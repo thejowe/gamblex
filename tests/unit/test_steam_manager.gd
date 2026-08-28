@@ -24,3 +24,10 @@ func test_reset_does_not_clear_last_disconnect_reason():
     SteamManager.reset()
     assert_eq(SteamManager.last_disconnect_reason, "El host cerró la sala.")
     SteamManager.last_disconnect_reason = ""
+
+func test_unlock_achievement_noop_when_steam_not_ready():
+    var original_ready: bool = SteamManager.is_ready
+    SteamManager.is_ready = false
+    SteamManager.unlock_achievement("TEST_ACHIEVEMENT")
+    SteamManager.is_ready = original_ready
+    pass_test("no crashea sin Steam listo")

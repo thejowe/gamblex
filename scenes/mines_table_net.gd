@@ -94,6 +94,8 @@ func _render_state(state: Dictionary) -> void:
 		var active_round: Dictionary = my_data["active_round"]
 		var last_round: Dictionary = my_data["last_round"]
 		var is_active := not active_round.is_empty()
+		if is_active and active_round["revealed"].size() == 5:
+			SteamManager.unlock_achievement("MINES_SURVIVOR")
 		cash_out_button.disabled = not is_active
 		bet_sidebar.bet_button.disabled = is_active
 		size_option.disabled = is_active

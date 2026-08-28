@@ -147,6 +147,8 @@ func _refresh_room_visibility() -> void:
 
 func _set_pool_unlocked_if_reached_goal() -> void:
     if shared_pool_ledger.balance >= GOAL_TARGET:
+        if not _pool_unlocked:
+            SteamManager.unlock_achievement("FREE_MODE_GOAL_REACHED")
         _pool_unlocked = true
 
 func _notify_free_mode_balance_changed() -> void:
@@ -195,11 +197,13 @@ func _on_teams_changed(teams: Array) -> void:
 
 func _on_match_state_changed(state: Dictionary) -> void:
     var msg := "Pozo A: %d | Pozo B: %d" % [state["pool_balances"][0], state["pool_balances"][1]]
+    var my_team := battle_controller.team_for(multiplayer.get_unique_id())
     if state["finished"]:
         msg += " — FIN (equipo %d, %s)" % [state["winning_team"], state["reason"]]
+        if my_team != -1 and my_team == state["winning_team"]:
+            SteamManager.unlock_achievement("BATTLE_MODE_WIN")
     _state_line = msg
     _refresh_battle_label()
-    var my_team := battle_controller.team_for(multiplayer.get_unique_id())
     if my_team != -1:
         _sync_bet_sidebars_max_amount(state["pool_balances"][my_team])
 
