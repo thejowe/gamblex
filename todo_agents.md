@@ -111,7 +111,7 @@ Prompt para la próxima sesión pilar, igual que siempre:
 | 28 | `plan28-tutorial-help` | Componente `HelpOverlay` + botón "?" con reglas reales de cada juego en las 7 mesas | `feature/tutorial-help` (mergeado) | ✅ Completado, mergeado a `main` (`a3949e5`) — 370/370 tests en rama, reglas verificadas contra código real de las 7 mesas, auto-merge limpio con Plan 25 en `dice_table_net.gd` |
 | 29 | `plan29-settings-pause-menu` | `SettingsMenu` (volumen vía `AudioManager`, fullscreen/ventana, salir a escritorio) + `PauseMenu` (ESC/`ui_cancel`, nunca pausa el árbol de escena — multijugador) | `feature/settings-pause-menu` (mergeado) | ✅ Completado, mergeado a `main` (`09feb27`) — 400/400 tests en rama; pilar encontró y arregló un test que GUT descartaba en silencio (ver nota) |
 | 30 | `plan30-achievements-credits-icon` | Logros de Steam (API GodotSteam confirmada), pantalla de créditos, icono/splash (SVG a mano, sin arte real) | `feature/achievements-credits-icon` (mergeado) | ✅ Completado, mergeado a `main` (`32bae85`) — 390/390 tests en rama, conflicto textual real con Plan 26 en `_on_match_state_changed` (esperado, resuelto combinando ambas) |
-| 31 | `plan31-poker-visual` | Reskin visual de Póker (última mesa sin reskin): mesa de fieltro ovalada (referencia real del usuario), reutiliza `FeltTablePanel`/`PlayingCard`/`CasinoChip` de Blackjack (no el panel oscuro de las otras 5), 6 asientos alrededor de un óvalo completo, avatares procedurales, ficha de dealer, banner de mano ganada | `feature/poker-visual` | 🔓 **DESBLOQUEADO, sin dependencias** |
+| 31 | `plan31-poker-visual` | Reskin visual de Póker (última mesa sin reskin): mesa de fieltro ovalada (referencia real del usuario), reutiliza `FeltTablePanel`/`PlayingCard`/`CasinoChip` de Blackjack (no el panel oscuro de las otras 5), 6 asientos alrededor de un óvalo completo, avatares procedurales, ficha de dealer, banner de mano ganada | `feature/poker-visual` (mergeado) | ✅ Completado, mergeado a `main` (`78bcc18`) — 429/429 tests, Blackjack confirmado sin regresión (36/36 aislado), incluyó la Tarea 6 opcional (slider de subida) |
 
 ## Ampliación v1.8: reskin visual de Póker (2026-08-27)
 
@@ -143,10 +143,30 @@ nuevo) y `scenes/poker_table_net.tscn`/`.gd`. No toca
 `scripts/poker/poker_table_state.gd`/`poker_table_controller.gd`
 (lógica ya completa desde Plan 6), no toca ninguna otra mesa.
 
-**Prompt para lanzarlo:**
+**Merge de Plan 31 (2026-08-27).** Diff revisado línea a línea antes de
+mergear: `full_oval` implementado exacto al plan (mismo cálculo de
+centro/ángulo, comportamiento por defecto intacto), `seat_anchor_oval`
+nuevo, `SeatAvatar` (color determinista por `player_id`, inicial),
+`_maybe_play_audio_cues`/`_maybe_show_winner_banner` con guardas
+anti-duplicado correctas (comparan contra el estado previo antes de
+sobreescribirlo, mismo cuidado que Plan 26 tuvo que aprender a mano).
+**429/429 tests** tras reconstruir caché, **Blackjack confirmado sin
+regresión** corriendo su suite aislada (36/36) además de la completa —
+exactamente lo que pedía el plan antes de dar la Tarea 1 por cerrada.
+Incluyó la Tarea 6 opcional (slider de cantidad al subir). Sin
+conflictos al mergear (`78bcc18`), mismo gotcha de reformateo de
+siempre en `casino_floor.gd`/`icon.svg.import` (descartado).
 
-> Actúa como el agente `plan31-poker-visual` — lee y sigue al pie de la
-> letra `.claude/agents/plan31-poker-visual.md`.
+**Verificación visual en vivo: bloqueada, mismo motivo de siempre.**
+Esta sesión lanzó el juego real con Steam corriendo para confirmar la
+mesa de Póker en pantalla, pero Modo Libre exige 2 miembros reales en la
+sala para que el host entre a `CasinoFloor` (`_on_lobby_chat_update`) —
+con una sola cuenta Steam disponible en esta máquina, el host se queda
+esperando en el lobby indefinidamente. No se fuerza ningún atajo de
+código para saltarse esto. Verificación de código + 429/429 tests es lo
+que sostiene el cierre de esta tarea; falta que el usuario confirme
+visualmente jugando (o que aparezca una segunda cuenta Steam para que
+una sesión pilar futura lo confirme sola).
 
 ## Ampliación v1.7: pulido de producto — audio, UI de sistema, polish (2026-08-27)
 
