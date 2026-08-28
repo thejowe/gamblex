@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/net/casino_floor.gd" id="2"]
@@ -33,6 +33,30 @@ corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="DefeatPanelStyle"]
+bg_color = Color(0.0745098, 0.105882, 0.14902, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.851, 0.325, 0.31, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="VictoryPanelStyle"]
+bg_color = Color(0.0745098, 0.105882, 0.14902, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.910, 0.769, 0.408, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="CasinoFloor" type="Node2D"]
 script = ExtResource("2")
@@ -235,18 +259,92 @@ grow_horizontal = 0
 grow_vertical = 0
 text = "Salir de la sala"
 
-[node name="DefeatOverlay" type="ColorRect" parent="Hud"]
+[node name="DefeatOverlay" type="Control" parent="Hud"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.05, 0.02, 0.02, 0.85)
 mouse_filter = 2
 visible = false
 
-[node name="DefeatLabel" type="Label" parent="Hud/DefeatOverlay"]
+[node name="Dim" type="ColorRect" parent="Hud/DefeatOverlay"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+color = Color(0.05, 0.02, 0.02, 0.6)
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Hud/DefeatOverlay"]
+anchor_left = 0.32
+anchor_top = 0.32
+anchor_right = 0.68
+anchor_bottom = 0.68
+mouse_filter = 2
+theme_override_styles/panel = SubResource("DefeatPanelStyle")
+
+[node name="TitleLabel" type="Label" parent="Hud/DefeatOverlay"]
+anchor_left = 0.32
+anchor_top = 0.36
+anchor_right = 0.68
+anchor_bottom = 0.48
+mouse_filter = 2
 theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 horizontal_alignment = 1
 vertical_alignment = 1
-text = "PERDISTE — el pozo compartido se agotó"
+text = "PERDISTE"
+
+[node name="MessageLabel" type="Label" parent="Hud/DefeatOverlay"]
+anchor_left = 0.32
+anchor_top = 0.5
+anchor_right = 0.68
+anchor_bottom = 0.62
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = "el pozo compartido se agotó"
+
+[node name="VictoryOverlay" type="Control" parent="Hud"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+visible = false
+
+[node name="Dim" type="ColorRect" parent="Hud/VictoryOverlay"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.05, 0.02, 0.6)
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Hud/VictoryOverlay"]
+anchor_left = 0.32
+anchor_top = 0.32
+anchor_right = 0.68
+anchor_bottom = 0.68
+mouse_filter = 2
+theme_override_styles/panel = SubResource("VictoryPanelStyle")
+
+[node name="TitleLabel" type="Label" parent="Hud/VictoryOverlay"]
+anchor_left = 0.32
+anchor_top = 0.36
+anchor_right = 0.68
+anchor_bottom = 0.48
+mouse_filter = 2
+theme_override_font_sizes/font_size = 40
+theme_override_colors/font_color = Color(0.91, 0.769, 0.408, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "¡GANASTE!"
+
+[node name="MessageLabel" type="Label" parent="Hud/VictoryOverlay"]
+anchor_left = 0.32
+anchor_top = 0.5
+anchor_right = 0.68
+anchor_bottom = 0.62
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = "Tu equipo ganó"
