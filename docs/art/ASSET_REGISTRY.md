@@ -166,13 +166,19 @@ la rueda y la grid enteramente por código (`draw_colored_polygon`,
 listos en la librería para cuando alguien (pilar/agente de código)
 decida reemplazar ese dibujo procedural por texturas.
 
-## Dice (3)
+## Dice (3) — FASE 10 completa (2026-08-28)
 
 | ID | Tamaño | Status |
 |---|---|---|
-| dice_slider_handle | 32×32 | PLANNED |
-| dice_slider_track_win | variable (ancho de slider) | PLANNED |
-| dice_slider_track_lose | variable (ancho de slider) | PLANNED |
+| dice_slider_handle | 24×24 | APPROVED |
+| dice_slider_track_win | 32×10 | APPROVED |
+| dice_slider_track_lose | 32×10 | APPROVED |
+
+Método: código (Pillow), replica exactamente los colores/proporciones
+que `DiceThresholdSlider._draw()` ya usa (`TEXT_LIGHT` handle,
+`PANEL_NAVY_LIGHT` outline, `ACCENT_GREEN`/`ACCENT_RED` tracks) — mismo
+caso que Ruleta: el slider se dibuja hoy por código, estos PNGs quedan
+listos para una integración futura. 0 generaciones PixelLab.
 
 ## Crash (2)
 
