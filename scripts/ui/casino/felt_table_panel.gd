@@ -3,9 +3,10 @@ extends Control
 
 @export var rules_text_top: String = "BLACKJACK PAYS 3 TO 2"
 @export var rules_text_bottom: String = "INSURANCE PAYS 2 TO 1"
+@export var full_oval: bool = false  # false = semi-óvalo (Blackjack), true = elipse completa (Póker)
 
 func _draw() -> void:
-	var center := Vector2(size.x / 2.0, size.y * 0.15)
+	var center := Vector2(size.x / 2.0, size.y * (0.5 if full_oval else 0.15))
 	var radius := Vector2(size.x * 0.46, size.y * 0.36)
 	_draw_wood_rail(center, radius)
 	_draw_felt(center, radius)
@@ -14,8 +15,9 @@ func _draw() -> void:
 
 func _arc_points(center: Vector2, radius: Vector2, expand: float, steps: int) -> PackedVector2Array:
 	var points := PackedVector2Array()
+	var angle_end := TAU if full_oval else PI
 	for i in range(steps + 1):
-		var t := float(i) / float(steps) * PI
+		var t := float(i) / float(steps) * angle_end
 		points.append(center + Vector2(cos(t) * (radius.x + expand), sin(t) * (radius.y + expand)))
 	return points
 
