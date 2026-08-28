@@ -135,13 +135,35 @@ plan arriba). 0 generaciones PixelLab.
 
 | ID | Tamaño | Status |
 |---|---|---|
-| felt_table_bg | 320×180 | APPROVED |
+| felt_table_bg | 320×180 | FINAL |
 
 Fragmento de FASE 2 (`felt_table_bg_fragment`, PixelLab pixflux)
 adoptado tal cual como asset final — aprobado explícitamente por el
 usuario con los iconos de palo decorativos incluidos.
 
+Validado por `artgroup-blackjack-poker` (2026-08-28) contra
+`ART_VALIDATION.md`: archivo real 320×180 RGBA, alfa constante 255 (sin
+halo de anti-aliasing, opaco), 29 colores únicos (clusters de píxel
+limpios, sin gradiente), `.import` con `compress/mode=0` y
+`mipmaps/generate=false`. Paleta: verdes de fieltro y dorados de ribete
+próximos a `FELT_GREEN_DARK`/`GOLD_ACCENT`; el riel de madera usa tonos
+caoba más rojizos que `WOOD_BROWN_DARK`/`WOOD_BROWN_LIGHT` — coherente
+con la descripción de material "Caoba/marrón oscuro" de
+`ART_DIRECTION.md` (variante de sombreado dentro de la familia madera,
+no un color ajeno a la paleta). Ubicación y nombre correctos
+(`assets/pixels/blackjack/felt_table_bg/felt_table_bg.png`). No hay
+ningún nodo en escena que consuma esta textura todavía —
+`felt_table_panel.gd` sigue dibujando el óvalo procedural
+(`test_felt_table_panel.gd` no referencia el PNG, no se rompe nada); el
+filtro nearest y la integración quedan pendientes de la decisión de
+diseño documentada en `ART_INTEGRATION_PLAN.md` ("Pendiente real"),
+trabajo de `pilar.md`, no bloquea el estado `FINAL` del asset en sí.
+
 ## Póker (0 — carpeta vacía a propósito, reutiliza cards/chips/panel)
+
+Confirmado (2026-08-28, `artgroup-blackjack-poker`): la carpeta
+`assets/pixels/poker/` solo contiene `.gitkeep`, sin PNG — sigue vacía a
+propósito, sin generación pendiente. No se ha tocado.
 
 ## Ruleta (5) — FASE 8 completa (2026-08-28)
 
