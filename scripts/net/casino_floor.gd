@@ -25,6 +25,7 @@ const TABLE_NODE_NAMES := [
 @onready var card_grid: GridContainer = $TablesLayer/Lobby/CardGrid
 @onready var back_button: Button = $Hud/BackButton
 @onready var exit_room_button: Button = $Hud/ExitRoomButton
+@onready var pause_menu: PauseMenu = $Hud/PauseMenu
 
 var shared_pool_ledger: ChipLedger
 var _pool_unlocked: bool = false
@@ -43,6 +44,7 @@ func _ready() -> void:
             card.pressed.connect(_on_card_pressed.bind(card.name))
     back_button.pressed.connect(_on_back_pressed)
     exit_room_button.pressed.connect(_on_exit_room_pressed)
+    pause_menu.exit_room_requested.connect(_on_exit_room_pressed)
     multiplayer.server_disconnected.connect(_on_server_disconnected)
     _refresh_room_visibility()
 
@@ -122,6 +124,13 @@ func _on_back_pressed() -> void:
 
 func _on_exit_room_pressed() -> void:
     _leave_room("")
+
+func _unhandled_input(event: InputEvent) -> void:
+    if event.is_action_pressed("ui_cancel"):
+        _toggle_pause_menu()
+
+func _toggle_pause_menu() -> void:
+    pause_menu.visible = not pause_menu.visible
 
 func _on_server_disconnected() -> void:
     _leave_room("El host cerró la sala.")
