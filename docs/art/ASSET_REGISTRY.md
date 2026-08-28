@@ -545,13 +545,13 @@ contra los 3 archivos reales:**
 
 | ID | Tamaño | Status | Icono central |
 |---|---|---|---|
-| card_blackjack | 96×128 | APPROVED | 2 cartas en abanico (reusa `card_hearts_K`/`card_spades_A`) |
-| card_roulette | 96×128 | APPROVED | `roulette_wheel` reescalado |
-| card_poker | 96×128 | APPROVED | `card_hearts_K` + `chip_25` |
-| card_dice | 96×128 | APPROVED | dado de 5 pips, nuevo por código |
-| card_crash | 96×128 | APPROVED | `crash_rocket_flame` |
-| card_mines | 96×128 | APPROVED | bomba de `mines_cell_mine` (fondo de celda recortado) |
-| card_plinko | 96×128 | APPROVED | `plinko_ball` + 3× `plinko_peg` |
+| card_blackjack | 96×128 | FINAL | 2 cartas en abanico (reusa `card_hearts_K`/`card_spades_A`) |
+| card_roulette | 96×128 | FINAL | `roulette_wheel` reescalado |
+| card_poker | 96×128 | FINAL | `card_hearts_K` + `chip_25` |
+| card_dice | 96×128 | FINAL | dado de 5 pips, nuevo por código |
+| card_crash | 96×128 | FINAL | `crash_rocket_flame` |
+| card_mines | 96×128 | FINAL | bomba de `mines_cell_mine` (fondo de celda recortado) |
+| card_plinko | 96×128 | FINAL | `plinko_ball` + 3× `plinko_peg` |
 
 `LOBBY_CARD_MASTER`: 1 generación PixelLab pixflux (marco ornamentado
 oro/navy, 16/40 del trial en total). Las 7 tarjetas son ese marco +
@@ -561,6 +561,50 @@ plinko) en vez de generar 7 ilustraciones nuevas — 0 generaciones
 PixelLab adicionales, y refuerza la identidad visual compartida entre
 el lobby y las mesas reales. Solo el dado es nuevo (Dice no tenía un
 icono reusable — el juego usa un slider, no un cubo físico).
+
+Validación `artgroup-lobby` (2026-08-28): checklist completo de
+`ART_VALIDATION.md` corrido contra los 7 archivos reales en
+`assets/pixels/lobby/` (script Pillow ad hoc contra el repo real, no
+contra el registro). Técnica: 7/7 tamaño real 96×128 confirmado (modo
+RGBA), 0% píxeles de alfa parcial en los 7 (sin halo de
+anti-aliasing), PNG lossless, nombre/ubicación conformes a
+`ART_NAMING_CONVENTIONS.md`. Consistencia de marco: diff píxel a píxel
+de la franja ornamental oro/navy (bordes laterales completos + riel
+superior + riel inferior) entre las 7 tarjetas → **0 píxeles de
+diferencia**, confirma que las 7 comparten literalmente el mismo
+`LOBBY_CARD_MASTER` sin desviación de marco/iluminación; solo difieren
+el icono central y el texto de la placa inferior, como corresponde.
+Iluminación/paleta: navy `#091629` de fondo y dorado de marco
+idénticos en los 7 (muestreados). Gameplay: siluetas legibles a escala
+reducida (contact sheet 0.6× de las 7 en fila) y a tamaño nativo;
+centrado horizontal del icono dentro de ±5px del centro de tarjeta en
+las 7. Import: los 7 traían `process/fix_alpha_border=true` (default
+del editor de Godot), contra el `false` que exige `ART_PIPELINE.md`
+para pixel art — corregido en los 7 `.import` (mismo criterio ya
+aplicado por `artgroup-roulette`/`artgroup-cards` en sus secciones);
+`compress/mode=0` y `mipmaps/generate=false` ya estaban correctos de
+origen. 0 generaciones PixelLab nuevas (ninguna hizo falta) — única
+corrección aplicada fue de `.import`. `LOBBY_CARD_MASTER` confirmado
+`APPROVED` (fila de masters) antes de tocar nada. Con eso,
+técnica/visual/gameplay/import pasan completos → 7/7 `FINAL`.
+
+**Discrepancia de documentación encontrada (no corregida, fuera de
+scope de `artgroup-lobby`):** `ART_DIRECTION.md` línea 172 lista
+"Fichas de lobby (card_*): 192×256 (6×8 celdas)" en la tabla de
+pixel density, pero el master `LOBBY_CARD_MASTER` (fila de masters,
+`APPROVED`) y las 7 tarjetas reales están construidas y aprobadas a
+96×128 (3×4 celdas de grid de 32px) desde FASE 14 — coincide con lo
+que pide este propio archivo (`artgroup-lobby.md`) y con
+`ART_NAMING_CONVENTIONS.md`. Parece una entrada de tabla desactualizada
+en `ART_DIRECTION.md`, no un fallo de las 7 tarjetas; se reporta para
+que `CasinoArtDirector` la corrija (edición de `ART_DIRECTION.md` está
+fuera de mi scope).
+
+**Nota de integración (informativa, no accionable por este agente):**
+el componente de tarjeta de selección de juego que consumiría estos 7
+PNGs no existe todavía en `casino_floor.tscn` (usa botones de texto
+plano) — confirmado de nuevo en esta sesión. La integración es de
+`pilar.md`/`plan12-lobby`, no de `artgroup-lobby`.
 
 ## HUD — `hud/` (7) — Iconos: Master ICON_MASTER; fondos: BACKGROUND_MASTER
 
