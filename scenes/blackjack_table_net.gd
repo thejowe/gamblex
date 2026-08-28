@@ -3,6 +3,7 @@ extends Control
 const PlayingCardScene := preload("res://scenes/ui/casino/playing_card.tscn")
 const CasinoChipScene := preload("res://scenes/ui/casino/casino_chip.tscn")
 const CARD_SPACING := 24.0
+const RULES_TEXT := "Blackjack: pide cartas para acercarte a 21 sin pasarte. Ganas si tu mano vale mas que la del crupier sin pasarte de 21 — cobras el doble de tu apuesta. Empate (mismo valor): recuperas tu apuesta. Si te pasas de 21 pierdes la apuesta. El crupier pide carta mientras su mano valga menos de 17 y se planta a partir de ahi."
 
 @onready var table_controller: TableController = $TableController
 @onready var felt_panel: FeltTablePanel = $FeltTablePanel
@@ -17,6 +18,8 @@ const CARD_SPACING := 24.0
 @onready var dealer_value_label: Label = $DealerValueLabel
 @onready var deck_icon: Control = $DeckIcon
 @onready var seats_root: Control = $SeatsRoot
+@onready var help_button: CasinoButton = $HelpButton
+@onready var help_overlay: HelpOverlay = $HelpOverlay
 
 var my_seat_index: int = -1
 var _last_state: Dictionary = {"seats": [null, null, null, null], "dealer_hand": []}
@@ -41,6 +44,7 @@ func _ready() -> void:
 	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
 	hit_button.pressed.connect(_on_hit_pressed)
 	stand_button.pressed.connect(_on_stand_pressed)
+	help_button.pressed.connect(func(): help_overlay.set_rules_text(RULES_TEXT); help_overlay.open())
 	double_button.disabled = true
 	split_button.disabled = true
 	if not multiplayer.is_server():
