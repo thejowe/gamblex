@@ -1,16 +1,17 @@
 extends GutTest
 
 func _make_view():
-	var container := Control.new()
-	container.size = Vector2(900, 1080)
-	add_child_autofree(container)
 	var scene := load("res://scenes/poker_table_net.tscn")
 	var instance = scene.instantiate()
-	container.add_child(instance)
+	add_child_autofree(instance)
 	return instance
 
 func test_seat_anchor_oval_distributes_around_ellipse() -> void:
 	var instance = _make_view()
+	# PokerTableNet fuerza su tamano contra el viewport real en _ready()
+	# (mismo gotcha que Blackjack, Plan 14 — anchors full-rect no
+	# resuelven bien bajo el Node2D de CasinoFloor), asi que usamos
+	# instance.size ya resuelto en vez de un valor fijo.
 	var anchors: Array[Vector2] = []
 	for i in 6:
 		anchors.append(instance.seat_anchor_oval(i, 6))
@@ -20,5 +21,5 @@ func test_seat_anchor_oval_distributes_around_ellipse() -> void:
 			assert_gt(anchors[i].distance_to(anchors[j]), 30.0)
 	# Todos dentro del area visible
 	for a in anchors:
-		assert_between(a.x, 0.0, 900.0)
-		assert_between(a.y, 0.0, 1080.0)
+		assert_between(a.x, 0.0, instance.size.x)
+		assert_between(a.y, 0.0, instance.size.y)
