@@ -106,11 +106,11 @@ Prompt para la próxima sesión pilar, igual que siempre:
 | 23 | `plan23-responsive-layout` | Layout responsive real: aplicar a las 6 mesas restantes (Ruleta/Póker/Dice/Crash/Mines/Plinko) la conversión de offsets absolutos a anchors que ya se hizo en Blackjack/lobby/HUD | `main` (directo, sin rama) | ✅ Completado, mergeado a `main` (`d9427ac` + fix de causa raíz `ca10e2d`) — ver nota abajo |
 | 24 | `plan24-room-lifecycle` | Conectar `LobbyMenu` (huérfana hoy) como pantalla de inicio real: crear/unir/cancelar sala Steam, errores visibles, "Salir de la sala" desde CasinoFloor | `feature/room-lifecycle` (mergeado) | ✅ Completado, mergeado a `main` (`9c95682`) — código+tests verificados línea a línea, visual pendiente de confirmar (ver nota) |
 | 25 | `plan25-audio-foundation` | Fundación de audio: autoload `AudioManager`, música+SFX generados proceduralmente (`AudioStreamGenerator`, sin pipeline de audio real), buses `Master`/`Music`/`SFX`, volumen persistido. Fundacional — 26/29/30 dependen de su contrato público | `feature/audio-foundation` (mergeado) | ✅ Completado, mergeado a `main` (`c7575bd`) — 370/370 tests, contrato de 7 funciones verificado exacto |
-| 26 | `plan26-victory-defeat-screens` | Pantallas de victoria (nueva, Modo Batalla) y derrota (mejora el `ColorRect` liso actual) temporales/procedurales, con SFX de `AudioManager` | `feature/victory-defeat-screens` | 🔓 **DESBLOQUEADO** — `plan25` ya está en `main`, puede arrancar ya |
+| 26 | `plan26-victory-defeat-screens` | Pantallas de victoria (nueva, Modo Batalla) y derrota (mejora el `ColorRect` liso actual) temporales/procedurales, con SFX de `AudioManager` | `feature/victory-defeat-screens` (mergeado) | ✅ Completado, mergeado a `main` (`edf370b`) — 395/395 tests en rama; pilar encontró y arregló bug real antes de cerrar (ver nota) |
 | 27 | `plan27-loading-screen` | Pantalla de carga/transición procedural para el corte seco Lobby→CasinoFloor | `feature/loading-screen` (mergeado) | ✅ Completado, mergeado a `main` (`6ddd0c6`) — 365/365 tests en rama, auto-merge limpio con Plan 25 en `lobby_menu.gd` |
 | 28 | `plan28-tutorial-help` | Componente `HelpOverlay` + botón "?" con reglas reales de cada juego en las 7 mesas | `feature/tutorial-help` (mergeado) | ✅ Completado, mergeado a `main` (`a3949e5`) — 370/370 tests en rama, reglas verificadas contra código real de las 7 mesas, auto-merge limpio con Plan 25 en `dice_table_net.gd` |
-| 29 | `plan29-settings-pause-menu` | `SettingsMenu` (volumen vía `AudioManager`, fullscreen/ventana, salir a escritorio) + `PauseMenu` (ESC/`ui_cancel`, nunca pausa el árbol de escena — multijugador) | `feature/settings-pause-menu` | 🔒 BLOQUEADO hasta que `plan25` mergee a `main` |
-| 30 | `plan30-achievements-credits-icon` | Logros de Steam (API GodotSteam confirmada), pantalla de créditos, icono/splash (SVG a mano, sin arte real) | `feature/achievements-credits-icon` | 🔓 **DESBLOQUEADO, sin dependencia dura** — conflictos textuales esperados con 26/29 en `casino_floor.gd`/`lobby_menu.tscn`, los resuelve pilar al mergear |
+| 29 | `plan29-settings-pause-menu` | `SettingsMenu` (volumen vía `AudioManager`, fullscreen/ventana, salir a escritorio) + `PauseMenu` (ESC/`ui_cancel`, nunca pausa el árbol de escena — multijugador) | `feature/settings-pause-menu` (mergeado) | ✅ Completado, mergeado a `main` (`09feb27`) — 400/400 tests en rama; pilar encontró y arregló un test que GUT descartaba en silencio (ver nota) |
+| 30 | `plan30-achievements-credits-icon` | Logros de Steam (API GodotSteam confirmada), pantalla de créditos, icono/splash (SVG a mano, sin arte real) | `feature/achievements-credits-icon` (mergeado) | ✅ Completado, mergeado a `main` (`32bae85`) — 390/390 tests en rama, conflicto textual real con Plan 26 en `_on_match_state_changed` (esperado, resuelto combinando ambas) |
 
 ## Ampliación v1.7: pulido de producto — audio, UI de sistema, polish (2026-08-27)
 
@@ -162,12 +162,56 @@ mismo en paralelo con `plan25`.
    reformateo espacios/tabs de siempre en `casino_floor.gd` (gotcha ya
    conocido). Worktrees de los 3 borrados (`git worktree remove --force`
    — solo contenían caché `.import` sin trackear, nada de trabajo real).
-2. **Ahora desbloqueado**: `plan26-victory-defeat-screens`,
-   `plan29-settings-pause-menu`, `plan30-achievements-credits-icon` en
-   paralelo — `plan25` ya está en `main`, su `AudioManager` es real.
-3. Conflictos textuales esperados al mergear estos tres (mismo patrón de
-   siempre, los resuelve pilar): pueden tocar `casino_floor.gd`/
-   `lobby_menu.tscn` a la vez entre sí.
+2. ~~`plan26-victory-defeat-screens`, `plan29-settings-pause-menu`,
+   `plan30-achievements-credits-icon` en paralelo~~ ✅ — los tres
+   terminaron, verificados por esta sesión pilar (395/395, 400/400,
+   390/390 tests en rama respectivamente) y mergeados a `main` en orden
+   26→30→29 (`edf370b`→`32bae85`→`09feb27`). **414/414 tests reales tras
+   el merge completo**, caché de clases reconstruida.
+
+**Bugs reales encontrados y arreglados por esta sesión pilar antes de
+cerrar la Ampliación v1.7 (ninguno de los dos lo habría pillado un
+`git diff` superficial ni una lectura rápida del reporte del agente):**
+
+- **Plan 26** (`eea4404`): `_reason_label(reason)` devolvía el mismo
+  texto para el mensaje de victoria y el de derrota — el equipo ganador
+  veía "Tu equipo ganó — el equipo rival llegó antes a la meta" (al
+  revés). Arreglado añadiendo un booleano `i_won` que decide la
+  perspectiva. **Nota de proceso**: el fix se hizo primero directo en el
+  worktree de la rama pero sin comitear ahí — se perdió al mergear sin
+  que el primer intento de merge lo llevara. Reaplicado directo sobre
+  `main` tras el merge, comiteado aparte. Para la próxima: si vas a
+  arreglar algo en un worktree de un agente antes de mergear, comitéalo
+  en esa rama ANTES de volver a la carpeta principal a mergear, o
+  hazlo directo sobre `main` después del merge, nunca a medias.
+- **Plan 29** (`74f96f9`): `tests/unit/test_casino_floor_pause_menu.gd`
+  tenía `var connections := floor.pause_menu.exit_room_requested.get_connections()`
+  — `:=` no podía inferir el tipo porque `floor` no está tipado
+  (`preload(...).instantiate()`). GUT fallaba a parsear el script y lo
+  descartaba en silencio con el mensaje engañoso "Ignoring script...
+  because it does not extend GutTest" — sus 3 tests nunca corrían pese a
+  que la suite completa decía "All tests passed" con 62 scripts en vez
+  de 63. **Este es el mismo gotcha de caché de clases ya documentado
+  arriba, pero con una causa distinta** (error de tipado real en el
+  test, no caché sin reconstruir) — mismo síntoma engañoso, así que
+  cualquier "Ignoring script" en la salida de GUT merece investigarse
+  con `-gselect=<nombre>` en vez de descartarse como ruido conocido.
+
+Conflicto textual real (no solo esperado) al mergear Plan 30 sobre
+Plan 26: ambos reescribían `_on_match_state_changed` en
+`scripts/net/casino_floor.gd` moviendo `var my_team` al mismo sitio —
+resuelto combinando la llamada al overlay de victoria (26) con el
+`SteamManager.unlock_achievement("BATTLE_MODE_WIN")` (30) dentro del
+mismo bloque `if`. Plan 29 mergeó limpio salvo conflictos textuales
+triviales (auto-resolubles a mano) en `casino_floor.tscn`/
+`lobby_menu.gd`/`lobby_menu.tscn` por tocar las mismas zonas que 26/30
+(botones nuevos en `LobbyMenu`, nodos nuevos bajo `Hud`).
+
+**Con esto, la Ampliación v1.7 completa (Agentes 25-30) está mergeada a
+`main`.** Pendiente real, no urgente: playtest en vivo de audio/pausa/
+ajustes/logros con Steam corriendo (headless no puede confirmar sonido
+real ni que los logros se disparen contra el backend de Steamworks, que
+tampoco existe de verdad para este proyecto todavía).
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
