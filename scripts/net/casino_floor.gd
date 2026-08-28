@@ -19,6 +19,7 @@ const TABLE_NODE_NAMES := [
 @onready var goal_label: Label = $Hud/GoalLabel
 @onready var unlocked_banner: Label = $Hud/UnlockedBanner
 @onready var defeat_overlay: Control = $Hud/DefeatOverlay
+@onready var victory_overlay: Control = $Hud/VictoryOverlay
 @onready var battle_controller: BattleController = $BattleController
 @onready var battle_status_label: Label = $Hud/BattleStatusLabel
 @onready var lobby_view: Control = $TablesLayer/Lobby
@@ -184,7 +185,10 @@ func _broadcast_goal_state() -> void:
 func _receive_goal_state(state: Dictionary) -> void:
     goal_label.text = "Meta colectiva: %d / %d fichas" % [state["balance"], state["target"]]
     unlocked_banner.visible = state["unlocked"]
-    defeat_overlay.visible = state["bankrupt"]
+    if state["bankrupt"]:
+        _show_result_overlay(defeat_overlay, "PERDISTE", "el pozo compartido se agotó")
+    else:
+        defeat_overlay.visible = false
     _sync_bet_sidebars_max_amount(state["balance"])
 
 # ---- modo batalla ----
@@ -195,13 +199,43 @@ func _on_teams_changed(teams: Array) -> void:
 
 func _on_match_state_changed(state: Dictionary) -> void:
     var msg := "Pozo A: %d | Pozo B: %d" % [state["pool_balances"][0], state["pool_balances"][1]]
+    var my_team := battle_controller.team_for(multiplayer.get_unique_id())
     if state["finished"]:
         msg += " — FIN (equipo %d, %s)" % [state["winning_team"], state["reason"]]
+        if my_team == state["winning_team"]:
+            _show_result_overlay(victory_overlay, "¡GANASTE!", "Tu equipo ganó — %s" % _reason_label(state["reason"]))
+        elif my_team != -1:
+            _show_result_overlay(defeat_overlay, "PERDISTE", "Tu equipo perdió — %s" % _reason_label(state["reason"]))
     _state_line = msg
     _refresh_battle_label()
-    var my_team := battle_controller.team_for(multiplayer.get_unique_id())
     if my_team != -1:
         _sync_bet_sidebars_max_amount(state["pool_balances"][my_team])
 
 func _refresh_battle_label() -> void:
     battle_status_label.text = _teams_line + "\n" + _state_line
+
+# ---- pantallas de resultado (victoria/derrota) ----
+
+# Puede llegar más de una vez por RPCs de refresco mientras el estado sigue
+# igual (bankrupt/finished en true) — solo mostramos/sonamos la primera vez
+# que el overlay pasa de oculto a visible, nunca en cada refresco.
+func _show_result_overlay(overlay: Control, title: String, message: String) -> void:
+    if overlay.visible:
+        return
+    overlay.visible = true
+    overlay.get_node("TitleLabel").text = title
+    overlay.get_node("MessageLabel").text = message
+    AudioManager.play_sfx("lose" if overlay == defeat_overlay else "win")
+    if overlay == victory_overlay:
+        _play_victory_pulse(overlay.get_node("Panel"))
+
+func _reason_label(reason: String) -> String:
+    match reason:
+        "goal_reached": return "el equipo rival llegó antes a la meta"
+        "bankrupt": return "tu equipo se quedó sin fichas"
+        _: return reason
+
+func _play_victory_pulse(panel: Control) -> void:
+    var tween := create_tween().set_loops(3)
+    tween.tween_property(panel, "modulate", CasinoTheme.GOLD_ACCENT, 0.3)
+    tween.tween_property(panel, "modulate", Color.WHITE, 0.3)
