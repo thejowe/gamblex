@@ -215,13 +215,19 @@ calcados de `mines_cell.gd` (`PANEL_NAVY_MID`/`LIGHT`, diamante
 de arte: la mina es una bomba con mecha/chispa dorada en vez de un
 círculo liso. 0 generaciones PixelLab.
 
-## Plinko (3)
+## Plinko (3) — FASE 13 completa (2026-08-28)
 
 | ID | Tamaño | Status |
 |---|---|---|
-| plinko_peg | 16×16 | PLANNED |
-| plinko_ball | 16×16 | PLANNED |
-| plinko_slot_bg | 32×32 | PLANNED |
+| plinko_peg | 8×8 | APPROVED |
+| plinko_ball | 16×16 | APPROVED |
+| plinko_slot_bg | 36×26 | APPROVED |
+
+Método: código, calcado de `plinko_board.gd`
+(`TEXT_MUTED` peg, `TEXT_LIGHT` ball, slot con blend
+`PANEL_NAVY_LIGHT`→`ACCENT_GREEN` — el código tiñe el slot según el
+multiplicador en tiempo real, este PNG es la base neutra de referencia,
+no sustituye ese tinte dinámico). 0 generaciones PixelLab.
 
 ## Lobby — `lobby/` (7) — Master: LOBBY_CARD_MASTER
 
