@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scenes/poker_table_net.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/net/poker_table_controller.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/help_overlay.tscn" id="4"]
 
 [node name="PokerTableNet" type="Control"]
 layout_mode = 3
@@ -94,3 +96,23 @@ offset_top = 370.0
 offset_right = 560.0
 offset_bottom = 406.0
 text = "Subir"
+
+[node name="HelpButton" parent="." instance=ExtResource("3")]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -56.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 56.0
+grow_horizontal = 0
+text = "?"
+
+[node name="HelpOverlay" parent="." instance=ExtResource("4")]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2

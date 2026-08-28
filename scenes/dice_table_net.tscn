@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scenes/dice_table_net.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/net/dice_table_controller.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/bet_sidebar_panel.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/dice_threshold_slider.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/help_overlay.tscn" id="6"]
 
 [node name="DiceTableNet" type="Control"]
 layout_mode = 3
@@ -87,3 +88,23 @@ offset_right = 0.0
 offset_bottom = 500.0
 grow_horizontal = 2
 text = "Nadie ha tirado todavía."
+
+[node name="HelpButton" parent="." instance=ExtResource("4")]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -56.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 56.0
+grow_horizontal = 0
+text = "?"
+
+[node name="HelpOverlay" parent="." instance=ExtResource("6")]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2

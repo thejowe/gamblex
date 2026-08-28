@@ -2,6 +2,7 @@ extends Control
 
 const RouletteResultBadgeScene := preload("res://scenes/ui/casino/roulette_result_badge.tscn")
 const MAX_HISTORY := 8
+const RULES_TEXT := "Ruleta: apuesta a lo que crees que saldra antes de girar. A un numero exacto (pago 35 a 1 mas tu apuesta), a rojo/negro o par/impar (pago 1 a 1 mas tu apuesta), o a una docena de 12 numeros (pago 2 a 1 mas tu apuesta). La bola cae en un numero del 0 al 36 al girar."
 
 @onready var table_controller: RouletteTableController = $TableController
 @onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
@@ -11,6 +12,8 @@ const MAX_HISTORY := 8
 @onready var spin_button: Button = $SpinButton
 @onready var sit_button: Button = $SitButton
 @onready var seats_label: Label = $SeatsLabel
+@onready var help_button: CasinoButton = $HelpButton
+@onready var help_overlay: HelpOverlay = $HelpOverlay
 
 var my_seat_index: int = -1
 var _last_seats: Array = []
@@ -32,6 +35,7 @@ func _ready() -> void:
 	betting_grid.bet_selected.connect(_on_bet_selected)
 	sit_button.pressed.connect(_on_sit_pressed)
 	spin_button.pressed.connect(_on_spin_pressed)
+	help_button.pressed.connect(func(): help_overlay.set_rules_text(RULES_TEXT); help_overlay.open())
 	NetworkManager.identities_changed.connect(_refresh_seats_label)
 	if not multiplayer.is_server():
 		var peer := multiplayer.multiplayer_peer

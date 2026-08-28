@@ -1,5 +1,7 @@
 extends Control
 
+const RULES_TEXT := "Plinko: elige cuantas filas de clavijas quieres (de 8 a 16) y suelta la bola. Rebota fila por fila hasta caer en una casilla con un multiplicador propio. Las casillas de los extremos pagan mucho mas que las del centro — mas filas significa mas riesgo y multiplicadores extremos mas altos."
+
 @onready var table_controller: PlinkoTableController = $TableController
 @onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
 @onready var rows_label: Label = $RowsLabel
@@ -7,6 +9,8 @@ extends Control
 @onready var rows_plus_button: Button = $RowsPlusButton
 @onready var board: PlinkoBoard = $PlinkoBoard
 @onready var players_label: Label = $PlayersLabel
+@onready var help_button: CasinoButton = $HelpButton
+@onready var help_overlay: HelpOverlay = $HelpOverlay
 
 var _last_players: Dictionary = {}
 var _rows: int = PlinkoTableState.DEFAULT_ROWS
@@ -25,6 +29,7 @@ func _ready() -> void:
 	rows_minus_button.pressed.connect(func(): _set_rows(_rows - 1))
 	rows_plus_button.pressed.connect(func(): _set_rows(_rows + 1))
 	board.ball_landed.connect(_on_ball_landed)
+	help_button.pressed.connect(func(): help_overlay.set_rules_text(RULES_TEXT); help_overlay.open())
 	NetworkManager.identities_changed.connect(_refresh_players_label)
 	_set_rows(PlinkoTableState.DEFAULT_ROWS)
 	if not multiplayer.is_server():

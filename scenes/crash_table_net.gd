@@ -1,10 +1,14 @@
 extends Control
 
+const RULES_TEXT := "Crash: apuestas antes de que despegue el multiplicador. En cuanto empieza, sube en tiempo real desde 1.00x. Retira tus fichas cuando quieras para cobrar al multiplicador actual — pero el juego 'explota' en un punto aleatorio decidido al apostar, oculto hasta que ocurre. Si explota antes de que retires, pierdes toda la apuesta."
+
 @onready var table_controller: CrashTableController = $TableController
 @onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
 @onready var cash_out_button: CasinoButton = $CashOutButton
 @onready var crash_graph: CrashGraph = $CrashGraph
 @onready var players_label: Label = $PlayersLabel
+@onready var help_button: CasinoButton = $HelpButton
+@onready var help_overlay: HelpOverlay = $HelpOverlay
 
 var _last_players: Dictionary = {}
 var _local_elapsed: Dictionary = {} # player_id -> float, extrapolación local desde el último broadcast
@@ -21,6 +25,7 @@ func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
 	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
 	cash_out_button.pressed.connect(func(): table_controller.cash_out())
+	help_button.pressed.connect(func(): help_overlay.set_rules_text(RULES_TEXT); help_overlay.open())
 	NetworkManager.identities_changed.connect(_refresh_players_label)
 	cash_out_button.disabled = true
 	# Mismo gotcha que blackjack_table_net.gd/roulette_table_net.gd/dice_table_net.gd: un

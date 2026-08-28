@@ -1,5 +1,7 @@
 extends Control
 
+const RULES_TEXT := "Poker: Texas Hold'em estandar, 6 asientos, ciegas 5/10. Cada jugador recibe 2 cartas propias y comparte 5 cartas comunes repartidas en fases (flop, turn, river). En cada ronda de apuestas puedes pasar, igualar, subir o retirarte. En el showdown gana quien forme la mejor mano de 5 cartas combinando las suyas con las comunes."
+
 @onready var table_controller: PokerTableController = $PokerTableController
 @onready var seats_label: Label = $SeatsLabel
 @onready var community_label: Label = $CommunityLabel
@@ -11,6 +13,8 @@ extends Control
 @onready var check_button: Button = $CheckButton
 @onready var call_button: Button = $CallButton
 @onready var raise_button: Button = $RaiseButton
+@onready var help_button: CasinoButton = $HelpButton
+@onready var help_overlay: HelpOverlay = $HelpOverlay
 
 var my_seat_index: int = -1
 var _last_state: Dictionary = {}
@@ -35,6 +39,7 @@ func _ready() -> void:
 	check_button.pressed.connect(_on_check_pressed)
 	call_button.pressed.connect(_on_call_pressed)
 	raise_button.pressed.connect(_on_raise_pressed)
+	help_button.pressed.connect(func(): help_overlay.set_rules_text(RULES_TEXT); help_overlay.open())
 	NetworkManager.identities_changed.connect(_refresh_seats_label)
 	if not multiplayer.is_server():
 		var peer := multiplayer.multiplayer_peer

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scenes/blackjack_table_net.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/net/table_controller.gd" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_hud_bar.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/bet_sidebar_panel.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/help_overlay.tscn" id="7"]
 
 [node name="BlackjackTableNet" type="Control"]
 layout_mode = 3
@@ -139,3 +140,20 @@ offset_right = 0.0
 offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 0
+
+[node name="HelpButton" parent="." instance=ExtResource("5")]
+layout_mode = 0
+offset_left = 310.0
+offset_top = 20.0
+offset_right = 346.0
+offset_bottom = 56.0
+text = "?"
+
+[node name="HelpOverlay" parent="." instance=ExtResource("7")]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2

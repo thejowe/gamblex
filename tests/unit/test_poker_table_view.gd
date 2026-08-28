@@ -38,6 +38,11 @@ func test_start_hand_button_enabled_with_two_seated_and_no_active_hand():
 	})
 	assert_false(view.start_hand_button.disabled)
 
+func test_help_button_opens_overlay():
+	var view = _make_view()
+	view.get_node("HelpButton").pressed.emit()
+	assert_true(view.get_node("HelpOverlay").visible)
+
 func test_start_hand_button_disabled_while_hand_active():
 	var view = _make_view()
 	var seats := _empty_seats()
