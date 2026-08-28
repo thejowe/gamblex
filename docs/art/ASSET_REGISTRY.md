@@ -38,7 +38,7 @@ geometría simple, no necesitan un master de imagen).
 | PANEL_MASTER | UI (fieltro) | 256×144 | APPROVED | bet_sidebar_bg, panel_border |
 | MINES_CELL_MASTER | Mines | 32×32 | PLANNED | 4 casillas |
 | ROULETTE_CELL_MASTER | Ruleta | — | N/A (geometría por código, sin PNG standalone) | 3 celdas |
-| LOBBY_CARD_MASTER | Lobby | 192×256 | PLANNED | 7 tarjetas |
+| LOBBY_CARD_MASTER | Lobby | 96×128 | APPROVED | 7 tarjetas |
 | ICON_MASTER | HUD | 32×32 | APPROVED | 5 iconos |
 | BACKGROUND_MASTER | Fondos | 225×270 | CONFIRMADO — aplica a los 8 fondos, mismo marco/vignette, motivo central cambia | 8 fondos |
 
@@ -229,17 +229,26 @@ Método: código, calcado de `plinko_board.gd`
 multiplicador en tiempo real, este PNG es la base neutra de referencia,
 no sustituye ese tinte dinámico). 0 generaciones PixelLab.
 
-## Lobby — `lobby/` (7) — Master: LOBBY_CARD_MASTER
+## Lobby — `lobby/` (7) — FASE 14 completa (2026-08-28)
 
-| ID | Tamaño | Status |
-|---|---|---|
-| card_blackjack | 192×256 | PLANNED |
-| card_roulette | 192×256 | PLANNED |
-| card_poker | 192×256 | PLANNED |
-| card_dice | 192×256 | PLANNED |
-| card_crash | 192×256 | PLANNED |
-| card_mines | 192×256 | PLANNED |
-| card_plinko | 192×256 | PLANNED |
+| ID | Tamaño | Status | Icono central |
+|---|---|---|---|
+| card_blackjack | 96×128 | APPROVED | 2 cartas en abanico (reusa `card_hearts_K`/`card_spades_A`) |
+| card_roulette | 96×128 | APPROVED | `roulette_wheel` reescalado |
+| card_poker | 96×128 | APPROVED | `card_hearts_K` + `chip_25` |
+| card_dice | 96×128 | APPROVED | dado de 5 pips, nuevo por código |
+| card_crash | 96×128 | APPROVED | `crash_rocket_flame` |
+| card_mines | 96×128 | APPROVED | bomba de `mines_cell_mine` (fondo de celda recortado) |
+| card_plinko | 96×128 | APPROVED | `plinko_ball` + 3× `plinko_peg` |
+
+`LOBBY_CARD_MASTER`: 1 generación PixelLab pixflux (marco ornamentado
+oro/navy, 16/40 del trial en total). Las 7 tarjetas son ese marco +
+un icono central compuesto por código **reutilizando assets ya
+APPROVED de otras fases** (cartas, fichas, cohete, bomba, rueda, bola de
+plinko) en vez de generar 7 ilustraciones nuevas — 0 generaciones
+PixelLab adicionales, y refuerza la identidad visual compartida entre
+el lobby y las mesas reales. Solo el dado es nuevo (Dice no tenía un
+icono reusable — el juego usa un slider, no un cubo físico).
 
 ## HUD — `hud/` (7) — Iconos: Master ICON_MASTER; fondos: BACKGROUND_MASTER
 
