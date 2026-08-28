@@ -180,12 +180,24 @@ que `DiceThresholdSlider._draw()` ya usa (`TEXT_LIGHT` handle,
 caso que Ruleta: el slider se dibuja hoy por código, estos PNGs quedan
 listos para una integración futura. 0 generaciones PixelLab.
 
-## Crash (2)
+## Crash (1 de 2 — FASE 11 completa, 2026-08-28)
 
 | ID | Tamaño | Status |
 |---|---|---|
-| crash_rocket | 32×32 (animado: idle/launch/flame) | PLANNED |
-| crash_line_texture | opcional — evaluar si hace falta (ver `crash_graph.gd`) | PLANNED |
+| crash_rocket_idle | 20×32 | APPROVED |
+| crash_rocket_launch | 12×24 | APPROVED |
+| crash_rocket_flame | 14×36 | APPROVED |
+| crash_line_texture | — | **N/A — decisión de no generar** |
+
+`crash_rocket`: 3 generaciones PixelLab pixflux (15/40 del trial en
+total), trimeadas a bbox. `crash_line_texture` descartado a propósito:
+`CrashGraph._draw()` ya dibuja la curva con `draw_polyline`/
+`draw_colored_polygon` de forma dinámica (la forma cambia cada frame
+con el multiplicador real) — generar una textura estática violaría la
+regla de `ART_PIPELINE.md` ("no generar una textura si el motor puede
+dibujarlo mejor"). La referencia `crash-acebet-reference.png` tampoco
+usa una, solo un punto en la punta de la línea — que es exactamente lo
+que el código ya dibuja (`draw_circle`).
 
 ## Mines (4) — Master: MINES_CELL_MASTER
 
