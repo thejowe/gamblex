@@ -1,7 +1,42 @@
 # Art Integration Plan — enganchar los 111 PNGs aprobados en escena
 
-Estado: **Oleada 1 (parcial) ejecutada y verificada** (2026-08-28,
-commit siguiente a este). Oleadas 2-4 siguen sin ejecutar.
+## Cierre de sesión (2026-08-28)
+
+Ejecutado y verificado (429/429 tests GUT en cada paso), pusheado a
+`main`: **Oleada 1** (loading/credits/lobby a `TextureRect` real —
+Ajustes/Pausa/Ayuda quedaron fuera, ver corrección abajo), **Oleada 2**
+completa (botones, fichas, casillas de Mines), **Oleada 3 parcial**
+(cartas — `felt_table_panel.gd` queda fuera a propósito), **Oleada 4
+parcial** (cohete de Crash en la punta del gráfico).
+
+Commits: `998813c` (Oleada 1) → `3eec9e0` (Oleada 2) → `fd330eb`
+(Oleada 3 cartas) → `dd90f48` (Oleada 4 cohete).
+
+**Pendiente real, sin urgencia, cada uno necesita una decisión de
+diseño antes de tocarse (no es trabajo mecánico, por eso se paró
+aquí):**
+- `felt_table_panel.gd` (mesa de fieltro Blackjack/Póker) — hoy es un
+  óvalo paramétrico que se adapta a cualquier tamaño de ventana,
+  `felt_table_bg.png` es una imagen fija a 320×180. Decidir: ¿se deja
+  procedural, se usa la textura como fondo decorativo con
+  `NinePatchRect`, o se acepta perder la adaptabilidad?
+- Victoria/Derrota (`victory_bg`/`defeat_bg`) — el panel usa
+  `StyleBoxFlat` con `corner_radius` y borde de color que
+  `StyleBoxTexture` no reproduce; hace falta rediseñar el estilo del
+  panel, no es una asignación de textura.
+- `roulette_wheel.png` como fondo decorativo detrás de la rueda
+  interactiva real (doble dibujo, evaluar si vale la pena).
+- Tarjetas de Lobby (`lobby/card_*.png`) — hoy no hay componente de
+  tarjeta de selección de juego en `casino_floor.tscn`, son botones de
+  texto plano. Esto es UI nueva, no un reemplazo — más grande que todo
+  lo anterior.
+- `crash_rocket_idle`/`_launch` (generados en FASE 11) siguen sin
+  usarse — no hay un estado intermedio en `crash_graph.gd` hoy que los
+  necesite.
+
+Prompt para retomar en una sesión nueva: igual que siempre, actuar como
+`CasinoArtDirector` (ver `.claude/agents/CasinoArtDirector.md`), y
+decirle que continúe este documento desde "Pendiente real" arriba.
 
 ## Prerrequisito universal — DESCUBIERTO EN OLEADA 1, aplica a TODAS las oleadas
 
