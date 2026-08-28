@@ -30,6 +30,14 @@ func reset() -> void:
 	current_lobby_id = 0
 	chosen_match_type = -1
 
+func unlock_achievement(achievement_api_name: String) -> void:
+	if not is_ready:
+		return
+	var ok: bool = Steam.setAchievement(achievement_api_name)
+	if ok:
+		Steam.storeStats()
+	print("SteamManager: logro '%s' -> setAchievement=%s" % [achievement_api_name, ok])
+
 func _process(_delta: float) -> void:
 	Steam.run_callbacks()
 

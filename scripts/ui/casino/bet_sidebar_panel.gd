@@ -45,6 +45,8 @@ func _on_max_pressed() -> void:
 
 func _on_bet_pressed() -> void:
 	AudioManager.play_sfx("chip")
+	if amount >= 100:
+		SteamManager.unlock_achievement("HIGH_ROLLER")
 	bet_pressed.emit(amount)
 
 func _commit_typed_amount(new_text: String) -> void:

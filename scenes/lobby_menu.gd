@@ -6,6 +6,7 @@ extends Control
 @onready var members_label: Label = $MembersLabel
 @onready var match_type_option: OptionButton = $MatchTypeOption
 @onready var error_label: Label = $ErrorLabel
+@onready var credits_button: CasinoButton = $CreditsButton
 
 var _transitioned: bool = false
 
@@ -19,6 +20,7 @@ func _ready() -> void:
 	create_button.pressed.connect(_on_create_pressed)
 	invite_button.pressed.connect(_on_invite_pressed)
 	cancel_button.pressed.connect(_on_cancel_pressed)
+	credits_button.pressed.connect(_on_credits_pressed)
 	SteamManager.lobby_ready.connect(_on_lobby_ready)
 	SteamManager.lobby_join_failed.connect(_on_lobby_join_failed)
 	SteamManager.steam_ready.connect(_on_steam_ready)
@@ -52,6 +54,9 @@ func _on_cancel_pressed() -> void:
 
 func _on_invite_pressed() -> void:
 	Steam.activateGameOverlayInviteDialog(SteamManager.current_lobby_id)
+
+func _on_credits_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/ui/casino/credits_menu.tscn")
 
 func _on_lobby_ready(lobby_id: int, is_owner: bool) -> void:
 	invite_button.disabled = false

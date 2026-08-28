@@ -148,6 +148,8 @@ func _refresh_room_visibility() -> void:
 
 func _set_pool_unlocked_if_reached_goal() -> void:
     if shared_pool_ledger.balance >= GOAL_TARGET:
+        if not _pool_unlocked:
+            SteamManager.unlock_achievement("FREE_MODE_GOAL_REACHED")
         _pool_unlocked = true
 
 func _notify_free_mode_balance_changed() -> void:
@@ -204,6 +206,7 @@ func _on_match_state_changed(state: Dictionary) -> void:
         msg += " — FIN (equipo %d, %s)" % [state["winning_team"], state["reason"]]
         if my_team == state["winning_team"]:
             _show_result_overlay(victory_overlay, "¡GANASTE!", "Tu equipo ganó — %s" % _reason_label(state["reason"], true))
+            SteamManager.unlock_achievement("BATTLE_MODE_WIN")
         elif my_team != -1:
             _show_result_overlay(defeat_overlay, "PERDISTE", "Tu equipo perdió — %s" % _reason_label(state["reason"], false))
     _state_line = msg
