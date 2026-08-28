@@ -111,6 +111,42 @@ Prompt para la próxima sesión pilar, igual que siempre:
 | 28 | `plan28-tutorial-help` | Componente `HelpOverlay` + botón "?" con reglas reales de cada juego en las 7 mesas | `feature/tutorial-help` (mergeado) | ✅ Completado, mergeado a `main` (`a3949e5`) — 370/370 tests en rama, reglas verificadas contra código real de las 7 mesas, auto-merge limpio con Plan 25 en `dice_table_net.gd` |
 | 29 | `plan29-settings-pause-menu` | `SettingsMenu` (volumen vía `AudioManager`, fullscreen/ventana, salir a escritorio) + `PauseMenu` (ESC/`ui_cancel`, nunca pausa el árbol de escena — multijugador) | `feature/settings-pause-menu` (mergeado) | ✅ Completado, mergeado a `main` (`09feb27`) — 400/400 tests en rama; pilar encontró y arregló un test que GUT descartaba en silencio (ver nota) |
 | 30 | `plan30-achievements-credits-icon` | Logros de Steam (API GodotSteam confirmada), pantalla de créditos, icono/splash (SVG a mano, sin arte real) | `feature/achievements-credits-icon` (mergeado) | ✅ Completado, mergeado a `main` (`32bae85`) — 390/390 tests en rama, conflicto textual real con Plan 26 en `_on_match_state_changed` (esperado, resuelto combinando ambas) |
+| 31 | `plan31-poker-visual` | Reskin visual de Póker (última mesa sin reskin): mesa de fieltro ovalada (referencia real del usuario), reutiliza `FeltTablePanel`/`PlayingCard`/`CasinoChip` de Blackjack (no el panel oscuro de las otras 5), 6 asientos alrededor de un óvalo completo, avatares procedurales, ficha de dealer, banner de mano ganada | `feature/poker-visual` | 🔓 **DESBLOQUEADO, sin dependencias** |
+
+## Ampliación v1.8: reskin visual de Póker (2026-08-27)
+
+El usuario aportó la referencia que faltaba (`poker.webp`, app tipo
+PPPoker) — última de las 7 mesas sin reskin, pospuesta desde la
+Ampliación v1.4. Copiada a
+`docs/superpowers/specs/references/poker-reference.webp`.
+
+**Decisión de diseño real, no obvia**: la referencia es una mesa de
+fieltro ovalada — mismo lenguaje visual que Blackjack (Plan 14), **no**
+el panel oscuro moderno que usan Ruleta/Dice/Crash/Mines/Plinko desde
+Plan 16. Plan 31 reutiliza `FeltTablePanel`/`PlayingCard`/`CasinoChip`.
+
+**Hallazgo real al inspeccionar el componente a reutilizar**:
+`FeltTablePanel._draw()` dibuja hoy solo un **semi-óvalo** (la mitad
+superior de una elipse, `_arc_points` recorre `t` de `0` a `PI`) — le
+basta a Blackjack (crupier arriba, jugadores en fila abajo) pero Póker
+necesita un óvalo completo con 6 asientos alrededor. El plan pide
+extender el componente compartido con un flag `full_oval` (por defecto
+`false, comportamiento de Blackjack intacto) en vez de duplicarlo o
+inventar uno nuevo — con instrucción explícita de confirmar cero
+regresión en la suite de tests de Blackjack antes de cerrar esa tarea.
+
+Creado `plan31-poker-visual`, desbloqueado, spec y plan de
+implementación completos (6 tareas con TDD, la última — slider de
+cantidad al subir apuesta — explícitamente opcional) ya escritos por
+esta sesión pilar. Toca `scripts/ui/casino/felt_table_panel.gd` (flag
+nuevo) y `scenes/poker_table_net.tscn`/`.gd`. No toca
+`scripts/poker/poker_table_state.gd`/`poker_table_controller.gd`
+(lógica ya completa desde Plan 6), no toca ninguna otra mesa.
+
+**Prompt para lanzarlo:**
+
+> Actúa como el agente `plan31-poker-visual` — lee y sigue al pie de la
+> letra `.claude/agents/plan31-poker-visual.md`.
 
 ## Ampliación v1.7: pulido de producto — audio, UI de sistema, polish (2026-08-27)
 
