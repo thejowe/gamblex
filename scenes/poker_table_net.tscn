@@ -257,6 +257,50 @@ grow_vertical = 0
 text = "Subir"
 variant = 1
 
+[node name="RaiseValueLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -132.0
+offset_right = 120.0
+offset_bottom = -108.0
+horizontal_alignment = 1
+text = "Subir a: 0"
+visible = false
+
+[node name="RaiseSlider" type="HSlider" parent="."]
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -104.0
+offset_right = 90.0
+offset_bottom = -84.0
+grow_horizontal = 2
+grow_vertical = 0
+visible = false
+
+[node name="ConfirmRaiseButton" parent="." instance=ExtResource("3")]
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 100.0
+offset_top = -108.0
+offset_right = 190.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "OK"
+variant = 1
+visible = false
+
 [node name="HelpButton" parent="." instance=ExtResource("3")]
 layout_mode = 0
 anchor_left = 1.0

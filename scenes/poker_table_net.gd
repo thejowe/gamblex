@@ -19,6 +19,9 @@ const RULES_TEXT := "Poker: Texas Hold'em estandar, 6 asientos, ciegas 5/10. Cad
 @onready var check_button: Button = $CheckButton
 @onready var call_button: Button = $CallButton
 @onready var raise_button: Button = $RaiseButton
+@onready var raise_slider: HSlider = $RaiseSlider
+@onready var raise_value_label: Label = $RaiseValueLabel
+@onready var confirm_raise_button: Button = $ConfirmRaiseButton
 @onready var help_button: CasinoButton = $HelpButton
 @onready var help_overlay: HelpOverlay = $HelpOverlay
 
@@ -67,6 +70,8 @@ func _ready() -> void:
 	check_button.pressed.connect(_on_check_pressed)
 	call_button.pressed.connect(_on_call_pressed)
 	raise_button.pressed.connect(_on_raise_pressed)
+	raise_slider.value_changed.connect(_on_raise_slider_changed)
+	confirm_raise_button.pressed.connect(_on_confirm_raise_pressed)
 	help_button.pressed.connect(func(): help_overlay.set_rules_text(RULES_TEXT); help_overlay.open())
 	NetworkManager.identities_changed.connect(_refresh_seat_labels)
 	if not multiplayer.is_server():
@@ -141,6 +146,13 @@ func _on_raise_pressed() -> void:
 	var current_bet: int = _last_state.get("current_bet", 0)
 	var min_raise_increment: int = _last_state.get("min_raise", 10)
 	table_controller.raise_bet(my_seat_index, current_bet + min_raise_increment)
+
+func _on_raise_slider_changed(value: float) -> void:
+	raise_value_label.text = "Subir a: %d" % int(value)
+
+func _on_confirm_raise_pressed() -> void:
+	AudioManager.play_sfx("chip")
+	table_controller.raise_bet(my_seat_index, int(raise_slider.value))
 
 func _find_seat_index(state: Dictionary, player_id: int) -> int:
 	var seats: Array = state.get("seats", [])
@@ -218,6 +230,7 @@ func _render_state(state: Dictionary) -> void:
 	check_button.disabled = not is_my_turn
 	call_button.disabled = not is_my_turn
 	raise_button.disabled = not is_my_turn
+	_update_raise_slider(state, is_my_turn)
 
 	var occupied_seats := 0
 	for seat in seats:
@@ -226,6 +239,28 @@ func _render_state(state: Dictionary) -> void:
 	start_hand_button.disabled = hand_active or occupied_seats < 2
 
 	_maybe_show_winner_banner(state)
+
+func _update_raise_slider(state: Dictionary, is_my_turn: bool) -> void:
+	var min_amount: int = state.get("current_bet", 0) + state.get("min_raise", 10)
+	var seats: Array = state.get("seats", [])
+	var balance := 0
+	if my_seat_index != -1 and my_seat_index < seats.size() and seats[my_seat_index] != null:
+		balance = seats[my_seat_index]["balance"]
+	# Rango invalido (jugador all-in o casi) -> oculta el slider, el boton
+	# "Subir" de incremento fijo se queda como fallback.
+	var valid := is_my_turn and balance > min_amount
+	raise_slider.visible = valid
+	raise_value_label.visible = valid
+	confirm_raise_button.visible = valid
+	confirm_raise_button.disabled = not valid
+	if not valid:
+		return
+	raise_slider.min_value = min_amount
+	raise_slider.max_value = balance
+	raise_slider.step = 1
+	if raise_slider.value < min_amount or raise_slider.value > balance:
+		raise_slider.value = min_amount
+	raise_value_label.text = "Subir a: %d" % int(raise_slider.value)
 
 func _render_seat(seat_index: int, seat, hand_active: bool) -> void:
 	var container := _seat_containers[seat_index] as Control
