@@ -37,7 +37,7 @@ geometría simple, no necesitan un master de imagen).
 | BUTTON_MASTER | UI | 96×32 | APPROVED | 12 botones |
 | PANEL_MASTER | UI (fieltro) | 256×144 | APPROVED | bet_sidebar_bg, panel_border |
 | MINES_CELL_MASTER | Mines | 32×32 | PLANNED | 4 casillas |
-| ROULETTE_CELL_MASTER | Ruleta | 32×32 | PLANNED | 3 celdas |
+| ROULETTE_CELL_MASTER | Ruleta | — | N/A (geometría por código, sin PNG standalone) | 3 celdas |
 | LOBBY_CARD_MASTER | Lobby | 192×256 | PLANNED | 7 tarjetas |
 | ICON_MASTER | HUD | 32×32 | APPROVED | 5 iconos |
 | BACKGROUND_MASTER | Fondos | 225×270 | CONFIRMADO — aplica a los 8 fondos, mismo marco/vignette, motivo central cambia | 8 fondos |
@@ -143,15 +143,28 @@ usuario con los iconos de palo decorativos incluidos.
 
 ## Póker (0 — carpeta vacía a propósito, reutiliza cards/chips/panel)
 
-## Ruleta (5) — Master celdas: ROULETTE_CELL_MASTER
+## Ruleta (5) — FASE 8 completa (2026-08-28)
 
-| ID | Tamaño | Status |
-|---|---|---|
-| roulette_wheel | pendiente de confirmar | PLANNED |
-| roulette_ball | pequeño (fracción de celda) | PLANNED |
-| roulette_grid_cell_red | 32×32 | PLANNED |
-| roulette_grid_cell_black | 32×32 | PLANNED |
-| roulette_grid_cell_green | 32×32 | PLANNED |
+| ID | Tamaño | Status | Source |
+|---|---|---|---|
+| roulette_wheel | 124×124 | APPROVED | PixelLab pixflux, transparente a la primera |
+| roulette_ball | 9×10 | APPROVED | PixelLab pixen, opaco sobre fondo oscuro (mismo gotcha que fichas/cartas) + 2 pasadas de flood-fill (gris exterior + anillo navy) |
+| roulette_grid_cell_red | 40×40 | APPROVED | código (Pillow) |
+| roulette_grid_cell_black | 40×40 | APPROVED | código (Pillow) |
+| roulette_grid_cell_green | 40×40 | APPROVED | código (Pillow) |
+
+`ROULETTE_CELL_MASTER`: no existe como PNG standalone — las 3 celdas
+comparten una función `make_cell()` por código (mismo patrón que
+`bet_sidebar_bg`/`panel_border`), no hace falta un master de imagen
+para geometría plana. 2 generaciones PixelLab usadas en FASE 8 (12/40
+del trial en total).
+
+**Nota de integración (no es tarea de `CasinoArtDirector`):**
+`RouletteWheelDisplay._draw()` y `roulette_betting_grid.gd` dibujan hoy
+la rueda y la grid enteramente por código (`draw_colored_polygon`,
+`StyleBoxFlat`) — ningún script consume todavía estos PNGs. Quedan
+listos en la librería para cuando alguien (pilar/agente de código)
+decida reemplazar ese dibujo procedural por texturas.
 
 ## Dice (3)
 
