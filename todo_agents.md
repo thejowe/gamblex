@@ -105,10 +105,10 @@ Prompt para la próxima sesión pilar, igual que siempre:
 | 22 | `plan22-roulette-grid-overflow-fix` | Fix: grid de 37 números de Ruleta se sale de la ventana (columnas compartidas con apuestas de fuera más anchas) | `feature/roulette-grid-overflow-fix` (mergeado) | ✅ Completado, mergeado a `main` (`2fc5bb1`) — código+tests verificados, visual pendiente de confirmar (ver nota) |
 | 23 | `plan23-responsive-layout` | Layout responsive real: aplicar a las 6 mesas restantes (Ruleta/Póker/Dice/Crash/Mines/Plinko) la conversión de offsets absolutos a anchors que ya se hizo en Blackjack/lobby/HUD | `main` (directo, sin rama) | ✅ Completado, mergeado a `main` (`d9427ac` + fix de causa raíz `ca10e2d`) — ver nota abajo |
 | 24 | `plan24-room-lifecycle` | Conectar `LobbyMenu` (huérfana hoy) como pantalla de inicio real: crear/unir/cancelar sala Steam, errores visibles, "Salir de la sala" desde CasinoFloor | `feature/room-lifecycle` (mergeado) | ✅ Completado, mergeado a `main` (`9c95682`) — código+tests verificados línea a línea, visual pendiente de confirmar (ver nota) |
-| 25 | `plan25-audio-foundation` | Fundación de audio: autoload `AudioManager`, música+SFX generados proceduralmente (`AudioStreamGenerator`, sin pipeline de audio real), buses `Master`/`Music`/`SFX`, volumen persistido. Fundacional — 26/29/30 dependen de su contrato público | `feature/audio-foundation` | 🔓 **DESBLOQUEADO, lanzar primero y solo** — 26/29 bloqueados hasta que mergee |
-| 26 | `plan26-victory-defeat-screens` | Pantallas de victoria (nueva, Modo Batalla) y derrota (mejora el `ColorRect` liso actual) temporales/procedurales, con SFX de `AudioManager` | `feature/victory-defeat-screens` | 🔒 BLOQUEADO hasta que `plan25` mergee a `main` |
-| 27 | `plan27-loading-screen` | Pantalla de carga/transición procedural para el corte seco Lobby→CasinoFloor | `feature/loading-screen` | 🔓 **DESBLOQUEADO, sin dependencias** |
-| 28 | `plan28-tutorial-help` | Componente `HelpOverlay` + botón "?" con reglas reales de cada juego en las 7 mesas | `feature/tutorial-help` | 🔓 **DESBLOQUEADO, sin dependencias** |
+| 25 | `plan25-audio-foundation` | Fundación de audio: autoload `AudioManager`, música+SFX generados proceduralmente (`AudioStreamGenerator`, sin pipeline de audio real), buses `Master`/`Music`/`SFX`, volumen persistido. Fundacional — 26/29/30 dependen de su contrato público | `feature/audio-foundation` (mergeado) | ✅ Completado, mergeado a `main` (`c7575bd`) — 370/370 tests, contrato de 7 funciones verificado exacto |
+| 26 | `plan26-victory-defeat-screens` | Pantallas de victoria (nueva, Modo Batalla) y derrota (mejora el `ColorRect` liso actual) temporales/procedurales, con SFX de `AudioManager` | `feature/victory-defeat-screens` | 🔓 **DESBLOQUEADO** — `plan25` ya está en `main`, puede arrancar ya |
+| 27 | `plan27-loading-screen` | Pantalla de carga/transición procedural para el corte seco Lobby→CasinoFloor | `feature/loading-screen` (mergeado) | ✅ Completado, mergeado a `main` (`6ddd0c6`) — 365/365 tests en rama, auto-merge limpio con Plan 25 en `lobby_menu.gd` |
+| 28 | `plan28-tutorial-help` | Componente `HelpOverlay` + botón "?" con reglas reales de cada juego en las 7 mesas | `feature/tutorial-help` (mergeado) | ✅ Completado, mergeado a `main` (`a3949e5`) — 370/370 tests en rama, reglas verificadas contra código real de las 7 mesas, auto-merge limpio con Plan 25 en `dice_table_net.gd` |
 | 29 | `plan29-settings-pause-menu` | `SettingsMenu` (volumen vía `AudioManager`, fullscreen/ventana, salir a escritorio) + `PauseMenu` (ESC/`ui_cancel`, nunca pausa el árbol de escena — multijugador) | `feature/settings-pause-menu` | 🔒 BLOQUEADO hasta que `plan25` mergee a `main` |
 | 30 | `plan30-achievements-credits-icon` | Logros de Steam (API GodotSteam confirmada), pantalla de créditos, icono/splash (SVG a mano, sin arte real) | `feature/achievements-credits-icon` | 🔓 **DESBLOQUEADO, sin dependencia dura** — conflictos textuales esperados con 26/29 en `casino_floor.gd`/`lobby_menu.tscn`, los resuelve pilar al mergear |
 
@@ -150,17 +150,24 @@ verdad). Cadena de dependencias real (no solo textual): `plan26` y
 mismo en paralelo con `plan25`.
 
 **Orden de lanzamiento recomendado:**
-1. `plan25-audio-foundation` — solo, primero (fundacional).
-   En paralelo con él, si se quiere ir más rápido: `plan27-loading-screen`
-   y `plan28-tutorial-help` (sin dependencias, sin tocar archivos de 25).
-2. Tras mergear `plan25`: `plan26-victory-defeat-screens`,
+1. ~~`plan25-audio-foundation` — solo, primero (fundacional)~~ ✅.
+   ~~En paralelo: `plan27-loading-screen` y `plan28-tutorial-help`~~ ✅ —
+   los tres terminaron, verificados por esta sesión pilar (370/370,
+   365/365, 370/370 tests en rama respectivamente) y mergeados a `main`
+   en ese orden (`c7575bd` → `6ddd0c6` → `a3949e5`). Auto-merge limpio en
+   ambos puntos de solape esperados (`lobby_menu.gd` entre 25/27,
+   `dice_table_net.gd` entre 25/28) — sin conflictos textuales de
+   verdad, git los resolvió solo. 387/387 tests tras el merge completo
+   en `main`, caché de clases reconstruida, único descarte fue el
+   reformateo espacios/tabs de siempre en `casino_floor.gd` (gotcha ya
+   conocido). Worktrees de los 3 borrados (`git worktree remove --force`
+   — solo contenían caché `.import` sin trackear, nada de trabajo real).
+2. **Ahora desbloqueado**: `plan26-victory-defeat-screens`,
    `plan29-settings-pause-menu`, `plan30-achievements-credits-icon` en
-   paralelo (más `plan27`/`plan28` si no se lanzaron ya en el paso 1).
-3. Conflictos textuales esperados al mergear (mismo patrón que siempre,
-   los resuelve pilar): `plan26`/`plan29`/`plan30` pueden tocar
-   `casino_floor.gd`/`lobby_menu.tscn` a la vez; `plan28` toca las 7
-   escenas de mesa (riesgo de conflicto si algún otro agente también las
-   toca, ninguno de 25/26/27/29/30 las toca hoy).
+   paralelo — `plan25` ya está en `main`, su `AudioManager` es real.
+3. Conflictos textuales esperados al mergear estos tres (mismo patrón de
+   siempre, los resuelve pilar): pueden tocar `casino_floor.gd`/
+   `lobby_menu.tscn` a la vez entre sí.
 
 Los cuatro (#4-#7) terminaron en paralelo. **Nota para la próxima sesión
 pilar**: el Agente 7 no siguió su rama (`feature/free-mode`) — commiteó 8
