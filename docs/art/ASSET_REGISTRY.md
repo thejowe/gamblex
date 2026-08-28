@@ -199,14 +199,21 @@ dibujarlo mejor"). La referencia `crash-acebet-reference.png` tampoco
 usa una, solo un punto en la punta de la línea — que es exactamente lo
 que el código ya dibuja (`draw_circle`).
 
-## Mines (4) — Master: MINES_CELL_MASTER
+## Mines (4) — FASE 12 completa (2026-08-28)
 
 | ID | Tamaño | Status |
 |---|---|---|
-| mines_cell_hidden | 32×32 | PLANNED |
-| mines_cell_safe | 32×32 | PLANNED |
-| mines_cell_mine | 32×32 | PLANNED |
-| mines_cell_mine_dim | 32×32 | PLANNED |
+| mines_cell_hidden | 48×48 | APPROVED |
+| mines_cell_safe | 48×48 | APPROVED |
+| mines_cell_mine | 48×48 | APPROVED |
+| mines_cell_mine_dim | 48×48 | APPROVED |
+
+`MINES_CELL_MASTER`: sin PNG standalone, base compartida por código
+(`base_cell()`) — mismo patrón que Ruleta/Dice. Colores y geometría
+calcados de `mines_cell.gd` (`PANEL_NAVY_MID`/`LIGHT`, diamante
+`ACCENT_GREEN`, círculo `ACCENT_RED`), con un añadido propio de dirección
+de arte: la mina es una bomba con mecha/chispa dorada en vez de un
+círculo liso. 0 generaciones PixelLab.
 
 ## Plinko (3)
 
