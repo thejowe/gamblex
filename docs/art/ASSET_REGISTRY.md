@@ -16,16 +16,21 @@ se ha generado todavía.
 
 | ID | Categoría | Tamaño | Status | Deriva |
 |---|---|---|---|---|
-| CARD_MASTER | Cartas | 64×96 | REVIEW | 52 cartas |
-| CARD_BACK_MASTER | Cartas | 64×96 | REVIEW | card_back |
-| CHIP_MASTER | Fichas | 32×32 | REVIEW | 6 fichas |
-| BUTTON_MASTER | UI | 96×32 | REVIEW | 12 botones |
-| PANEL_MASTER | UI (fieltro) | 256×144 | REVIEW | bet_sidebar_bg, panel_border |
+| CARD_MASTER | Cartas | 64×96 | APPROVED | 52 cartas |
+| CARD_BACK_MASTER | Cartas | 64×96 | APPROVED | card_back |
+| CHIP_MASTER | Fichas | 32×32 | APPROVED | 6 fichas |
+| BUTTON_MASTER | UI | 96×32 | APPROVED | 12 botones |
+| PANEL_MASTER | UI (fieltro) | 256×144 | APPROVED | bet_sidebar_bg, panel_border |
 | MINES_CELL_MASTER | Mines | 32×32 | PLANNED | 4 casillas |
 | ROULETTE_CELL_MASTER | Ruleta | 32×32 | PLANNED | 3 celdas |
 | LOBBY_CARD_MASTER | Lobby | 192×256 | PLANNED | 7 tarjetas |
-| ICON_MASTER | HUD | 32×32 | REVIEW | 5 iconos |
-| BACKGROUND_MASTER | Fondos | 225×270 | PLANNED (pendiente confirmar con usuario) | 8 fondos |
+| ICON_MASTER | HUD | 32×32 | APPROVED | 5 iconos |
+| BACKGROUND_MASTER | Fondos | 225×270 | CONFIRMADO — aplica a los 8 fondos, mismo marco/vignette, motivo central cambia | 8 fondos |
+
+Decisión (usuario, 2026-08-28): los 7 masters de FASE 2 quedan
+`APPROVED` tal cual (pip de trébol decorativo en CARD_MASTER y iconos
+de palo en `felt_table_bg` aceptados). `BACKGROUND_MASTER` confirmado
+como master compartido — se genera al llegar a FASE 15/16/17.
 
 ## Detalle de generación — FASE 2 (7 masters, PixelLab MCP `create_image_pixflux`)
 
