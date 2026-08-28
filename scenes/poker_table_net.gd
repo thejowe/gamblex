@@ -43,11 +43,6 @@ func _display_name(peer_id: int) -> String:
 	var persona_name := Steam.getFriendPersonaName(steam_id)
 	return persona_name if not persona_name.is_empty() else "jugador %d" % peer_id
 
-func _card_name(card: Dictionary) -> String:
-	var ranks := ["", "As", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-	var suits := ["Corazones", "Diamantes", "Treboles", "Picas"]
-	return "%s de %s" % [ranks[card["rank"]], suits[card["suit"]]]
-
 func _ready() -> void:
 	for i in range(SEAT_COUNT):
 		var container: Control = seats_root.get_node("Seat%d" % i)
