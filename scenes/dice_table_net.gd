@@ -1,5 +1,7 @@
 extends Control
 
+const RULES_TEXT := "Dice: elige un umbral y si el resultado (0-100) sera mayor o menor que ese umbral. Cuanto mas dificil el umbral que elijas, menor la probabilidad de acertar y mayor el multiplicador — la formula es 99 / probabilidad%, con el margen de la casa ya descontado. Aciertas: ganas tu apuesta multiplicada por ese factor. Fallas: pierdes la apuesta."
+
 @onready var table_controller: DiceTableController = $TableController
 @onready var bet_sidebar: BetSidebarPanel = $BetSidebarPanel
 @onready var over_button: Button = $OverButton
@@ -9,6 +11,8 @@ extends Control
 @onready var threshold_slider: DiceThresholdSlider = $ThresholdSlider
 @onready var result_flash: ColorRect = $ResultFlash
 @onready var players_label: Label = $PlayersLabel
+@onready var help_button: CasinoButton = $HelpButton
+@onready var help_overlay: HelpOverlay = $HelpOverlay
 
 var _last_players: Dictionary = {}
 var _last_round_seen: Dictionary = {}
@@ -23,6 +27,7 @@ func _display_name(peer_id: int) -> String:
 func _ready() -> void:
 	table_controller.state_changed.connect(_on_state_changed)
 	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
+	help_button.pressed.connect(func(): help_overlay.set_rules_text(RULES_TEXT); help_overlay.open())
 	threshold_slider.threshold_changed.connect(func(_value): _refresh_stats())
 	over_button.pressed.connect(func(): _apply_direction(DiceTableState.Direction.OVER))
 	under_button.pressed.connect(func(): _apply_direction(DiceTableState.Direction.UNDER))
