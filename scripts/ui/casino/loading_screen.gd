@@ -1,12 +1,11 @@
 class_name LoadingScreen
 extends Control
 
-@onready var background: ColorRect = $Background
+@onready var background: TextureRect = $Background
 @onready var indicator: Control = $Indicator
 
 func _ready() -> void:
 	modulate.a = 0.0
-	background.color = CasinoTheme.PANEL_NAVY_DARK
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
 func start_fade_in(fade_sec: float = 0.4) -> Tween:

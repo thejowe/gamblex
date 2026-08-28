@@ -1,9 +1,30 @@
 # Art Integration Plan — enganchar los 111 PNGs aprobados en escena
 
-Estado: **PLAN, no ejecutado.** Ningún script tocado todavía — el
-usuario pidió explícitamente "solo planifica" antes de escribir código.
-Este documento es lo que un agente (`CasinoArtDirector` u otro) ejecuta
-cuando se dé luz verde.
+Estado: **Oleada 1 (parcial) ejecutada y verificada** (2026-08-28,
+commit siguiente a este). Oleadas 2-4 siguen sin ejecutar.
+
+## Prerrequisito universal — DESCUBIERTO EN OLEADA 1, aplica a TODAS las oleadas
+
+Ningún PNG de `assets/pixels/` tenía `.import` generado (0/121 antes de
+Oleada 1) — `ASSET_VALIDATION.md` ya pedía comprobar "el motor lo
+detecta" pero esta sesión nunca lo había verificado de verdad, solo
+revisión visual. Referenciar un asset sin `.import` rompe en seco con
+`Parse Error: [ext_resource] referenced non-existent resource`, lo
+confirmaron los tests (`test_loading_screen.gd`, `test_lobby_menu.gd`)
+al fallar 12/429 en el primer intento.
+
+**Antes de referenciar cualquier PNG nuevo desde una `.tscn`/`.gd`,
+correr:**
+
+```
+"<ruta a Godot>_console.exe" --headless --editor --quit-after 60
+```
+
+desde la raíz del repo. Esto reimporta todo `assets/pixels/` y genera
+los `.png.import` que faltan (commitear esos `.import`, son texto
+plano y regenerables pero Godot los espera versionados — mismo patrón
+que ya tenía `docs/superpowers/specs/references/*.import`). Repetirlo
+cada vez que se generen assets nuevos, antes de intentar engancharlos.
 
 ## Hallazgo de partida
 
@@ -89,18 +110,53 @@ píxeles dibujados**, así que el riesgo real de romper tests es bajo
 ## Orden de ejecución (por riesgo, de menor a mayor)
 
 ### Oleada 1 — estático puro, sin estado dinámico que preservar
-1. `loading_screen.gd`, `settings_menu.gd`, `pause_menu.gd`,
-   `help_overlay.gd`: cambiar su `ColorRect` por un
-   `TextureRect` con `BACKGROUND_MASTER` (stretch_mode
-   `KEEP_ASPECT_COVERED`). Cambio de 1 línea por script.
-2. `credits_menu.gd` (fondo, si tiene `ColorRect` propio — confirmar al
-   ejecutar) → `credits_bg.png`.
-3. `lobby_menu.gd` → `lobby_bg.png`.
-4. `casino_floor.gd` Hud → `victory_overlay`/`defeat_overlay` ganan un
-   `TextureRect` de fondo (`victory_bg.png`/`defeat_bg.png`) detrás del
-   contenido actual, sin tocar la lógica de victoria/derrota.
 
-Riesgo: mínimo. Ningún test referencia estos nodos por contenido visual.
+**Corrección real encontrada al ejecutar:** `settings_menu.gd`,
+`pause_menu.gd` y `help_overlay.gd` NO tienen un fondo de pantalla
+completa — su nodo `Backdrop` es un `ColorRect` **semitransparente**
+(`Color(PANEL_NAVY_DARK, 0.85)`) que atenúa la mesa/escena que sigue
+viva detrás, porque son overlays modales sobre gameplay en curso, no
+pantallas propias. Sustituirlo por `BACKGROUND_MASTER` opaco taparía la
+partida en marcha — **se sacan de esta oleada**, quedan fuera de plan
+hasta que se decida un tratamiento distinto (¿imagen con alfa parcial
+sobre el `Dim` actual? ¿dejarlo tal cual?). No están en `ASSETS.md`
+como pantallas propias tampoco — revisar si de verdad hace falta un
+asset ahí.
+
+Ejecutado (2026-08-28):
+1. ~~`settings_menu.gd`/`pause_menu.gd`/`help_overlay.gd`~~ — **fuera de
+   oleada**, ver corrección arriba.
+2. `loading_screen.gd` + `.tscn`: `Background` `ColorRect` → `TextureRect`
+   con `loading_bg.png` (`stretch_mode=6` KEEP_ASPECT_COVERED,
+   `texture_filter=1` NEAREST). Se quitó `background.color = ...` del
+   script (ya no aplica a `TextureRect`).
+3. `credits_menu.tscn`: mismo cambio, `credits_bg.png`. El script no
+   referenciaba `Background`, cero cambios en `.gd`.
+4. `lobby_menu.tscn`: no tenía nodo de fondo — se añadió `Background`
+   `TextureRect` nuevo como primer hijo, `lobby_bg.png`, mismo
+   stretch/filter. Cero cambios en `.gd` (nadie lo referenciaba).
+5. `casino_floor.gd`/`victory_overlay`/`defeat_overlay`: **no
+   ejecutado** — su `Dim` también es un `ColorRect` translúcido
+   (alfa 0.6) sobre la mesa en vivo, y el `Panel` central usa
+   `StyleBoxFlat` con `corner_radius` (border rojo/dorado) que
+   `StyleBoxTexture` no reproduce igual — mismo problema que la
+   Oleada 3 (`felt_table_panel.gd`). Movido a una oleada aparte con
+   diseño explícito, ver sección nueva más abajo.
+
+Verificado: `godot --headless -s addons/gut/gut_cmdln.gd
+-gdir=res://tests/unit -gexit` → **429/429 tests pasan** (tras generar
+los `.import` que faltaban, ver prerrequisito arriba). Efecto
+secundario detectado y revertido: abrir el editor headless reindentó
+`scripts/net/casino_floor.gd` (4 espacios → tabs) solo por tenerlo
+abierto — sin relación con este trabajo, se revirtió con `git checkout
+-- scripts/net/casino_floor.gd` antes de commitear. **Si otra sesión
+repite el paso de reimport, revisar `git diff` completo antes de
+commitear por si el editor reformatea algún script que tuviera abierto
+de una sesión anterior.**
+
+Riesgo real observado: mínimo en los 3 componentes ejecutados. El resto
+de la oleada original resultó tener más matices de lo esperado — ya
+corregido arriba antes de tocar código.
 
 ### Oleada 2 — componentes con estado simple (enum → textura)
 5. `casino_button.gd`: sustituir `_style()` (StyleBoxFlat) por
@@ -142,6 +198,25 @@ el método de dibujo.
 10. `bet_sidebar_panel.gd`: mismo patrón que 9 pero más simple
     (`bet_sidebar_bg.png` ya se generó a 96×144 pensado como 9-slice) —
     usar `NinePatchRect` en vez de `TextureRect` para que escale bien.
+
+### Oleada nueva — Victoria/Derrota (`victory_bg`/`defeat_bg`), pendiente de diseño
+
+`Hud/DefeatOverlay` y `Hud/VictoryOverlay` en `casino_floor.tscn` tienen
+`Dim` (`ColorRect` translúcido sobre la mesa) + `Panel` centrado
+(`StyleBoxFlat` con `corner_radius` y borde de color, rojo/dorado). Los
+220×264 generados en FASE 15-16 no encajan directamente en ninguno de
+los dos:
+- Sobre `Dim` (pantalla completa): lo mismo que Ajustes/Pausa/Ayuda,
+  taparía la mesa detrás.
+- Como fondo de `Panel`: `StyleBoxTexture` no tiene `corner_radius`
+  nativo (usa 9-slice + `texture_margin_*`), así que meter la imagen ahí
+  significa rehacer el estilo del panel, no solo asignar una textura —
+  trabajo de diseño real, no un cambio mecánico.
+
+No ejecutar sin decidir el tratamiento (opción más simple: usar
+`victory_bg`/`defeat_bg` recortado como fondo del `Panel` vía
+`NinePatchRect` propio detrás del `StyleBoxFlat` actual en vez de
+sustituirlo, conservando el borde de color).
 
 ### Oleada 4 — decorativo sobre lógica dinámica (opcional, bajo impacto)
 11. `crash_graph.gd`: cambiar el `draw_circle` de la punta por
