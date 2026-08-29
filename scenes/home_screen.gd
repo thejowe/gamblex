@@ -22,6 +22,8 @@ func _ready() -> void:
 	settings_button.pressed.connect(func(): settings_menu.visible = true)
 	help_button.pressed.connect(func(): help_overlay.set_rules_text(HELP_TEXT); help_overlay.open())
 	credits_button.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/ui/casino/credits_menu.tscn"))
+	quit_button.pressed.connect(quit_confirm.popup_centered)
+	quit_confirm.confirmed.connect(func(): get_tree().quit())
 
 func _on_start_pressed() -> void:
 	var loading: LoadingScreen = preload("res://scenes/ui/casino/loading_screen.tscn").instantiate()

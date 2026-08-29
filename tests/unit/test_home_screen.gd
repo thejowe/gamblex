@@ -32,3 +32,8 @@ func test_help_button_opens_help_overlay() -> void:
 	var home := _make()
 	home.help_button.pressed.emit()
 	assert_true(home.help_overlay.visible)
+
+func test_quit_button_triggers_confirm_dialog() -> void:
+	var home := _make()
+	assert_false(home.quit_confirm.visible)
+	assert_true(home.quit_button.pressed.is_connected(home.quit_confirm.popup_centered))
