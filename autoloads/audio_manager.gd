@@ -12,6 +12,8 @@ const SFX_FREQUENCIES := {
 const SFX_DURATION := {
 	"win": 0.5, "lose": 0.6,
 }
+const JACKPOT_NOTES := [523.0, 659.0, 784.0, 1047.0] # C5-E5-G5-C6, arpegio ascendente
+const JACKPOT_NOTE_DURATION := 0.14
 
 var _sfx_pool: Array[AudioStreamPlayer] = []
 var _sfx_pool_next := 0
@@ -95,6 +97,9 @@ func _build_sfx_pool() -> void:
 		_sfx_pool.append(player)
 
 func play_sfx(sfx_name: String) -> void:
+	if sfx_name == "jackpot":
+		_play_jackpot()
+		return
 	if not SFX_FREQUENCIES.has(sfx_name):
 		push_warning("AudioManager: SFX desconocido '%s'" % sfx_name)
 		return
@@ -105,6 +110,31 @@ func play_sfx(sfx_name: String) -> void:
 	if playback == null:
 		return
 	_fill_tone(playback, SFX_FREQUENCIES[sfx_name], SFX_DURATION.get(sfx_name, 0.15), SFX_MIX_RATE)
+
+# Un premio grande merece más que el mismo "win" plano de cualquier ronda —
+# un arpegio ascendente corto es el atajo universal para "esto es especial"
+# en cualquier juego de casino/slots.
+func _play_jackpot() -> void:
+	var player := _sfx_pool[_sfx_pool_next]
+	_sfx_pool_next = (_sfx_pool_next + 1) % _sfx_pool.size()
+	player.play()
+	var playback: AudioStreamGeneratorPlayback = player.get_stream_playback()
+	if playback == null:
+		return
+	for freq in JACKPOT_NOTES:
+		_fill_tone(playback, freq, JACKPOT_NOTE_DURATION, SFX_MIX_RATE)
+
+# Punto de entrada compartido para que cualquier mesa reproduzca win/lose sin
+# reinventar su propio umbral de "premio grande" — un payout de 5x la
+# apuesta o más suena a jackpot en vez del tono de victoria normal.
+func play_win_sfx(win: bool, payout: int = 0, bet: int = 0) -> void:
+	if not win:
+		play_sfx("lose")
+		return
+	if bet > 0 and payout >= bet * 5:
+		play_sfx("jackpot")
+	else:
+		play_sfx("win")
 
 func _fill_tone(playback: AudioStreamGeneratorPlayback, freq: float, duration: float, mix_rate: float) -> void:
 	var total_frames := int(mix_rate * duration)

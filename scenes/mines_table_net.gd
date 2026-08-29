@@ -116,7 +116,7 @@ func _maybe_flash_result(my_id: int, last_round: Dictionary) -> void:
 	if _last_round_seen.get(my_id, {}) == last_round:
 		return
 	_last_round_seen[my_id] = last_round
-	AudioManager.play_sfx("win" if last_round["win"] else "lose")
+	AudioManager.play_win_sfx(last_round["win"], last_round.get("payout", 0), last_round.get("amount", 0))
 	var flash_color: Color = CasinoTheme.ACCENT_GREEN if last_round["win"] else CasinoTheme.ACCENT_RED
 	var tween := create_tween()
 	result_flash.color = Color(flash_color.r, flash_color.g, flash_color.b, 0.3)

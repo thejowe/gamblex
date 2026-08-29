@@ -43,6 +43,22 @@ func test_play_sfx_unknown_name_warns_no_crash() -> void:
 	AudioManager.play_sfx("nombre_inventado")
 	pass_test("no crashea con nombre desconocido")
 
+func test_play_sfx_jackpot_no_error() -> void:
+	AudioManager.play_sfx("jackpot")
+	pass_test("no crashea con el arpegio de jackpot")
+
+func test_play_win_sfx_lose_ignores_amounts() -> void:
+	AudioManager.play_win_sfx(false, 500, 100)
+	pass_test("no crashea al perder con payout alto")
+
+func test_play_win_sfx_small_win_no_error() -> void:
+	AudioManager.play_win_sfx(true, 20, 10)
+	pass_test("no crashea con una victoria normal")
+
+func test_play_win_sfx_big_payout_no_error() -> void:
+	AudioManager.play_win_sfx(true, 1000, 10)
+	pass_test("no crashea con un payout de jackpot (>=5x la apuesta)")
+
 func test_play_music_no_error() -> void:
 	AudioManager.play_music("lobby")
 	AudioManager.play_music("table")
