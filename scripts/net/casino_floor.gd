@@ -301,14 +301,19 @@ func _refresh_leading_team_crown(pool_a: int, pool_b: int) -> void:
 func _show_result_overlay(overlay: Control, title: String, message: String) -> void:
     if overlay.visible:
         return
+    overlay.modulate.a = 0.0
     overlay.visible = true
     overlay.get_node("TitleLabel").text = title
     overlay.get_node("MessageLabel").text = message
+    var fade_tween := create_tween()
+    fade_tween.tween_property(overlay, "modulate:a", 1.0, 0.25)
     AudioManager.play_sfx("lose" if overlay == defeat_overlay else "win")
     if overlay == victory_overlay:
         _play_victory_pulse(overlay.get_node("Panel"))
         _play_victory_confetti(overlay.get_node("Confetti"))
         _play_hud_shake()
+    else:
+        _play_defeat_pulse(overlay.get_node("Panel"))
 
 func _reason_label(reason: String, i_won: bool) -> String:
     match reason:
@@ -320,6 +325,15 @@ func _play_victory_pulse(panel: Control) -> void:
     var tween := create_tween().set_loops(3)
     tween.tween_property(panel, "modulate", CasinoTheme.GOLD_ACCENT, 0.3)
     tween.tween_property(panel, "modulate", Color.WHITE, 0.3)
+
+# Antes DefeatOverlay no tenía absolutamente ninguna animación: aparecía de
+# golpe con visible=true y ya — ni siquiera el fade-in que ahora comparten
+# ambos overlays. Un solo pulso rojo apagado (no en loop como el de
+# victoria, perder no se celebra) marca el momento sin sobreactuarlo.
+func _play_defeat_pulse(panel: Control) -> void:
+    var tween := create_tween()
+    tween.tween_property(panel, "modulate", CasinoTheme.ACCENT_RED, 0.25)
+    tween.tween_property(panel, "modulate", Color.WHITE, 0.4)
 
 func _play_victory_confetti(confetti: CPUParticles2D) -> void:
     confetti.position = confetti.get_parent().size / 2.0
