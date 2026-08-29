@@ -78,18 +78,50 @@ commit `37ec7a1`, pusheado:
   segundos por `_draw()`) — reutilizable si otra mesa necesita una
   ronda temporizada más adelante.
 
-**Verificación visual en editor: no confirmada esta sesión**, mismo
-motivo que el cierre anterior (automatización de clic de Windows no
-responde en la ventana de Godot, sospecha de desajuste de escalado
-DPI, sin investigar todavía). El ajuste de tamaño de la grilla nueva sí
-se verificó por código: se recuperó el mismo test de "cabe en la caja
-asignada" que existía antes del bug de Plan 22, adaptado al layout
-nuevo (`test_grid_fits_within_roulette_table_net_assigned_box`), y
-pasa con margen (702×116 de contenido en una caja de 860×230).
+**Verificación visual en vivo: confirmada (2026-08-28, mismo día,
+sesión seguida).** El usuario pidió explícitamente abrir la app y
+comprobarlo. Lanzada `scenes/roulette_table_net.tscn` directo (`godot
+--path . scenes/roulette_table_net.tscn`, sin pasar por Lobby/Steam —
+truco útil: correr una escena de mesa suelta evita el bloqueador de
+siempre de necesitar 2 cuentas Steam para llegar a `CasinoFloor`).
+Capturas de pantalla reales (`CopyFromScreen` sobre el rect de la
+ventana) confirmaron:
+- Mesa clásica completa y legible: 0 verde abarcando 3 filas, números
+  en orden de columna correcto, columnas "2 a 1", docenas, fila
+  1-18/Par/Rojo/Negro/Impar/19-36 — sin overflow, coincide con la
+  referencia del usuario.
+- Colores rojo/negro correctos por número (verificado con zoom pixel
+  a pixel contra `RED_NUMBERS`).
+- Interactividad real: `Sentarse` sienta al jugador, clic en un número
+  apuesta al instante y descuenta fichas, `RoundTimerBadge` cuenta
+  atrás en vivo.
+- **Fase RESULT capturada en el acto**: label cambia a "Girando la
+  ruleta...", anillo del timer se pone dorado y cuenta los 5s de
+  `RESULT_DURATION_SEC`, **todos** los controles de apuesta (grid +
+  botón "Hacer apuesta") aparecen deshabilitados/atenuados, la bola
+  sigue animándose en la rueda.
+- El sistema encadenó **varias rondas solo, sin ninguna acción manual
+  de "girar"** durante la sesión de prueba (historial llegó a 8
+  resultados, su máximo) — confirma en vivo el objetivo del usuario de
+  que la mesa avance sola por temporizador para que varios jugadores
+  aporten apuestas a la vez.
 
-Pendiente real: que el usuario confirme visualmente la mesa en juego,
-y si algún día se investiga el gotcha de DPI de la automatización de
-clic, dejarlo documentado en memoria para no repetir la investigación.
+**Gotcha de automatización nuevo, resuelto esta vez:**
+`CopyFromScreen` captura lo que esté físicamente en pantalla en esas
+coordenadas, no el contenido de la ventana objetivo — si otra ventana
+(p.ej. VS Code) queda por encima en foco entre un clic y la siguiente
+captura, la screenshot sale de la ventana equivocada aunque el
+`hWnd` siga siendo válido y el proceso siga vivo. Antes de cada
+captura hay que `SetForegroundWindow` de nuevo, no asumir que el foco
+se mantiene entre llamadas de PowerShell separadas (cada una es un
+proceso nuevo). El problema de clics que no registraban en el editor
+(sesión de Lobby) sigue sin explicación — pero en la ventana del JUEGO
+(no el editor) los clics con `SetCursorPos`+`mouse_event` funcionan
+bien, como ya constaba en sesiones de verificación en vivo anteriores.
+
+Test de tamaño (`test_grid_fits_within_roulette_table_net_assigned_box`)
+también se corrió: pasa con margen (702×116 de contenido en una caja
+de 860×230), consistente con lo visto en pantalla.
 
 ## Cierre de sesión (2026-08-28, sesión pilar — integración de arte, Lobby)
 
