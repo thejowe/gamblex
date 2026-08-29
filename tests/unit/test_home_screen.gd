@@ -22,3 +22,13 @@ func test_covers_full_screen() -> void:
 func test_start_button_text() -> void:
 	var home := _make()
 	assert_eq(home.start_button.text, "Iniciar Partida")
+
+func test_settings_button_opens_settings_menu() -> void:
+	var home := _make()
+	home.settings_button.pressed.emit()
+	assert_true(home.settings_menu.visible)
+
+func test_help_button_opens_help_overlay() -> void:
+	var home := _make()
+	home.help_button.pressed.emit()
+	assert_true(home.help_overlay.visible)
