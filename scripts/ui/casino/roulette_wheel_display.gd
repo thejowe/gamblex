@@ -24,6 +24,7 @@ const BALL_TEXTURE_PATH := "res://assets/pixels/roulette/roulette_ball/roulette_
 func _init() -> void:
 	custom_minimum_size = Vector2(RADIUS * 2, RADIUS * 2)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	resized.connect(queue_redraw)
 
 func _draw() -> void:
 	var center := size / 2.0

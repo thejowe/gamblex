@@ -28,6 +28,7 @@ var _bounce_glow: float = 0.0
 func _init() -> void:
 	custom_minimum_size = Vector2(0, 360)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	resized.connect(queue_redraw)
 
 static func slot_from_bounces(bounces: Array) -> int:
 	var slot := 0

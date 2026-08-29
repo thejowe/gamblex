@@ -30,6 +30,7 @@ var _handle_scale: float = 1.0
 func _init() -> void:
 	custom_minimum_size = Vector2(0, 40)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	resized.connect(queue_redraw)
 
 func set_threshold_from_x(local_x: float) -> void:
 	var ratio: float = clampf(local_x / size.x, 0.0, 1.0)

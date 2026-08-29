@@ -41,6 +41,7 @@ const X_TICK_STEP_SEC := 2.0
 
 func _init() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	resized.connect(queue_redraw)
 
 func _draw_rocket(tip: Vector2) -> void:
 	var body_tex := load(ROCKET_IDLE_PATH if state == State.IDLE else ROCKET_LAUNCH_PATH)
