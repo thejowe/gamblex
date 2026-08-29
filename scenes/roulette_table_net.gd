@@ -124,10 +124,15 @@ func _push_history(result: int) -> void:
 		_history.resize(MAX_HISTORY)
 	for child in results_history.get_children():
 		child.free()
-	for n in _history:
+	for i in range(_history.size()):
 		var badge: RouletteResultBadge = RouletteResultBadgeScene.instantiate()
 		results_history.add_child(badge)
-		badge.number = n
+		badge.number = _history[i]
+		if i == 0:
+			badge.pivot_offset = badge.size / 2.0
+			badge.scale = Vector2.ZERO
+			var tween := create_tween()
+			tween.tween_property(badge, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _refresh_seats_label() -> void:
 	var lines: Array[String] = []
