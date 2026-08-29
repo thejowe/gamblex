@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/net/casino_floor.gd" id="2"]
@@ -20,6 +20,7 @@
 [ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_plinko/card_plinko.png" id="18"]
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/defeat_bg/defeat_bg.png" id="19"]
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/victory_bg/victory_bg.png" id="20"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/dark_casino_background.tscn" id="21"]
 
 [sub_resource type="StyleBoxFlat" id="DefeatPanelStyle"]
 bg_color = Color(0.0745098, 0.105882, 0.14902, 0)
@@ -52,6 +53,8 @@ script = ExtResource("2")
 script = ExtResource("5")
 
 [node name="TablesLayer" type="CanvasLayer" parent="."]
+
+[node name="DarkCasinoBackground" parent="TablesLayer" instance=ExtResource("21")]
 
 [node name="BlackjackTableNet" parent="TablesLayer" instance=ExtResource("1")]
 visible = false
@@ -173,6 +176,12 @@ stretch_mode = 5
 script = ExtResource("11")
 
 [node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="TransitionFade" type="ColorRect" parent="Hud"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.0745, 0.1059, 0.149, 0)
 
 [node name="GoalLabel" type="Label" parent="Hud"]
 anchor_top = 1.0

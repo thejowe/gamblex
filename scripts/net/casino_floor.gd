@@ -17,6 +17,7 @@ const TABLE_NODE_NAMES := [
 ]
 
 @onready var hud: CanvasLayer = $Hud
+@onready var transition_fade: ColorRect = $Hud/TransitionFade
 @onready var goal_label: Label = $Hud/GoalLabel
 @onready var unlocked_banner: Label = $Hud/UnlockedBanner
 @onready var defeat_overlay: Control = $Hud/DefeatOverlay
@@ -118,11 +119,23 @@ func _on_card_pressed(card_name: String) -> void:
     _lobby.select(table_name)
     _refresh_room_visibility()
     AudioManager.play_music("table")
+    _flash_transition_fade()
 
 func _on_back_pressed() -> void:
     _lobby.return_to_lobby()
     _refresh_room_visibility()
     AudioManager.play_music("lobby")
+    _flash_transition_fade()
+
+# Corte instantáneo de visible=true/false entre lobby y mesa se sentía como
+# un parpadeo brusco — un flash corto a navy (color del propio fondo oscuro,
+# no negro) disimula el cambio de contenido igual que hacen los juegos indie
+# de pixel art al cambiar de escena. No bloquea el cambio de contenido (que
+# ya ocurrió antes de llamar aquí): es puramente cosmético sobre lo nuevo.
+func _flash_transition_fade() -> void:
+    transition_fade.color.a = 1.0
+    var tween := create_tween()
+    tween.tween_property(transition_fade, "color:a", 0.0, 0.18)
 
 func _on_exit_room_pressed() -> void:
     _leave_room("")
