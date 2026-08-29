@@ -73,6 +73,24 @@ confirmadas leyendo el repo — `CasinoButton`/`SettingsMenu`/
 `CreditsMenu`/`HelpOverlay`/`LoadingScreen`) ya escrito por esta sesión
 pilar: `docs/superpowers/plans/2026-08-29-home-screen.md`.
 
+**Cierre (2026-08-29):** agente ejecutado en worktree
+`feature/home-screen`, 8 commits (7 tareas + 1 fix extra: quitó
+`_apply_saved_display_settings()` duplicado de `LobbyMenu`, que
+reseteaba fullscreen/ventana cada vez que se navegaba Home→sala, ahora
+solo vive en `HomeScreen`). Verificado por pilar: 449/449 tests tras
+reconstruir caché de clases, sin corrupción de `.gd`. Mergeado a `main`
+sin conflictos (`4180176`), worktree y rama borrados.
+
+**Gotcha nuevo del plan (no del agente):** el plan pedía
+`CasinoTheme.style_confirmation_dialog(quit_confirm)` para el diálogo
+de Salir — ese método **no existe en `main`**, solo en la rama sin
+mergear `origin/claude/game-visual-animations-74dwp8` (error de esta
+sesión pilar al escribir el plan: inspeccionó un commit de esa rama sin
+darse cuenta de que no estaba en `main`). El agente correctamente no lo
+llamó — el diálogo funciona con estilo nativo de Godot en vez del tema
+del casino, cosmético, no bloqueante. Si esa rama de animaciones se
+mergea más adelante, revisar si conviene enganchar el estilo ahí.
+
 ---
 
 ## Cierre de sesión (2026-08-28, sesión pilar — las 5 decisiones pendientes de ART_INTEGRATION_PLAN.md)
