@@ -91,6 +91,7 @@ func _on_state_changed(state: Dictionary) -> void:
 		wheel.spin_to(new_result)
 		wheel.spin_finished.connect(func():
 			_push_history(new_result)
+			betting_grid.flash_winning_number(new_result)
 		, CONNECT_ONE_SHOT)
 
 func _set_betting_enabled(enabled: bool) -> void:

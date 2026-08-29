@@ -19,6 +19,7 @@ var _zero_button: Button
 var _column_bets_box: VBoxContainer
 var _dozens_row: HBoxContainer
 var _outside_row: HBoxContainer
+var _number_buttons: Dictionary = {}
 
 func _ready() -> void:
 	add_theme_constant_override("separation", 4)
@@ -33,6 +34,7 @@ func _ready() -> void:
 	main_row.add_child(_zero_button)
 	_style_cell_texture(_zero_button, CELL_TEXTURE_GREEN)
 	_zero_button.pressed.connect(_on_number_pressed.bind(_zero_button, 0))
+	_number_buttons[0] = _zero_button
 
 	_number_grid = GridContainer.new()
 	_number_grid.columns = 12
@@ -48,6 +50,7 @@ func _ready() -> void:
 			_number_grid.add_child(button)
 			_style_number_button(button, number)
 			button.pressed.connect(_on_number_pressed.bind(button, number))
+			_number_buttons[number] = button
 
 	_column_bets_box = VBoxContainer.new()
 	_column_bets_box.add_theme_constant_override("separation", 2)
@@ -131,3 +134,14 @@ func _select(button: Control) -> void:
 		_selected_button.modulate = Color.WHITE
 	_selected_button = button
 	button.modulate = Color(1.3, 1.3, 0.7)
+
+# Sin esto la celda del número que sale nunca reacciona: el jugador solo se
+# entera del resultado mirando la rueda o el historial, no la propia rejilla
+# de apuestas donde tiene la vista puesta mientras espera.
+func flash_winning_number(number: int) -> void:
+	if not _number_buttons.has(number):
+		return
+	var button: Control = _number_buttons[number]
+	var tween := create_tween().set_loops(2)
+	tween.tween_property(button, "modulate", CasinoTheme.GOLD_ACCENT, 0.2)
+	tween.tween_property(button, "modulate", Color.WHITE, 0.2)
