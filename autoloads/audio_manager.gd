@@ -19,15 +19,33 @@ var _sfx_pool: Array[AudioStreamPlayer] = []
 var _sfx_pool_next := 0
 
 const MUSIC_MIX_RATE := 44100.0
-const MUSIC_NOTE_DURATION := 0.35
+const MUSIC_NOTE_DURATION := 0.5 # negra a ~120bpm, tempo de lounge jazz
+# Cada pista es un bajo caminante (grave, ii-V-I-vi) + una melodía por
+# encima, en vez de las 4 notas sueltas repetidas de antes — el bajo
+# moviéndose por acordes reales es lo que hace que algo "suene a jazz" en
+# vez de a jingle de móvil.
 const MUSIC_PATTERNS := {
-	"lobby": [261.63, 329.63, 392.00, 329.63],
-	"table": [220.00, 277.18, 329.63, 277.18],
+	"lobby": {
+		# Dm7 - G7 - Cmaj7 - Am7 en Do mayor, un compás por acorde
+		"bass": [73.42, 87.31, 110.00, 130.81, 98.00, 123.47, 146.83, 174.61,
+			65.41, 82.41, 98.00, 123.47, 110.00, 130.81, 164.81, 196.00],
+		"melody": [220.00, 174.61, 146.83, 174.61, 196.00, 246.94, 220.00, 196.00,
+			164.81, 196.00, 130.81, 164.81, 220.00, 174.61, 130.81, 110.00],
+	},
+	"table": {
+		# Mismo tipo de progresión, un poco más arriba y con más movimiento —
+		# la mesa se siente más animada que el lobby.
+		"bass": [65.41, 82.41, 98.00, 110.00, 87.31, 110.00, 130.81, 164.81,
+			73.42, 92.50, 110.00, 138.59, 98.00, 123.47, 146.83, 174.61],
+		"melody": [261.63, 293.66, 329.63, 349.23, 293.66, 349.23, 392.00, 440.00,
+			220.00, 261.63, 293.66, 329.63, 246.94, 293.66, 329.63, 369.99],
+	},
 }
 
 var _music_players: Array[AudioStreamPlayer] = []
 var _music_track_names: Array[String] = ["", ""]
-var _music_phases: Array[float] = [0.0, 0.0]
+var _music_bass_phases: Array[float] = [0.0, 0.0]
+var _music_melody_phases: Array[float] = [0.0, 0.0]
 var _music_sample_counts: Array[int] = [0, 0]
 var _current_music_player: AudioStreamPlayer = null
 var _current_track_name := ""
@@ -161,17 +179,33 @@ func _build_music_players() -> void:
 		add_child(player)
 		_music_players.append(player)
 
+# Un seno puro suena a pitido de juguete — sumar el 2º y 3er armónico a
+# volumen bajo redondea el timbre hacia algo más parecido a un piano
+# eléctrico/contrabajo, sin necesitar una muestra de audio real.
+func _jazz_wave(phase: float) -> float:
+	var fundamental := sin(phase * TAU)
+	var second_harmonic := sin(phase * TAU * 2.0) * 0.3
+	var third_harmonic := sin(phase * TAU * 3.0) * 0.15
+	return fundamental + second_harmonic + third_harmonic
+
 func _fill_music_buffer(playback: AudioStreamGeneratorPlayback, slot: int) -> void:
-	var pattern: Array = MUSIC_PATTERNS[_music_track_names[slot]]
-	var notes_per_pattern := pattern.size()
+	var track: Dictionary = MUSIC_PATTERNS[_music_track_names[slot]]
+	var bass_pattern: Array = track["bass"]
+	var melody_pattern: Array = track["melody"]
+	var notes_per_pattern := bass_pattern.size()
 	var frames_per_note := int(MUSIC_MIX_RATE * MUSIC_NOTE_DURATION)
 	while playback.get_frames_available() > 0:
 		var note_idx := (_music_sample_counts[slot] / frames_per_note) % notes_per_pattern
-		var freq: float = pattern[note_idx]
-		var increment := freq / MUSIC_MIX_RATE
-		var sample := sin(_music_phases[slot] * TAU) * 0.15
+		var bass_freq: float = bass_pattern[note_idx]
+		var melody_freq: float = melody_pattern[note_idx]
+		var bass_increment := bass_freq / MUSIC_MIX_RATE
+		var melody_increment := melody_freq / MUSIC_MIX_RATE
+		var bass_sample := _jazz_wave(_music_bass_phases[slot]) * 0.13
+		var melody_sample := _jazz_wave(_music_melody_phases[slot]) * 0.07
+		var sample := bass_sample + melody_sample
 		playback.push_frame(Vector2(sample, sample))
-		_music_phases[slot] = fmod(_music_phases[slot] + increment, 1.0)
+		_music_bass_phases[slot] = fmod(_music_bass_phases[slot] + bass_increment, 1.0)
+		_music_melody_phases[slot] = fmod(_music_melody_phases[slot] + melody_increment, 1.0)
 		_music_sample_counts[slot] += 1
 
 func play_music(track_name: String, fade_in_sec: float = 1.0) -> void:
@@ -186,7 +220,8 @@ func play_music(track_name: String, fade_in_sec: float = 1.0) -> void:
 	var new_player := _music_players[new_index]
 
 	_music_track_names[new_index] = track_name
-	_music_phases[new_index] = 0.0
+	_music_bass_phases[new_index] = 0.0
+	_music_melody_phases[new_index] = 0.0
 	_music_sample_counts[new_index] = 0
 	new_player.volume_db = -80.0
 	new_player.play()
