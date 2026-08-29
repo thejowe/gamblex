@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/net/casino_floor.gd" id="2"]
@@ -10,30 +10,14 @@
 [ext_resource type="PackedScene" path="res://scenes/mines_table_net.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/plinko_table_net.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/pause_menu.tscn" id="10"]
-
-[sub_resource type="StyleBoxFlat" id="CardNormal"]
-bg_color = Color(0.043, 0.184, 0.098, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.816, 0.663, 0.176, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="CardHover"]
-bg_color = Color(0.098, 0.298, 0.153, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.816, 0.663, 0.176, 1)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
+[ext_resource type="Script" path="res://scripts/ui/casino/lobby_game_card.gd" id="11"]
+[ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_blackjack/card_blackjack.png" id="12"]
+[ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_roulette/card_roulette.png" id="13"]
+[ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_poker/card_poker.png" id="14"]
+[ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_dice/card_dice.png" id="15"]
+[ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_crash/card_crash.png" id="16"]
+[ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_mines/card_mines.png" id="17"]
+[ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_plinko/card_plinko.png" id="18"]
 
 [sub_resource type="StyleBoxFlat" id="DefeatPanelStyle"]
 bg_color = Color(0.0745098, 0.105882, 0.14902, 1)
@@ -121,84 +105,70 @@ text = "Casino — elige tu mesa"
 layout_mode = 0
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -390.0
+offset_left = -382.0
 offset_top = 130.0
-offset_right = 390.0
-offset_bottom = 900.0
+offset_right = 382.0
+offset_bottom = 650.0
 grow_horizontal = 2
 theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 20
-columns = 2
+columns = 4
 
-[node name="BlackjackCard" type="Button" parent="TablesLayer/Lobby/CardGrid"]
-custom_minimum_size = Vector2(380, 160)
+[node name="BlackjackCard" type="TextureButton" parent="TablesLayer/Lobby/CardGrid"]
+custom_minimum_size = Vector2(176, 235)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
-theme_override_styles/normal = SubResource("CardNormal")
-theme_override_styles/hover = SubResource("CardHover")
-theme_override_styles/pressed = SubResource("CardHover")
-text = "Blackjack"
+texture_normal = ExtResource("12")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("11")
 
-[node name="RouletteCard" type="Button" parent="TablesLayer/Lobby/CardGrid"]
-custom_minimum_size = Vector2(380, 160)
+[node name="RouletteCard" type="TextureButton" parent="TablesLayer/Lobby/CardGrid"]
+custom_minimum_size = Vector2(176, 235)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
-theme_override_styles/normal = SubResource("CardNormal")
-theme_override_styles/hover = SubResource("CardHover")
-theme_override_styles/pressed = SubResource("CardHover")
-text = "Ruleta"
+texture_normal = ExtResource("13")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("11")
 
-[node name="PokerCard" type="Button" parent="TablesLayer/Lobby/CardGrid"]
-custom_minimum_size = Vector2(380, 160)
+[node name="PokerCard" type="TextureButton" parent="TablesLayer/Lobby/CardGrid"]
+custom_minimum_size = Vector2(176, 235)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
-theme_override_styles/normal = SubResource("CardNormal")
-theme_override_styles/hover = SubResource("CardHover")
-theme_override_styles/pressed = SubResource("CardHover")
-text = "Póker"
+texture_normal = ExtResource("14")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("11")
 
-[node name="DiceCard" type="Button" parent="TablesLayer/Lobby/CardGrid"]
-custom_minimum_size = Vector2(380, 160)
+[node name="DiceCard" type="TextureButton" parent="TablesLayer/Lobby/CardGrid"]
+custom_minimum_size = Vector2(176, 235)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
-theme_override_styles/normal = SubResource("CardNormal")
-theme_override_styles/hover = SubResource("CardHover")
-theme_override_styles/pressed = SubResource("CardHover")
-text = "Dice"
+texture_normal = ExtResource("15")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("11")
 
-[node name="CrashCard" type="Button" parent="TablesLayer/Lobby/CardGrid"]
-custom_minimum_size = Vector2(380, 160)
+[node name="CrashCard" type="TextureButton" parent="TablesLayer/Lobby/CardGrid"]
+custom_minimum_size = Vector2(176, 235)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
-theme_override_styles/normal = SubResource("CardNormal")
-theme_override_styles/hover = SubResource("CardHover")
-theme_override_styles/pressed = SubResource("CardHover")
-text = "Crash"
+texture_normal = ExtResource("16")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("11")
 
-[node name="MinesCard" type="Button" parent="TablesLayer/Lobby/CardGrid"]
-custom_minimum_size = Vector2(380, 160)
+[node name="MinesCard" type="TextureButton" parent="TablesLayer/Lobby/CardGrid"]
+custom_minimum_size = Vector2(176, 235)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
-theme_override_styles/normal = SubResource("CardNormal")
-theme_override_styles/hover = SubResource("CardHover")
-theme_override_styles/pressed = SubResource("CardHover")
-text = "Mines"
+texture_normal = ExtResource("17")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("11")
 
-[node name="PlinkoCard" type="Button" parent="TablesLayer/Lobby/CardGrid"]
-custom_minimum_size = Vector2(380, 160)
+[node name="PlinkoCard" type="TextureButton" parent="TablesLayer/Lobby/CardGrid"]
+custom_minimum_size = Vector2(176, 235)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-theme_override_colors/font_color = Color(0.945, 0.847, 0.541, 1)
-theme_override_styles/normal = SubResource("CardNormal")
-theme_override_styles/hover = SubResource("CardHover")
-theme_override_styles/pressed = SubResource("CardHover")
-text = "Plinko"
+texture_normal = ExtResource("18")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("11")
 
 [node name="Hud" type="CanvasLayer" parent="."]
 
