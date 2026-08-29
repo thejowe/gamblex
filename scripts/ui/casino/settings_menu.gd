@@ -36,6 +36,7 @@ func _ready() -> void:
 	for s in [master_slider, music_slider, sfx_slider]:
 		s.min_value = MIN_DB
 		s.max_value = MAX_DB
+		CasinoTheme.style_slider(s)
 	master_slider.value = AudioManager.get_bus_volume_db("Master")
 	music_slider.value = AudioManager.get_bus_volume_db("Music")
 	sfx_slider.value = AudioManager.get_bus_volume_db("SFX")

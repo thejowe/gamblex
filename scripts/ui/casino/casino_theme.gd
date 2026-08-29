@@ -55,6 +55,21 @@ static func style_line_edit(edit: LineEdit) -> void:
 	edit.add_theme_color_override("selection_color", GOLD_ACCENT)
 	edit.add_theme_color_override("caret_color", GOLD_ACCENT)
 
+static func style_slider(slider: HSlider) -> void:
+	var groove := StyleBoxFlat.new()
+	groove.bg_color = PANEL_NAVY_DARK
+	groove.set_corner_radius_all(3)
+	groove.content_margin_top = 3
+	groove.content_margin_bottom = 3
+	var filled := StyleBoxFlat.new()
+	filled.bg_color = GOLD_ACCENT
+	filled.set_corner_radius_all(3)
+	filled.content_margin_top = 3
+	filled.content_margin_bottom = 3
+	slider.add_theme_stylebox_override("slider", groove)
+	slider.add_theme_stylebox_override("grabber_area", filled)
+	slider.add_theme_stylebox_override("grabber_area_highlight", filled)
+
 static func style_option_button(button: OptionButton) -> void:
 	var box := StyleBoxFlat.new()
 	box.bg_color = PANEL_NAVY_DARK
