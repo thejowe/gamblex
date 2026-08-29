@@ -42,6 +42,55 @@ sesión pilar para evitar conflictos entre ramas.
 
 ---
 
+## Cierre de sesión (2026-08-28, sesión pilar — reskin estructural de Ruleta + ronda con timer)
+
+El usuario aportó una referencia real (mesa clásica de Evolution
+Gaming, `docs/superpowers/specs/references/roulette-classic-table-reference.png`)
+y pidió tres cosas: (1) que la tabla de apuestas tenga la estructura
+clásica de verdad, (2) que la rueda completa se vea durante la apuesta
+(ya era así, dibujo procedural siempre visible — no hacía falta
+cambiar nada ahí), (3) un temporizador de ~20s para que varios
+jugadores de la sala aporten apuestas a la vez en vez de que uno solo
+pulse "girar".
+
+Ejecutado directamente por esta sesión pilar (441/441 tests GUT),
+commit `37ec7a1`, pusheado:
+- `RouletteBettingGrid` reescrito de una fila lineal de 12 columnas a
+  la mesa real: 0 verde a la izquierda (abarca las 3 filas), números
+  1-36 en **orden de columna** (no en orden de la rueda —
+  `WHEEL_ORDER` de `roulette_wheel_display.gd` es un array distinto,
+  no se tocó), columnas "2 a 1" a la derecha, docenas debajo, fila
+  final 1-18/Par/Rojo/Negro/Impar/19-36.
+- `RouletteTableState` gana `BetType.COLUMN_1/2/3` (pagan 2 a 1) y
+  `LOW`/`HIGH` (pagan 1 a 1).
+- **Cambio de fondo, no cosmético:** las rondas ya no las dispara un
+  botón "Girar" que cualquiera pulsa cuando quiere — ahora es una
+  ronda compartida de 20s (`ROUND_DURATION_SEC`) donde todos los
+  sentados apuestan libremente, y al agotarse el tiempo la mesa gira
+  sola y resuelve a todos a la vez
+  (`RouletteTableState.advance_time()`, llamado cada frame desde
+  `RouletteTableController._process()` en el host — mismo patrón que
+  `CrashTableController`, solo retransmite en los cambios de fase, no
+  cada frame). 5s de pausa (`RESULT_DURATION_SEC`) para ver el
+  resultado antes de reabrir. `SpinButton` eliminado.
+- Componente nuevo `RoundTimerBadge`
+  (`scripts/ui/casino/round_timer_badge.gd`, anillo de progreso +
+  segundos por `_draw()`) — reutilizable si otra mesa necesita una
+  ronda temporizada más adelante.
+
+**Verificación visual en editor: no confirmada esta sesión**, mismo
+motivo que el cierre anterior (automatización de clic de Windows no
+responde en la ventana de Godot, sospecha de desajuste de escalado
+DPI, sin investigar todavía). El ajuste de tamaño de la grilla nueva sí
+se verificó por código: se recuperó el mismo test de "cabe en la caja
+asignada" que existía antes del bug de Plan 22, adaptado al layout
+nuevo (`test_grid_fits_within_roulette_table_net_assigned_box`), y
+pasa con margen (702×116 de contenido en una caja de 860×230).
+
+Pendiente real: que el usuario confirme visualmente la mesa en juego,
+y si algún día se investiga el gotcha de DPI de la automatización de
+clic, dejarlo documentado en memoria para no repetir la investigación.
+
 ## Cierre de sesión (2026-08-28, sesión pilar — integración de arte, Lobby)
 
 Sesión arrancó encontrando **17 commits locales sin pushear** (arte de
