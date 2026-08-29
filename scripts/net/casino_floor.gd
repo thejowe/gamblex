@@ -232,6 +232,22 @@ func _celebrate_goal_unlocked() -> void:
     unlocked_banner.scale = Vector2(1.6, 1.6)
     var tween := create_tween()
     tween.tween_property(unlocked_banner, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+    var particles := CPUParticles2D.new()
+    particles.position = unlocked_banner.position + unlocked_banner.size / 2.0
+    particles.emitting = true
+    particles.one_shot = true
+    particles.amount = 32
+    particles.lifetime = 1.0
+    particles.spread = 180.0
+    particles.gravity = Vector2(0, 200)
+    particles.initial_velocity_min = 80.0
+    particles.initial_velocity_max = 180.0
+    particles.color = CasinoTheme.GOLD_ACCENT
+    hud.add_child(particles)
+    get_tree().create_timer(1.2).timeout.connect(func():
+        if is_instance_valid(particles):
+            particles.queue_free()
+    )
 
 @rpc("authority", "call_local", "reliable")
 func _receive_goal_state(state: Dictionary) -> void:
