@@ -5,6 +5,7 @@ extends PanelContainer
 @onready var bet_label: Label = $Margin/HBox/BetLabel
 
 var _last_balance: int = -1
+var _last_bet: int = -1
 
 func _ready() -> void:
 	var box := StyleBoxFlat.new()
@@ -32,3 +33,6 @@ func _punch(label: Label) -> void:
 
 func set_bet(amount: int) -> void:
 	bet_label.text = "APUESTA  $%d" % amount
+	if _last_bet != -1 and amount > _last_bet:
+		_punch(bet_label)
+	_last_bet = amount
