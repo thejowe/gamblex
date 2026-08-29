@@ -70,6 +70,17 @@ static func style_slider(slider: HSlider) -> void:
 	slider.add_theme_stylebox_override("grabber_area", filled)
 	slider.add_theme_stylebox_override("grabber_area_highlight", filled)
 
+# Todos los modales del proyecto (HelpOverlay, SettingsMenu, PauseMenu)
+# aparecían con visible=true instantáneo, sin ningún tipo de transición —
+# el mismo corte seco que ya se corrigió en los overlays de victoria/derrota.
+# No anima la propia visibilidad (los tests dependen de que sea un booleano
+# síncrono), solo un pop de escala cosmético sobre el panel ya visible.
+static func play_modal_pop_in(node: Control) -> void:
+	node.pivot_offset = node.size / 2.0
+	node.scale = Vector2(0.85, 0.85)
+	var tween := node.create_tween()
+	tween.tween_property(node, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
 static func style_option_button(button: OptionButton) -> void:
 	var box := StyleBoxFlat.new()
 	box.bg_color = PANEL_NAVY_DARK

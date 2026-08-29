@@ -55,6 +55,11 @@ func _ready() -> void:
 	close_button.pressed.connect(func(): visible = false)
 	quit_button.pressed.connect(quit_confirm.popup_centered)
 	quit_confirm.confirmed.connect(func(): get_tree().quit())
+	visibility_changed.connect(func():
+		if visible:
+			CasinoTheme.play_modal_pop_in(panel)
+			CasinoTheme.play_modal_pop_in($PanelBackground)
+	)
 
 func _on_master_slider_changed(v: float) -> void:
 	AudioManager.set_bus_volume_db("Master", v)

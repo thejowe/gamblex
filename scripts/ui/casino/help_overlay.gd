@@ -30,6 +30,8 @@ func set_rules_text(text: String) -> void:
 
 func open() -> void:
 	visible = true
+	CasinoTheme.play_modal_pop_in(panel)
+	CasinoTheme.play_modal_pop_in($PanelBackground)
 
 func close() -> void:
 	visible = false
