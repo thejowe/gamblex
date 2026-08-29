@@ -42,6 +42,85 @@ sesión pilar para evitar conflictos entre ramas.
 
 ---
 
+## Triage: fullscreen falso + fondos recortados en ultra-wide (2026-08-29)
+
+Usuario reportó dos síntomas al abrir el juego en su monitor ultra-wide
+(~3.55:1 real): (1) no abre en pantalla completa real (ventana con
+barra de título pese a `project.godot` `window/size/mode=3`), (2) el
+fondo de `HomeScreen` (`lobby_bg.png`, recién regenerado) se ve muy
+ampliado/recortado.
+
+**Causa raíz #1 (fullscreen), confirmada y arreglada — no era bug de
+código:** `home_screen.gd:_apply_saved_display_settings()` lee
+`user://settings.cfg` en cada arranque y sobreescribe el modo de
+ventana (`get_window().mode = MODE_FULLSCREEN/MODE_WINDOWED` según
+`display/fullscreen`). Ese archivo (`%APPDATA%\Godot\app_userdata\Casino
+Pixel\settings.cfg`, fuera del repo) tenía `fullscreen=false` grabado
+desde la sesión de verificación en vivo del 2026-08-27 (Plan 29) que
+togglé "Pantalla completa" en `SettingsMenu` probando el checkbox y no
+lo dejó restaurado a `true`. `Window.MODE_FULLSCREEN` (3) sí coincide
+con `project.godot` `window/size/mode=3` — no hay mismatch de
+constantes. Reseteado el archivo local a `fullscreen=true` por esta
+sesión pilar (fuera del repo, no requiere commit). **No existe
+`export_presets.cfg`** en el repo — nunca se ha probado un build
+exportado real, todo lo corrido hasta ahora es `godot --path .`
+(editor/debug), que respeta `project.godot` igual que un export
+(ninguna rama de código distingue debug/editor para el modo de
+ventana). Conclusión: el "bug de debug" no existe como tal, era el
+mismo síntoma del cfg persistido.
+
+**Causa raíz #2 (recorte en ultra-wide), sistémica, confirmada en 3
+escenas:** `HomeScreen`, `credits_menu.tscn` y `loading_screen.tscn`
+comparten el mismo patrón exacto — `TextureRect` full-bleed
+(`anchor_right/bottom=1.0`), `expand_mode=1` (IGNORE_SIZE),
+`stretch_mode=6` (KEEP_ASPECT_COVERED) — sobre 3 fondos distintos pero
+todos **220×264** (`lobby_bg`, `credits_bg`, `loading_bg`, los 3
+`BACKGROUND_MASTER` o derivados). El resto de overlays (Ajustes/Pausa/
+Ayuda) usan `Backdrop` semitransparente, no `TextureRect` — no les
+afecta. LobbyMenu no tiene fondo de imagen (navy plano, decisión
+explícita del usuario en Ampliación v1.9).
+
+Con lienzo portrait 220×264 (aspect 0.833:1) cubriendo un viewport
+landscape ancho, `KEEP_ASPECT_COVERED` siempre escala por el ancho
+(`scale = viewport_w / 220`) y recorta arriba/abajo. Fracción de alto
+del lienzo visible = `(viewport_h/viewport_w) × (220/264)`. A 4:3
+(1.33:1) sobrevive ~62.6% del alto (recorta ~18.7% arriba y abajo). A
+3.55:1 (ultra-wide real del usuario) sobrevive solo ~23.5% del alto —
+**franja central de ~220×62px, recortando ~101px arriba y ~101px
+abajo** — ancho siempre 100% visible (el ancho es la dimensión que
+manda el escalado, nunca se recorta).
+
+**Decisión (no se cambia el modo de stretch, se ajusta el arte):** el
+usuario ya lo enmarcó así en su propio mensaje — el fondo es
+decorativo, `COVER` es el patrón correcto para fondos full-bleed, el
+problema es que el arte actual no tiene sangrado suficiente para
+sobrevivir el recorte extremo. **Los 3 números para
+`CasinoArtDirector`** (solo parámetros, no se le dicta el dibujo):
+
+1. **Modo de stretch final:** mantener `expand_mode=IGNORE_SIZE` +
+   `stretch_mode=KEEP_ASPECT_COVERED` (sin cambios de motor) en las 3
+   escenas.
+2. **Rango de aspect ratio a soportar sin recorte inaceptable:** 4:3
+   (1.33:1) hasta 3.55:1 (ultra-wide real, peor caso) — siempre
+   landscape, el lienzo portrait nunca sufre recorte de ancho en ese
+   rango.
+3. **Área garantizada visible en el peor caso (3.55:1):** franja
+   horizontal central de **220×62px** (ancho completo, ~23.5% del alto
+   de 264px), es decir filas ~101–163 del lienzo. El contenido
+   imprescindible (ej. el detalle central de la puerta/arco) tiene que
+   caber ahí; todo lo que esté en los ~101px de margen superior e
+   inferior se ve en monitores menos anchos (4:3 hasta ~16:9) pero se
+   pierde en ultra-wide — sangrado progresivo, no un corte binario.
+
+Pendiente: pasar estos 3 números a una sesión de `CasinoArtDirector`
+para que decida si `lobby_bg`/`credits_bg`/`loading_bg` necesitan
+retoque de composición (no regeneración completa necesariamente — puede
+ser reencuadre/recomposición del detalle ya existente). No es
+bloqueante (el recorte es feo pero no rompe gameplay), sin urgencia
+alta.
+
+---
+
 ## Ampliación v1.9: pantalla de inicio (2026-08-29)
 
 El usuario pidió, en sesión de brainstorming, una pantalla de inicio
