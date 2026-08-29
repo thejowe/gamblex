@@ -367,6 +367,7 @@ func _maybe_show_winner_banner(state: Dictionary) -> void:
 	if winner_seat == null or winner_seat < 0 or winner_seat >= seats.size() or seats[winner_seat] == null:
 		return
 	_show_winner_banner(winner_seat, _display_name(seats[winner_seat]["player_id"]))
+	_celebrate_seat(winner_seat)
 
 func _show_winner_banner(seat_index: int, player_name: String) -> void:
 	if _winner_banner != null and is_instance_valid(_winner_banner):
@@ -388,6 +389,25 @@ func _show_winner_banner(seat_index: int, player_name: String) -> void:
 	tween.tween_callback(func():
 		if is_instance_valid(banner):
 			banner.queue_free()
+	)
+
+func _celebrate_seat(seat_index: int) -> void:
+	var anchor := seat_anchor_oval(seat_index, SEAT_COUNT)
+	var particles := CPUParticles2D.new()
+	particles.position = anchor
+	particles.emitting = true
+	particles.one_shot = true
+	particles.amount = 24
+	particles.lifetime = 1.0
+	particles.spread = 180.0
+	particles.gravity = Vector2(0, 200)
+	particles.initial_velocity_min = 80.0
+	particles.initial_velocity_max = 160.0
+	particles.color = CasinoTheme.GOLD_ACCENT
+	seats_root.add_child(particles)
+	get_tree().create_timer(1.2).timeout.connect(func():
+		if is_instance_valid(particles):
+			particles.queue_free()
 	)
 
 func _refresh_seat_labels() -> void:
