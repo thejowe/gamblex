@@ -85,7 +85,9 @@ func _on_state_changed(state: Dictionary) -> void:
 	_phase = state["phase"]
 	_phase_time_remaining = state["phase_time_remaining"]
 	_set_betting_enabled(_phase == RouletteTableState.Phase.BETTING)
-	phase_label.text = "Apuestas abiertas" if _phase == RouletteTableState.Phase.BETTING else "Girando la ruleta..."
+	var is_betting := _phase == RouletteTableState.Phase.BETTING
+	phase_label.text = "Apuestas abiertas" if is_betting else "Girando la ruleta..."
+	phase_label.add_theme_color_override("font_color", CasinoTheme.ACCENT_GREEN if is_betting else CasinoTheme.GOLD_ACCENT)
 	var new_result: int = state["last_result"]
 	if new_result != -1 and new_result != _last_seen_result:
 		_last_seen_result = new_result
