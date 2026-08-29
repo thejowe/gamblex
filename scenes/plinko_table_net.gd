@@ -50,6 +50,10 @@ func _set_rows(value: int) -> void:
 	_rows = clampi(value, PlinkoTableState.MIN_ROWS, PlinkoTableState.MAX_ROWS)
 	board.rows = _rows
 	rows_label.text = "Filas: %d" % _rows
+	# Más filas = multiplicadores de borde más extremos (más riesgo/premio) —
+	# sin esto "Filas: 8" y "Filas: 16" se veían exactamente igual de neutros.
+	var risk_t: float = inverse_lerp(float(PlinkoTableState.MIN_ROWS), float(PlinkoTableState.MAX_ROWS), float(_rows))
+	rows_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT.lerp(CasinoTheme.GOLD_ACCENT, risk_t))
 
 func _on_bet_pressed(amount: int) -> void:
 	table_controller.roll(_rows, amount)
