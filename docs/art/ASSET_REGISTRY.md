@@ -679,8 +679,59 @@ integración de `pilar.md`, no de este agente).
 
 | ID | Tamaño | Status |
 |---|---|---|
-| lobby_bg (`inicio/`) | 220×264 | FINAL |
+| lobby_bg (`inicio/`) | 220×264 | FINAL — **regenerado 2026-08-29**, ver nota abajo |
 | loading_bg (`carga/`) | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
+
+**Regeneración `lobby_bg` (`CasinoArtDirector`, 2026-08-29):** sustituido a
+petición del usuario — el `lobby_bg` anterior (marco ornamental
+oro/navy genérico) reemplazado por una ilustración de entrada de casino
+(puertas dobles de madera con marco de bronce/oro, letrero de neón
+sobre el arco, alfombra roja en perspectiva hacia las puertas, columnas
+laterales, fondo navy oscuro) — sigue siendo `inicio/lobby_bg/lobby_bg.png`,
+mismo tamaño 220×264, mismo `.import` (no requirió cambios: ya tenía
+`compress/mode=0`/`mipmaps/generate=false`/`fix_alpha_border=false`).
+Enganchado en `scenes/home_screen.tscn` (Plan 32, `ext_resource id="3"`,
+`stretch_mode=6`, `texture_filter=1` NEAREST) — mismo `path`, no hizo
+falta tocar el `.tscn`.
+
+Método: 1 generación PixelLab `create_image_pixflux` (220×264, opaco,
+paleta cálida oro/caoba/rojo sobre navy). El letrero salió con el texto
+"ARCADE" horneado — incorrecto para un casino y no pedido en el prompt.
+**Gotcha nuevo:** el trial de PixelLab se agotó justo después de esta
+generación ("trial generations used up") — sin generaciones para
+`edit_image`/`inpaint_image` para quitar el texto. Corregido **por
+código (Pillow), no PixelLab** (excepción documentada de
+`ART_PIPELINE.md` regla 4 — "otra herramienta solo si PixelLab no puede
+con la tarea concreta"; aquí PixelLab no puede por falta de saldo, no
+por limitación técnica): bounding box del texto detectado por
+threshold de color (x:51-168, y:50-79), rellenado columna a columna con
+interpolación vertical entre los píxeles reales justo encima/debajo del
+letrero, cuantizado al color más cercano de una paleta de 20 colores
+muestreada del resto del halo/glow de la misma imagen (evita introducir
+tonos nuevos fuera de paleta o un degradado continuo no cuantizado).
+Resultado: panel de letrero vacío con el mismo glow radial cálido, sin
+texto. 0 generaciones PixelLab adicionales (0 saldo disponible).
+
+Validación técnica (`ART_VALIDATION.md`) contra el archivo real:
+220×264 confirmado, RGBA, alfa constante 255 en el 100% de los píxeles
+(0 alfa parcial — opaco, sin halo de anti-aliasing posible), 44 colores
+únicos (comparable a los 42 del `lobby_bg` anterior, cuantización
+consistente con el resto de fondos). Visual: paleta dentro de familia
+Oro/Madera de `CasinoTheme` (dorados ~`GOLD_ACCENT`, rojo de alfombra
+en familia `CARD_RED`, fondo navy oscuro siempre — cumple "ambiente
+oscuro" de `ART_DIRECTION.md`); sin gradientes suaves nuevos fuera del
+glow ya presente en la generación original. Gameplay: composición
+simétrica con espacio negativo arriba/abajo para que la UI de
+`HomeScreen` (botones/título) se superponga sin invadir el detalle
+central de puertas — mismo patrón que el `lobby_bg` anterior. Import:
+sin cambios necesarios (ya correcto). Con eso, técnica/visual/gameplay/
+import pasan completos → sigue `FINAL`.
+
+**Pendiente no bloqueante:** no se ha podido correr `edit_image`/otra
+generación PixelLab de pulido (p. ej. quitar el glow residual del panel
+vacío si se quisiera un letrero totalmente apagado) por falta de saldo
+de trial — si se recarga el trial y el usuario quiere iterar más sobre
+este asset, es la primera tarea pendiente de la próxima sesión.
 
 `lobby_bg` generado aparte con PixelLab (más rico: cartas/fichas
 insinuadas en las esquinas, pantalla de bienvenida). `loading_bg`
