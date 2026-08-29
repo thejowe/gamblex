@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/net/casino_floor.gd" id="2"]
@@ -26,6 +26,7 @@
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_lose/icon_lose.png" id="24"]
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_crown_a/icon_crown_a.png" id="25"]
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_crown_b/icon_crown_b.png" id="26"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/achievement_toast.tscn" id="27"]
 
 [sub_resource type="StyleBoxFlat" id="DefeatPanelStyle"]
 bg_color = Color(0.0745098, 0.105882, 0.14902, 0)
@@ -187,6 +188,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0.0745, 0.1059, 0.149, 0)
+
+[node name="AchievementToast" parent="Hud" instance=ExtResource("27")]
 
 [node name="IconPot" type="TextureRect" parent="Hud"]
 anchor_top = 1.0

@@ -3,6 +3,7 @@ extends Node
 signal steam_ready(success: bool)
 signal lobby_ready(lobby_id: int, is_owner: bool)
 signal lobby_join_failed(reason: String)
+signal achievement_unlocked(achievement_api_name: String)
 
 var steam_id: int = 0
 var steam_username: String = ""
@@ -36,6 +37,7 @@ func unlock_achievement(achievement_api_name: String) -> void:
 	var ok: bool = Steam.setAchievement(achievement_api_name)
 	if ok:
 		Steam.storeStats()
+		achievement_unlocked.emit(achievement_api_name)
 	print("SteamManager: logro '%s' -> setAchievement=%s" % [achievement_api_name, ok])
 
 func _process(_delta: float) -> void:
