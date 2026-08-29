@@ -335,6 +335,21 @@ horizontal_alignment = 1
 vertical_alignment = 1
 text = "¡GANASTE!"
 
+[node name="Confetti" type="CPUParticles2D" parent="Hud/VictoryOverlay"]
+emitting = false
+amount = 64
+lifetime = 1.4
+one_shot = true
+explosiveness = 0.9
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 300)
+initial_velocity_min = 120.0
+initial_velocity_max = 320.0
+scale_amount_min = 2.0
+scale_amount_max = 4.0
+color = Color(0.91, 0.769, 0.408, 1)
+
 [node name="MessageLabel" type="Label" parent="Hud/VictoryOverlay"]
 anchor_left = 0.32
 anchor_top = 0.5

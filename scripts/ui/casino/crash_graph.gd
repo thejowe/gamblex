@@ -3,6 +3,8 @@ extends Control
 
 enum State { IDLE, RISING, CRASHED, CASHED_OUT }
 
+const ROCKET_IDLE_PATH := "res://assets/pixels/crash/crash_rocket/crash_rocket_idle.png"
+const ROCKET_LAUNCH_PATH := "res://assets/pixels/crash/crash_rocket/crash_rocket_launch.png"
 const ROCKET_FLAME_PATH := "res://assets/pixels/crash/crash_rocket/crash_rocket_flame.png"
 
 const TIME_WINDOW_SEC := 12.0
@@ -41,10 +43,15 @@ func _init() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func _draw_rocket(tip: Vector2) -> void:
-	var tex := load(ROCKET_FLAME_PATH)
-	var rocket_size: Vector2 = tex.get_size()
-	var top_left := tip - Vector2(rocket_size.x / 2.0, rocket_size.y)
-	draw_texture_rect(tex, Rect2(top_left, rocket_size), false)
+	var body_tex := load(ROCKET_IDLE_PATH if state == State.IDLE else ROCKET_LAUNCH_PATH)
+	var body_size: Vector2 = body_tex.get_size()
+	var body_top_left := tip - Vector2(body_size.x / 2.0, body_size.y)
+	draw_texture_rect(body_tex, Rect2(body_top_left, body_size), false)
+	if state == State.RISING:
+		var flame_tex := load(ROCKET_FLAME_PATH)
+		var flame_size: Vector2 = flame_tex.get_size()
+		var flame_top_left := tip - Vector2(flame_size.x / 2.0, flame_size.y) + Vector2(0, body_size.y * 0.5)
+		draw_texture_rect(flame_tex, Rect2(flame_top_left, flame_size), false)
 
 func _draw_axes() -> void:
 	var font := ThemeDB.fallback_font

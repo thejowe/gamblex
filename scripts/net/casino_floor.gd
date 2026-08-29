@@ -16,6 +16,7 @@ const TABLE_NODE_NAMES := [
     "PlinkoTableNet",
 ]
 
+@onready var hud: CanvasLayer = $Hud
 @onready var goal_label: Label = $Hud/GoalLabel
 @onready var unlocked_banner: Label = $Hud/UnlockedBanner
 @onready var defeat_overlay: Control = $Hud/DefeatOverlay
@@ -240,6 +241,8 @@ func _show_result_overlay(overlay: Control, title: String, message: String) -> v
     AudioManager.play_sfx("lose" if overlay == defeat_overlay else "win")
     if overlay == victory_overlay:
         _play_victory_pulse(overlay.get_node("Panel"))
+        _play_victory_confetti(overlay.get_node("Confetti"))
+        _play_hud_shake()
 
 func _reason_label(reason: String, i_won: bool) -> String:
     match reason:
@@ -251,3 +254,15 @@ func _play_victory_pulse(panel: Control) -> void:
     var tween := create_tween().set_loops(3)
     tween.tween_property(panel, "modulate", CasinoTheme.GOLD_ACCENT, 0.3)
     tween.tween_property(panel, "modulate", Color.WHITE, 0.3)
+
+func _play_victory_confetti(confetti: CPUParticles2D) -> void:
+    confetti.position = confetti.get_parent().size / 2.0
+    confetti.restart()
+    confetti.emitting = true
+
+func _play_hud_shake() -> void:
+    var tween := create_tween()
+    for i in range(6):
+        var offset := Vector2(randf_range(-8.0, 8.0), randf_range(-8.0, 8.0))
+        tween.tween_property(hud, "offset", offset, 0.05)
+    tween.tween_property(hud, "offset", Vector2.ZERO, 0.05)

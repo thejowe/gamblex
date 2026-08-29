@@ -4,6 +4,9 @@ extends VBoxContainer
 signal bet_selected(bet_type: int, number: int)
 
 const CasinoButtonScene := preload("res://scenes/ui/casino/casino_button.tscn")
+const CELL_TEXTURE_RED := preload("res://assets/pixels/roulette/roulette_grid_cell_red/roulette_grid_cell_red.png")
+const CELL_TEXTURE_BLACK := preload("res://assets/pixels/roulette/roulette_grid_cell_black/roulette_grid_cell_black.png")
+const CELL_TEXTURE_GREEN := preload("res://assets/pixels/roulette/roulette_grid_cell_green/roulette_grid_cell_green.png")
 const NUMBER_CELL_SIZE := Vector2(48, 36)
 const ZERO_CELL_SIZE := Vector2(36, 116) # 3*36 + 2*separation(2)
 const COLUMN_BET_SIZE := Vector2(64, 36)
@@ -28,7 +31,7 @@ func _ready() -> void:
 	_zero_button.text = "0"
 	_zero_button.custom_minimum_size = ZERO_CELL_SIZE
 	main_row.add_child(_zero_button)
-	_style_cell(_zero_button, CasinoTheme.ACCENT_GREEN)
+	_style_cell_texture(_zero_button, CELL_TEXTURE_GREEN)
 	_zero_button.pressed.connect(_on_number_pressed.bind(_zero_button, 0))
 
 	_number_grid = GridContainer.new()
@@ -87,9 +90,18 @@ func _style_cell(button: Button, color: Color) -> void:
 	button.add_theme_stylebox_override("normal", box)
 	button.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
 
+func _style_cell_texture(button: Button, texture: Texture2D) -> void:
+	var box := StyleBoxTexture.new()
+	box.texture = texture
+	button.add_theme_stylebox_override("normal", box)
+	button.add_theme_stylebox_override("hover", box)
+	button.add_theme_stylebox_override("pressed", box)
+	button.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+
 func _style_number_button(button: Button, number: int) -> void:
-	var color := CasinoTheme.CARD_RED if number in RouletteTableState.RED_NUMBERS else CasinoTheme.CARD_BLACK
-	_style_cell(button, color)
+	var texture := CELL_TEXTURE_RED if number in RouletteTableState.RED_NUMBERS else CELL_TEXTURE_BLACK
+	_style_cell_texture(button, texture)
 
 func _add_outside_bet_button(parent: Container, label: String, bet_type: int, cell_size: Vector2) -> void:
 	var button: CasinoButton = CasinoButtonScene.instantiate()

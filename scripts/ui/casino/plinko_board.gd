@@ -9,6 +9,9 @@ const TOP_MARGIN := 20.0
 const BOTTOM_MARGIN := 44.0
 const STEP_DURATION := 0.12
 const ROW_HEIGHT_RATIO := 0.87
+const PEG_TEXTURE_PATH := "res://assets/pixels/plinko/plinko_peg/plinko_peg.png"
+const BALL_TEXTURE_PATH := "res://assets/pixels/plinko/plinko_ball/plinko_ball.png"
+const SLOT_BG_TEXTURE_PATH := "res://assets/pixels/plinko/plinko_slot_bg/plinko_slot_bg.png"
 
 @export var rows: int = PlinkoTableState.DEFAULT_ROWS:
 	set(value):
@@ -20,6 +23,7 @@ var _ball_position: Vector2 = Vector2.ZERO
 
 func _init() -> void:
 	custom_minimum_size = Vector2(0, 360)
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 static func slot_from_bounces(bounces: Array) -> int:
 	var slot := 0
@@ -52,12 +56,17 @@ func peg_position(row: int, index_in_row: int) -> Vector2:
 	return Vector2(x, y)
 
 func _draw() -> void:
+	var peg_tex := load(PEG_TEXTURE_PATH)
+	var peg_size: Vector2 = peg_tex.get_size()
 	for row in range(rows):
 		for i in range(row + 1):
-			draw_circle(peg_position(row, i), PEG_RADIUS, CasinoTheme.TEXT_MUTED)
+			var pos := peg_position(row, i)
+			draw_texture_rect(peg_tex, Rect2(pos - peg_size / 2.0, peg_size), false)
 	_draw_multiplier_row()
 	if _ball_visible:
-		draw_circle(_ball_position, BALL_RADIUS, CasinoTheme.TEXT_LIGHT)
+		var ball_tex := load(BALL_TEXTURE_PATH)
+		var ball_size: Vector2 = ball_tex.get_size()
+		draw_texture_rect(ball_tex, Rect2(_ball_position - ball_size / 2.0, ball_size), false)
 
 func _draw_multiplier_row() -> void:
 	var pitch := _pitch()
@@ -68,12 +77,14 @@ func _draw_multiplier_row() -> void:
 	var max_mult: float = PlinkoTableState.slot_multiplier(rows, 0)
 	var min_mult: float = PlinkoTableState.slot_multiplier(rows, rows / 2)
 	var font := ThemeDB.fallback_font
+	var slot_bg_tex := load(SLOT_BG_TEXTURE_PATH)
 	for slot in range(slot_count):
 		var mult: float = PlinkoTableState.slot_multiplier(rows, slot)
 		var x := center_x - row_width / 2.0 + float(slot) * pitch
 		var t: float = clampf(inverse_lerp(min_mult, max_mult, mult), 0.0, 1.0)
-		var color: Color = CasinoTheme.PANEL_NAVY_LIGHT.lerp(CasinoTheme.ACCENT_GREEN, t)
-		draw_rect(Rect2(x - pitch / 2.0 + 2.0, y - 12.0, pitch - 4.0, 24.0), color)
+		var tint: Color = CasinoTheme.PANEL_NAVY_LIGHT.lerp(CasinoTheme.ACCENT_GREEN, t)
+		var slot_rect := Rect2(x - pitch / 2.0 + 2.0, y - 12.0, pitch - 4.0, 24.0)
+		draw_texture_rect(slot_bg_tex, slot_rect, false, tint)
 		var text := ("%.0f" if mult >= 100.0 else "%.1f" if mult >= 10.0 else "%.2f") % mult
 		var font_size := clampi(int(pitch * 0.42), 8, 11)
 		var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size)

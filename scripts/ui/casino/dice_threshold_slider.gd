@@ -5,6 +5,9 @@ signal threshold_changed(value: int)
 
 const HANDLE_RADIUS := 12.0
 const TRACK_HEIGHT := 10.0
+const HANDLE_TEXTURE_PATH := "res://assets/pixels/dice/dice_slider_handle/dice_slider_handle.png"
+const TRACK_WIN_TEXTURE_PATH := "res://assets/pixels/dice/dice_slider_track_win/dice_slider_track_win.png"
+const TRACK_LOSE_TEXTURE_PATH := "res://assets/pixels/dice/dice_slider_track_lose/dice_slider_track_lose.png"
 
 @export var threshold: int = 50:
 	set(value):
@@ -24,6 +27,7 @@ const TRACK_HEIGHT := 10.0
 
 func _init() -> void:
 	custom_minimum_size = Vector2(0, 40)
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func set_threshold_from_x(local_x: float) -> void:
 	var ratio: float = clampf(local_x / size.x, 0.0, 1.0)
@@ -42,9 +46,10 @@ func _draw() -> void:
 	# UNDER gana tirando por debajo del umbral -> la zona ganadora (verde)
 	# es la izquierda del tirador; OVER gana por encima -> verde a la derecha.
 	var win_is_left := direction == DiceTableState.Direction.UNDER
-	var left_color := CasinoTheme.ACCENT_GREEN if win_is_left else CasinoTheme.ACCENT_RED
-	var right_color := CasinoTheme.ACCENT_RED if win_is_left else CasinoTheme.ACCENT_GREEN
-	draw_rect(Rect2(0, track_y - TRACK_HEIGHT / 2.0, handle_x, TRACK_HEIGHT), left_color)
-	draw_rect(Rect2(handle_x, track_y - TRACK_HEIGHT / 2.0, size.x - handle_x, TRACK_HEIGHT), right_color)
-	draw_circle(Vector2(handle_x, track_y), HANDLE_RADIUS, CasinoTheme.TEXT_LIGHT)
-	draw_arc(Vector2(handle_x, track_y), HANDLE_RADIUS, 0, TAU, 24, CasinoTheme.PANEL_NAVY_LIGHT, 2.0)
+	var left_tex := load(TRACK_WIN_TEXTURE_PATH if win_is_left else TRACK_LOSE_TEXTURE_PATH)
+	var right_tex := load(TRACK_LOSE_TEXTURE_PATH if win_is_left else TRACK_WIN_TEXTURE_PATH)
+	draw_texture_rect(left_tex, Rect2(0, track_y - TRACK_HEIGHT / 2.0, handle_x, TRACK_HEIGHT), true)
+	draw_texture_rect(right_tex, Rect2(handle_x, track_y - TRACK_HEIGHT / 2.0, size.x - handle_x, TRACK_HEIGHT), true)
+	var handle_tex := load(HANDLE_TEXTURE_PATH)
+	var handle_size: Vector2 = handle_tex.get_size()
+	draw_texture_rect(handle_tex, Rect2(Vector2(handle_x, track_y) - handle_size / 2.0, handle_size), false)
