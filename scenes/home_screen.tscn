@@ -1,0 +1,97 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scenes/home_screen.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="2"]
+[ext_resource type="Texture2D" path="res://assets/pixels/inicio/lobby_bg/lobby_bg.png" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/settings_menu.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/help_overlay.tscn" id="5"]
+
+[node name="HomeScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3")
+expand_mode = 1
+stretch_mode = 6
+texture_filter = 1
+
+[node name="StartButton" parent="." instance=ExtResource("2")]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 300.0
+offset_right = 100.0
+offset_bottom = 344.0
+grow_horizontal = 2
+text = "Iniciar Partida"
+
+[node name="SettingsButton" parent="." instance=ExtResource("2")]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 356.0
+offset_right = 100.0
+offset_bottom = 400.0
+grow_horizontal = 2
+text = "Ajustes"
+
+[node name="CreditsButton" parent="." instance=ExtResource("2")]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 412.0
+offset_right = 100.0
+offset_bottom = 456.0
+grow_horizontal = 2
+text = "Créditos"
+
+[node name="HelpButton" parent="." instance=ExtResource("2")]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 468.0
+offset_right = 100.0
+offset_bottom = 512.0
+grow_horizontal = 2
+text = "Ayuda"
+
+[node name="QuitButton" parent="." instance=ExtResource("2")]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 524.0
+offset_right = 100.0
+offset_bottom = 568.0
+grow_horizontal = 2
+variant = 2
+text = "Salir"
+
+[node name="SettingsMenu" parent="." instance=ExtResource("4")]
+layout_mode = 1
+
+[node name="HelpOverlay" parent="." instance=ExtResource("5")]
+layout_mode = 1
+
+[node name="QuitConfirm" type="ConfirmationDialog" parent="."]
+title = "Salir"
+initial_position = 1
+size = Vector2i(360, 120)
+dialog_text = "¿Seguro que quieres salir?"
