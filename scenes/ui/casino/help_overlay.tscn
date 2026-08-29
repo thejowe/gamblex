@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/casino/help_overlay.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="2"]
+[ext_resource type="Texture2D" path="res://assets/pixels/help/help_bg/help_bg.png" id="3"]
+
+[sub_resource type="StyleBoxEmpty" id="TransparentPanel"]
 
 [node name="HelpOverlay" type="Control"]
 anchor_right = 1.0
@@ -18,6 +21,27 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+color = Color(0.0745, 0.1059, 0.149, 0.72)
+
+[node name="PanelBackground" type="NinePatchRect" parent="."]
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -180.0
+offset_right = 240.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3")
+patch_margin_left = 30
+patch_margin_top = 30
+patch_margin_right = 30
+patch_margin_bottom = 30
+texture_filter = 1
 
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -31,6 +55,7 @@ offset_right = 240.0
 offset_bottom = 180.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("TransparentPanel")
 
 [node name="Margin" type="MarginContainer" parent="Panel"]
 layout_mode = 2

@@ -11,7 +11,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	backdrop.color = Color(CasinoTheme.PANEL_NAVY_DARK, 0.85)
 	var box := StyleBoxFlat.new()
-	box.bg_color = CasinoTheme.PANEL_NAVY_MID
+	box.bg_color = Color(CasinoTheme.PANEL_NAVY_MID, 0.0) # el fondo real lo pinta PanelBackground (pixel art)
 	box.border_color = CasinoTheme.GOLD_ACCENT
 	box.border_width_left = 2
 	box.border_width_top = 2
