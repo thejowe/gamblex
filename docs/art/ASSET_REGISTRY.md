@@ -786,8 +786,9 @@ reutilizando otros assets ya aprobados, siguiendo la jerarquía de
   **248×248 px**, centrado (detalle en `ART_DIRECTION.md`). Falta solo
   la implementación en código (`TextureRect` detrás del control), no
   arte pendiente.
-- Duplicados sueltos en la raíz del repo (`crash.png`, etc.) siguen sin
-  resolver — ver `ART_DIRECTION.md`.
+- Duplicados sueltos en la raíz del repo (`crash.png`, etc.): **resuelto**
+  — borrados en commit `a90d385`, confirmado por `CasinoArtDirector`
+  (2026-08-28) que no existen en disco. Esta línea estaba desactualizada.
 
 Total assets finales: 112 (coincide con `assets/pixels/ASSETS.md`).
 Total masters: 9. Total filas de trabajo: 121.
