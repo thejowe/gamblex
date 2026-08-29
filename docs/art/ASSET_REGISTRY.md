@@ -3,20 +3,26 @@
 Estado real de cada asset. `CasinoArtDirector` es el único que edita
 este archivo. Estados: `PLANNED` `DRAFT` `REVIEW` `APPROVED` `FINAL`.
 
-Estado tras FASE 2-7 (2026-08-28): **7/9 masters `APPROVED`**, y
-**73/112 assets finales `APPROVED`** (52 cartas + card_back, 6 fichas,
-12 botones, 2 paneles, 5 iconos HUD, 1 felt_table_bg). Todo FASE 4-7 se
-derivó **por código (Pillow) a partir de los masters ya aprobados —
-0 generaciones nuevas de PixelLab**, siguiendo la jerarquía de
-herramientas de `ART_PIPELINE.md` (regla 2: composición por código para
-lo repetitivo/derivado de un master). 10/40 generaciones del trial
-siguen siendo las únicas usadas, las de FASE 2.
+**Sistema completo (cerrado 2026-08-28, ver sección "Cierre" al final de
+este archivo): 9/9 masters `APPROVED`, 111/112 assets finales
+`APPROVED`/`FINAL`.** Único no generado: `crash_line_texture`,
+descartado a propósito (el motor ya dibuja la curva dinámica). Póker en
+0 assets propios a propósito (reutiliza cards/chips/panel de fieltro).
+20/40 generaciones del trial de PixelLab usadas hasta el cierre — el
+resto (91 assets) derivado 100% por código (Pillow) desde masters
+aprobados o reutilizando assets ya aprobados.
 
-`MINES_CELL_MASTER` y `ROULETTE_CELL_MASTER` no son de FASE 2 (les toca
-en FASE 12/8) — siguen en `PLANNED`. `BACKGROUND_MASTER` confirmado,
-pendiente de generarse en FASE 15-17. 39/112 assets finales
-(ruleta, póker si aplica, dice, crash, mines, plinko, lobby, home/carga,
-victoria/derrota, menús) siguen `PLANNED`.
+**2026-08-29:** `lobby_bg` regenerado a petición del usuario (entrada
+de casino — puertas/neón/alfombra, ver sección "Home / Loading" más
+abajo). `get_balance` real: **18/40 generaciones del trial restantes,
+$0.00 créditos**. El texto horneado no se corrigió con `edit_image`
+porque esa herramienta cobra 20-40 generaciones por llamada (factura
+por grid de frames completo) y no alcanzaba con 18 — se corrigió por
+código (Pillow) en su lugar. `create_image_pixflux` (coste 1/llamada,
+usado para `lobby_bg`) sigue disponible con margen. Si una tarea futura
+necesita `edit_image`/`inpaint_image`/animación (coste alto), comprobar
+saldo con `get_balance` antes de planificarla — puede requerir comprar
+créditos o esperar recarga del trial en pixellab.ai.
 
 **Corrección de plan encontrada en FASE 6:** `ART_ASSET_PLAN.md` tenía
 mal asignado `PANEL_MASTER` como master de `bet_sidebar_bg`/
