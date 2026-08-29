@@ -22,6 +22,8 @@ var _ball_visible: bool = false
 var _ball_position: Vector2 = Vector2.ZERO
 var _landed_slot: int = -1
 var _landed_glow: float = 0.0
+var _bounce_pos: Vector2 = Vector2.ZERO
+var _bounce_glow: float = 0.0
 
 func _init() -> void:
 	custom_minimum_size = Vector2(0, 360)
@@ -65,6 +67,8 @@ func _draw() -> void:
 			var pos := peg_position(row, i)
 			draw_texture_rect(peg_tex, Rect2(pos - peg_size / 2.0, peg_size), false)
 	_draw_multiplier_row()
+	if _bounce_glow > 0.0:
+		draw_circle(_bounce_pos, PEG_RADIUS * 2.5, Color(CasinoTheme.TEXT_LIGHT, _bounce_glow * 0.5))
 	if _ball_visible:
 		var ball_tex := load(BALL_TEXTURE_PATH)
 		var ball_size: Vector2 = ball_tex.get_size()
@@ -112,6 +116,7 @@ func drop_ball(bounces: Array) -> void:
 		var x_offset := (float(rights) - float(lefts)) * pitch / 2.0
 		var target := Vector2(center_x + x_offset, top + float(row + 1) * vstep)
 		tween.tween_method(_set_ball_position, current_pos, target, STEP_DURATION)
+		tween.tween_callback(_flash_bounce.bind(target))
 		current_pos = target
 	tween.finished.connect(func():
 		var slot := slot_from_bounces(bounces)
@@ -121,6 +126,17 @@ func drop_ball(bounces: Array) -> void:
 
 func _set_ball_position(pos: Vector2) -> void:
 	_ball_position = pos
+	queue_redraw()
+
+# La bola rebotaba fila por fila sin ningún impacto visual en cada clavija
+# — se movía en línea recta entre puntos sin ninguna señal de "golpe".
+func _flash_bounce(pos: Vector2) -> void:
+	_bounce_pos = pos
+	var tween := create_tween()
+	tween.tween_method(_set_bounce_glow, 1.0, 0.0, STEP_DURATION)
+
+func _set_bounce_glow(value: float) -> void:
+	_bounce_glow = value
 	queue_redraw()
 
 # Sin esto la casilla donde cae la bola no se distinguía en nada del resto
