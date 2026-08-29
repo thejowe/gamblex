@@ -26,6 +26,7 @@ class Seat:
 	var player_id: int = 0
 	var ledger: ChipLedger
 	var bets: Array = []
+	var last_round: Dictionary = {}
 
 var seats: Array = []
 var wheel: RouletteWheel
@@ -106,14 +107,22 @@ func _resolve_round() -> void:
 	for s in seats:
 		if s == null:
 			continue
-		for bet in s.bets:
-			_resolve_bet(s, bet, result)
+		if not s.bets.is_empty():
+			var total_amount := 0
+			var total_payout := 0
+			for bet in s.bets:
+				total_amount += bet.amount
+				total_payout += _resolve_bet(s, bet, result)
+			s.last_round = {"win": total_payout > 0, "amount": total_amount, "payout": total_payout}
 		s.bets.clear()
 
-func _resolve_bet(seat, bet, result: int) -> void:
+func _resolve_bet(seat, bet, result: int) -> int:
+	var payout := 0
 	if _bet_wins(bet, result):
-		seat.ledger.payout(bet.amount * (_payout_multiplier(bet.type) + 1))
+		payout = bet.amount * (_payout_multiplier(bet.type) + 1)
+		seat.ledger.payout(payout)
 	seat.ledger.resolve_bet(bet.amount)
+	return payout
 
 func _bet_wins(bet, result: int) -> bool:
 	match bet.type:
@@ -168,6 +177,7 @@ func to_dict() -> Dictionary:
 				"player_id": seat.player_id,
 				"balance": seat.ledger.balance,
 				"bets": bets_data,
+				"last_round": seat.last_round,
 			})
 	return {
 		"seats": seats_data,

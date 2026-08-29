@@ -24,6 +24,7 @@ var _selected_number: int = -1
 var _history: Array = []
 var _phase: int = RouletteTableState.Phase.BETTING
 var _phase_time_remaining: float = RouletteTableState.ROUND_DURATION_SEC
+var _last_round_seen: Dictionary = {}
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -92,7 +93,25 @@ func _on_state_changed(state: Dictionary) -> void:
 		wheel.spin_finished.connect(func():
 			_push_history(new_result)
 			betting_grid.flash_winning_number(new_result)
+			_maybe_play_round_result_sfx()
 		, CONNECT_ONE_SHOT)
+
+# Ruleta es la única mesa sin un last_round expuesto hasta ahora — sin esto
+# nunca sonaba nada al resolverse una apuesta, ni tampoco distinguía un
+# premio grande (número exacto, pago 35 a 1) del resto.
+func _maybe_play_round_result_sfx() -> void:
+	if my_seat_index < 0 or my_seat_index >= _last_seats.size():
+		return
+	var seat = _last_seats[my_seat_index]
+	if seat == null:
+		return
+	var last_round: Dictionary = seat.get("last_round", {})
+	if last_round.is_empty():
+		return
+	if _last_round_seen.get(my_seat_index, {}) == last_round:
+		return
+	_last_round_seen[my_seat_index] = last_round
+	AudioManager.play_win_sfx(last_round["win"], last_round.get("payout", 0), last_round.get("amount", 0))
 
 func _set_betting_enabled(enabled: bool) -> void:
 	bet_sidebar.bet_button.disabled = not enabled

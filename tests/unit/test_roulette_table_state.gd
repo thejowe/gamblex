@@ -224,6 +224,61 @@ func test_to_dict_reflects_seats_bets_last_result_and_phase():
 	assert_eq(data["phase"], RouletteTableState.Phase.RESULT)
 	assert_eq(data["phase_time_remaining"], RouletteTableState.RESULT_DURATION_SEC)
 
+func test_last_round_reflects_winning_bet_payout():
+	var wheel = RouletteWheel.new()
+	wheel.results = [7]
+	var table = RouletteTableState.new(wheel)
+	table.sit(0, 111)
+	table.place_bet(0, 111, RouletteTableState.BetType.STRAIGHT, 7, 10)
+	_force_round_end(table)
+	var last_round: Dictionary = table.seats[0].last_round
+	assert_true(last_round["win"])
+	assert_eq(last_round["amount"], 10)
+	assert_eq(last_round["payout"], 360) # 35 a 1 + la propia apuesta
+
+func test_last_round_reflects_losing_bet():
+	var wheel = RouletteWheel.new()
+	wheel.results = [7]
+	var table = RouletteTableState.new(wheel)
+	table.sit(0, 111)
+	table.place_bet(0, 111, RouletteTableState.BetType.BLACK, -1, 50)
+	_force_round_end(table)
+	var last_round: Dictionary = table.seats[0].last_round
+	assert_false(last_round["win"])
+	assert_eq(last_round["amount"], 50)
+	assert_eq(last_round["payout"], 0)
+
+func test_last_round_stays_empty_when_seat_did_not_bet():
+	var wheel = RouletteWheel.new()
+	wheel.results = [7]
+	var table = RouletteTableState.new(wheel)
+	table.sit(0, 111)
+	_force_round_end(table)
+	assert_true(table.seats[0].last_round.is_empty())
+
+func test_last_round_nets_multiple_bets_in_the_same_round():
+	var wheel = RouletteWheel.new()
+	wheel.results = [7]
+	var table = RouletteTableState.new(wheel)
+	table.sit(0, 111)
+	table.place_bet(0, 111, RouletteTableState.BetType.STRAIGHT, 7, 10)
+	table.place_bet(0, 111, RouletteTableState.BetType.BLACK, -1, 50) # 7 es rojo, esta pierde
+	_force_round_end(table)
+	var last_round: Dictionary = table.seats[0].last_round
+	assert_true(last_round["win"])
+	assert_eq(last_round["amount"], 60)
+	assert_eq(last_round["payout"], 360)
+
+func test_to_dict_exposes_last_round_per_seat():
+	var wheel = RouletteWheel.new()
+	wheel.results = [7]
+	var table = RouletteTableState.new(wheel)
+	table.sit(0, 111)
+	table.place_bet(0, 111, RouletteTableState.BetType.RED, -1, 20)
+	_force_round_end(table)
+	var data = table.to_dict()
+	assert_true(data["seats"][0]["last_round"]["win"])
+
 func test_sit_uses_external_ledger_when_provided():
 	var table = RouletteTableState.new()
 	var shared := ChipLedger.new(500)
