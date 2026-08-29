@@ -197,16 +197,15 @@ func _render_state(state: Dictionary) -> void:
 	var seats: Array = state.get("seats", [null, null, null, null, null, null])
 	var hand_active: bool = state.get("hand_active", false)
 	var dealer_index: int = state.get("dealer_button_index", -1)
+	var active_seat_index: int = state.get("active_seat_index", -1)
 
 	for i in range(seats.size()):
-		_render_seat(i, seats[i], hand_active)
+		_render_seat(i, seats[i], hand_active, active_seat_index == i and hand_active)
 
 	_render_dealer_badge(dealer_index)
 	_render_community(state)
 
 	pot_label.text = "Bote: %d" % state.get("pot", 0)
-
-	var active_seat_index: int = state.get("active_seat_index", -1)
 	if hand_active:
 		var turn_text := "Asiento %d" % active_seat_index
 		if active_seat_index >= 0 and active_seat_index < seats.size() and seats[active_seat_index] != null:
@@ -259,7 +258,7 @@ func _update_raise_slider(state: Dictionary, is_my_turn: bool) -> void:
 		raise_slider.value = min_amount
 	raise_value_label.text = "Subir a: %d" % int(raise_slider.value)
 
-func _render_seat(seat_index: int, seat, hand_active: bool) -> void:
+func _render_seat(seat_index: int, seat, hand_active: bool, is_active_turn: bool) -> void:
 	var container := _seat_containers[seat_index] as Control
 	var avatar := _seat_avatars[seat_index] as SeatAvatar
 	var info_label := _seat_info_labels[seat_index] as Label
@@ -276,6 +275,7 @@ func _render_seat(seat_index: int, seat, hand_active: bool) -> void:
 
 	avatar.visible = true
 	info_label.visible = true
+	avatar.is_active_turn = is_active_turn
 	if not was_occupied:
 		# Un jugador nuevo se sentaba de golpe, sin ningún tipo de entrada —
 		# el mismo pop de escala que ya usan los modales al abrirse.

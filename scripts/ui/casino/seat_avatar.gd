@@ -15,6 +15,10 @@ const AVATAR_COLORS := [
 	set(value):
 		player_id = value
 		queue_redraw()
+@export var is_active_turn: bool = false:
+	set(value):
+		is_active_turn = value
+		queue_redraw()
 
 func _init() -> void:
 	custom_minimum_size = Vector2(RADIUS * 2, RADIUS * 2)
@@ -26,6 +30,11 @@ func _draw() -> void:
 	var center := size / 2.0
 	var color := avatar_color()
 	draw_circle(center, RADIUS, color)
+	# Sin esto no había forma de saber a quién le toca solo mirando la mesa
+	# ovalada — había que leer el StatusLabel de texto en otra parte de la
+	# pantalla.
+	if is_active_turn:
+		draw_arc(center, RADIUS + 4.0, 0, TAU, 32, CasinoTheme.GOLD_ACCENT, 3.0)
 	draw_arc(center, RADIUS, 0, TAU, 32, CasinoTheme.TEXT_CREAM, 2.0)
 	var font := ThemeDB.fallback_font
 	var font_size := 22
