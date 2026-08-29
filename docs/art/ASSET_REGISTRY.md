@@ -54,7 +54,7 @@ como master compartido — se genera al llegar a FASE 15/16/17.
 | CARD_MASTER | PixelLab pixflux | text2img, opaco sobre fondo oscuro (retry tras fallo transparente) | 64×96 | ivory `#F5F5F0` + borde marrón | REVIEW | Trae un pip de trébol decorativo en la esquina — al derivar las 52 cartas en FASE 4, sustituir ese pip por el rank/suit real vía `inpaint_image`, no reutilizarlo literalmente |
 | CARD_BACK_MASTER | PixelLab pixflux | text2img, opaco sobre fondo negro (retry) | 64×96 | `#1C5C3A` + `#E8C468` | REVIEW | — |
 | CHIP_MASTER | PixelLab pixflux | text2img, opaco sobre fondo oscuro (retry) | 32×32 | off-white + oro, notches de borde | REVIEW | Falta aplicar color por denominación en FASE 5 (derivar, no regenerar desde cero) |
-| BUTTON_MASTER | PixelLab pixflux | text2img, transparente (funcionó a la primera — relleno navy oscuro) | 96×32 | `#1C2733` + `#E8C468` | REVIEW | Solo estado "normal" — hover/pressed/disabled se derivan en FASE 6 |
+| BUTTON_MASTER | PixelLab pixflux | text2img, transparente (funcionó a la primera — relleno oscuro) | 96×32 | `#140b35` (indigo/violeta, no `#1C2733` navy — ver discrepancia corregida en sección "Botones") + `#E8C468` | REVIEW | Solo estado "normal" — hover/pressed/disabled se derivan en FASE 6 |
 | PANEL_MASTER | PixelLab pixflux | text2img, opaco | 256×144 | `#5C3A20`/`#8A5A34` madera + `#1C5C3A` fieltro + `#E8C468` | REVIEW | — |
 | ICON_MASTER | PixelLab pixflux | text2img, transparente (funcionó a la primera — relleno navy oscuro) | 32×32 | `#131B26` + `#E8C468` | REVIEW | Placeholder de badge — el pictograma interior se añade por icono en FASE 6 |
 | felt_table_bg (fragmento FASE 2, no es master de variantes) | PixelLab pixflux | text2img, opaco | 320×180 | `#1C5C3A`/`#2F8F5B` fieltro + `#5C3A20`/`#8A5A34` madera + `#E8C468` | REVIEW | Trae 4 iconos de palo decorativos en el riel superior — evaluar si se conservan en el `felt_table_bg` final de FASE 7 o se piden sin ellos |
@@ -229,6 +229,13 @@ sigue leyéndose como un botón oscuro neutro coherente con el resto de
 la UI (contraste suficiente, no rompe legibilidad), pero el hex no
 coincide con el token citado en el registro. Queda documentado para
 que `CasinoArtDirector` decida si amerita reabrir `BUTTON_MASTER`.
+
+**RESUELTO (`CasinoArtDirector`, 2026-08-28):** no se reabre
+`BUTTON_MASTER` — fue `APPROVED` "tal cual" por decisión explícita del
+usuario en FASE 2, y visualmente cumple. Se corrigió la tabla "Detalle
+de generación — FASE 2" arriba para citar el hex real `#140b35` en vez
+del `#1C2733` incorrecto — era un error de transcripción del registro,
+no un defecto del asset.
 
 Con eso, técnica/visual/gameplay/import pasan completos (salvo la
 discrepancia de palabra-vs-hex arriba, no bloqueante) → `FINAL`.
