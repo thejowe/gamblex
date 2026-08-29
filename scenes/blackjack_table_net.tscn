@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scenes/blackjack_table_net.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/net/table_controller.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/felt_table_panel.tscn" id="3"]
+[ext_resource type="Texture2D" path="res://assets/pixels/blackjack/felt_table_bg/felt_table_bg.png" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_hud_bar.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/bet_sidebar_panel.tscn" id="6"]
@@ -19,6 +20,20 @@ script = ExtResource("1")
 
 [node name="TableController" type="Node" parent="."]
 script = ExtResource("2")
+
+[node name="FeltBackground" type="NinePatchRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8")
+patch_margin_left = 40
+patch_margin_top = 40
+patch_margin_right = 40
+patch_margin_bottom = 40
+texture_filter = 1
 
 [node name="FeltTablePanel" parent="." instance=ExtResource("3")]
 layout_mode = 1
