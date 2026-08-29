@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scenes/roulette_table_net.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/net/roulette_table_controller.gd" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/roulette_betting_grid.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/help_overlay.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/round_timer_badge.tscn" id="8"]
 
 [node name="RouletteTableNet" type="Control"]
 layout_mode = 3
@@ -53,14 +54,27 @@ offset_right = 460.0
 offset_bottom = 336.0
 text = "Sentarse"
 
-[node name="SpinButton" parent="." instance=ExtResource("6")]
+[node name="RoundTimerBadge" parent="." instance=ExtResource("8")]
 layout_mode = 0
-offset_left = 480.0
-offset_top = 300.0
-offset_right = 600.0
-offset_bottom = 336.0
-text = "Girar"
-variant = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -152.0
+offset_top = 70.0
+offset_right = -84.0
+offset_bottom = 138.0
+grow_horizontal = 0
+
+[node name="PhaseLabel" type="Label" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 142.0
+offset_right = 0.0
+offset_bottom = 166.0
+grow_horizontal = 0
+horizontal_alignment = 1
+text = "Apuestas abiertas"
 
 [node name="RouletteBettingGrid" parent="." instance=ExtResource("5")]
 layout_mode = 0
@@ -68,16 +82,16 @@ anchor_right = 1.0
 offset_left = 20.0
 offset_top = 360.0
 offset_right = -20.0
-offset_bottom = 570.0
+offset_bottom = 590.0
 grow_horizontal = 2
 
 [node name="SeatsLabel" type="Label" parent="."]
 layout_mode = 0
 anchor_right = 1.0
 offset_left = 20.0
-offset_top = 580.0
+offset_top = 600.0
 offset_right = -20.0
-offset_bottom = 740.0
+offset_bottom = 760.0
 grow_horizontal = 2
 
 [node name="HelpButton" parent="." instance=ExtResource("6")]

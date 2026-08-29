@@ -31,17 +31,26 @@ func test_bet_selected_places_bet_immediately_with_sidebar_amount():
 
 func test_result_only_added_to_history_after_ball_lands():
 	var view = _make_view()
-	view._on_state_changed({"seats": [], "last_result": 7})
+	view._on_state_changed({"seats": [], "last_result": 7, "phase": RouletteTableState.Phase.RESULT, "phase_time_remaining": RouletteTableState.RESULT_DURATION_SEC})
 	assert_eq(view.results_history.get_child_count(), 0)
 	await view.wheel.spin_finished
 	assert_eq(view.results_history.get_child_count(), 1)
 
-func test_spin_button_locks_during_ball_animation_and_unlocks_after():
+func test_betting_controls_disabled_while_phase_is_result():
 	var view = _make_view()
-	view._on_state_changed({"seats": [], "last_result": 7})
-	assert_true(view.spin_button.disabled, "re-girar mientras la bola anterior sigue en el aire crea un segundo tween sobre ball_angle")
-	await view.wheel.spin_finished
-	assert_false(view.spin_button.disabled)
+	view._on_state_changed({"seats": [], "last_result": -1, "phase": RouletteTableState.Phase.RESULT, "phase_time_remaining": RouletteTableState.RESULT_DURATION_SEC})
+	assert_true(view.bet_sidebar.bet_button.disabled)
+
+func test_betting_controls_enabled_while_phase_is_betting():
+	var view = _make_view()
+	view._on_state_changed({"seats": [], "last_result": -1, "phase": RouletteTableState.Phase.RESULT, "phase_time_remaining": RouletteTableState.RESULT_DURATION_SEC})
+	view._on_state_changed({"seats": [], "last_result": -1, "phase": RouletteTableState.Phase.BETTING, "phase_time_remaining": RouletteTableState.ROUND_DURATION_SEC})
+	assert_false(view.bet_sidebar.bet_button.disabled)
+
+func test_state_changed_syncs_round_timer_badge():
+	var view = _make_view()
+	view._on_state_changed({"seats": [], "last_result": -1, "phase": RouletteTableState.Phase.BETTING, "phase_time_remaining": 12.0})
+	assert_eq(view._phase_time_remaining, 12.0)
 
 func test_bet_pressed_repeats_last_selection_with_given_amount():
 	var view = _make_view()

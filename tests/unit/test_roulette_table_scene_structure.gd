@@ -6,7 +6,7 @@ func test_scene_has_expected_node_paths():
 	add_child_autofree(root)
 	for path in [
 		"BetSidebarPanel", "RouletteWheelDisplay", "RouletteBettingGrid",
-		"ResultsHistory", "SpinButton", "SitButton", "SeatsLabel", "TableController",
+		"ResultsHistory", "RoundTimerBadge", "PhaseLabel", "SitButton", "SeatsLabel", "TableController",
 		"HelpButton", "HelpOverlay",
 	]:
 		assert_not_null(root.get_node_or_null(path), "falta el nodo %s" % path)
