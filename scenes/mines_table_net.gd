@@ -79,6 +79,9 @@ func _refresh_density_label() -> void:
 	var total := _selected_total_cells()
 	var density := (float(mine_count) / float(total)) * 100.0 if total > 0 else 0.0
 	mine_density_label.text = "%.2f%%" % density
+	# Más densidad de minas = más riesgo por casilla — sin esto 5% y 50% se
+	# veían igual de neutros pese a ser un riesgo radicalmente distinto.
+	mine_density_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT.lerp(CasinoTheme.ACCENT_RED, clampf(density / 50.0, 0.0, 1.0)))
 
 func _on_bet_pressed(amount: int) -> void:
 	var mine_count := int(mine_count_edit.text) if mine_count_edit.text.is_valid_int() else 1
