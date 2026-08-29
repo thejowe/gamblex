@@ -73,8 +73,8 @@ func _ready() -> void:
 	_outside_row.add_child(_spacer(ZERO_CELL_SIZE.x))
 	_add_outside_bet_button(_outside_row, "1 a 18", RouletteTableState.BetType.LOW, SPLIT_CELL_SIZE)
 	_add_outside_bet_button(_outside_row, "Par", RouletteTableState.BetType.EVEN, SPLIT_CELL_SIZE)
-	_add_color_bet_button(_outside_row, "Rojo", RouletteTableState.BetType.RED, CasinoTheme.CARD_RED, SPLIT_CELL_SIZE)
-	_add_color_bet_button(_outside_row, "Negro", RouletteTableState.BetType.BLACK, CasinoTheme.CARD_BLACK, SPLIT_CELL_SIZE)
+	_add_color_bet_button(_outside_row, "Rojo", RouletteTableState.BetType.RED, CELL_TEXTURE_RED, SPLIT_CELL_SIZE)
+	_add_color_bet_button(_outside_row, "Negro", RouletteTableState.BetType.BLACK, CELL_TEXTURE_BLACK, SPLIT_CELL_SIZE)
 	_add_outside_bet_button(_outside_row, "Impar", RouletteTableState.BetType.ODD, SPLIT_CELL_SIZE)
 	_add_outside_bet_button(_outside_row, "19 a 36", RouletteTableState.BetType.HIGH, SPLIT_CELL_SIZE)
 
@@ -82,16 +82,6 @@ func _spacer(width: float) -> Control:
 	var box := Control.new()
 	box.custom_minimum_size = Vector2(width, 1)
 	return box
-
-func _style_cell(button: Button, color: Color) -> void:
-	var box := StyleBoxFlat.new()
-	box.bg_color = color
-	box.corner_radius_top_left = 4
-	box.corner_radius_top_right = 4
-	box.corner_radius_bottom_left = 4
-	box.corner_radius_bottom_right = 4
-	button.add_theme_stylebox_override("normal", box)
-	button.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
 
 func _style_cell_texture(button: Button, texture: Texture2D) -> void:
 	var box := StyleBoxTexture.new()
@@ -113,12 +103,12 @@ func _add_outside_bet_button(parent: Container, label: String, bet_type: int, ce
 	parent.add_child(button)
 	button.pressed.connect(_on_outside_bet_pressed.bind(button, bet_type, -1))
 
-func _add_color_bet_button(parent: Container, label: String, bet_type: int, color: Color, cell_size: Vector2) -> void:
+func _add_color_bet_button(parent: Container, label: String, bet_type: int, texture: Texture2D, cell_size: Vector2) -> void:
 	var button := Button.new()
 	button.text = label
 	button.custom_minimum_size = cell_size
 	parent.add_child(button)
-	_style_cell(button, color)
+	_style_cell_texture(button, texture)
 	button.pressed.connect(_on_outside_bet_pressed.bind(button, bet_type, -1))
 
 func _on_number_pressed(button: Control, number: int) -> void:
