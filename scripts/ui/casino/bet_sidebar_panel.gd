@@ -16,11 +16,7 @@ signal bet_pressed(amount: int)
 
 func _ready() -> void:
 	var box := StyleBoxFlat.new()
-	box.bg_color = CasinoTheme.PANEL_NAVY_MID
-	box.corner_radius_top_left = 8
-	box.corner_radius_top_right = 8
-	box.corner_radius_bottom_left = 8
-	box.corner_radius_bottom_right = 8
+	box.bg_color = Color(CasinoTheme.PANEL_NAVY_MID, 0.0)
 	add_theme_stylebox_override("panel", box)
 	amount_edit.text = str(amount)
 	amount_edit.text_submitted.connect(_commit_typed_amount)
