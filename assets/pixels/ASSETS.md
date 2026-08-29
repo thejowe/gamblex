@@ -1,6 +1,6 @@
 # Lista de assets pixel art — grid base 32px
 
-Una carpeta por cada asset individual (108 en total) — mete la imagen
+Una carpeta por cada asset individual (112 en total) — mete la imagen
 dentro de la carpeta que le corresponde, con el mismo nombre que la
 carpeta (ej. `common/chips/chip_1/chip_1.png`). Así el agente que los
 integre no tiene que adivinar qué archivo es cuál.
@@ -82,12 +82,19 @@ sala Steam, y esperas a los invitados — misma escena para ambos casos,
 
 ## carga/ — pantalla de carga
 
-`loading_bg/` (opcional — hoy no existe ninguna pantalla de carga en el
-código, ni siquiera el splash de Godot está personalizado; esta carpeta
-es para cuando se construya)
+`loading_bg/` (fondo de `LoadingScreen`, Plan 27 — ya existe en código,
+procedural con fundido a navy; esta carpeta es para reemplazarlo por
+arte real)
+
+## settings/, pause/, credits/, help/ — menús de Ampliación v1.7, hoy color plano procedural
+
+`settings/settings_bg/` (fondo de `SettingsMenu`, Plan 29)
+`pause/pause_bg/` (fondo de `PauseMenu` dentro de `Hud`, Plan 29)
+`credits/credits_bg/` (fondo de `CreditsMenu`, Plan 30)
+`help/help_bg/` (fondo de `HelpOverlay` por mesa, Plan 28)
 
 ---
 
-108 carpetas creadas. Ve rellenando las que puedas — no hace falta
+112 carpetas creadas. Ve rellenando las que puedas — no hace falta
 completarlas todas para empezar (fichas+cartas+botones ya es un lote
 razonable para el primer agente de pixel art).
