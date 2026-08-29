@@ -337,6 +337,12 @@ func _sync_hand_visual(container: Control, nodes: Array, hand_data: Array, ancho
 			card = nodes[i]
 		if card_data.has("hidden"):
 			card.face_up = false
+		elif not is_new and not card.face_up:
+			# Cartas comunitarias o manos rivales que estaban boca abajo y
+			# se revelan en el showdown — volteo real en vez de salto.
+			card.rank = card_data["rank"]
+			card.suit = card_data["suit"]
+			card.flip()
 		else:
 			card.rank = card_data["rank"]
 			card.suit = card_data["suit"]
