@@ -15,6 +15,7 @@ const RULES_TEXT := "Plinko: elige cuantas filas de clavijas quieres (de 8 a 16)
 var _last_players: Dictionary = {}
 var _rows: int = PlinkoTableState.DEFAULT_ROWS
 var _dropping: bool = false
+var _pending_round_win: bool = false
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -68,6 +69,7 @@ func _maybe_drop_ball(previous: Dictionary) -> void:
 	if previous_round == last_round:
 		return
 	_dropping = true
+	_pending_round_win = last_round["win"]
 	rows_minus_button.disabled = true
 	rows_plus_button.disabled = true
 	bet_sidebar.bet_button.disabled = true
@@ -78,6 +80,7 @@ func _on_ball_landed(_slot: int) -> void:
 	rows_minus_button.disabled = false
 	rows_plus_button.disabled = false
 	bet_sidebar.bet_button.disabled = false
+	AudioManager.play_sfx("win" if _pending_round_win else "lose")
 
 func _refresh_players_label() -> void:
 	if _last_players.is_empty():

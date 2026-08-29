@@ -241,6 +241,7 @@ func _on_chips_won(player_id: int, amount: int) -> void:
 			return
 
 func _celebrate_seat(seat_index: int, seat_count: int) -> void:
+	AudioManager.play_sfx("win")
 	var anchor := seat_anchor(seat_index, seat_count)
 	var particles := CPUParticles2D.new()
 	particles.position = anchor
