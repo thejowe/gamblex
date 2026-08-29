@@ -42,6 +42,48 @@ sesión pilar para evitar conflictos entre ramas.
 
 ---
 
+## Cierre de sesión (2026-08-28, sesión pilar — integración de arte, Lobby)
+
+Sesión arrancó encontrando **17 commits locales sin pushear** (arte de
+la sesión de cierre anterior, `CasinoArtDirector`) — `todo_agents.md`
+seguía diciendo el estado correcto en agentes pero el repo no estaba
+sincronizado con `origin`. Pusheado sin incidentes (`c8b3813`).
+
+Retomado `docs/art/ART_INTEGRATION_PLAN.md` desde "Pendiente real" —
+el usuario priorizó el ítem Lobby (mayor impacto visible, menor riesgo
+técnico). Ejecutado directamente por esta sesión pilar (no delegado a
+un agente aparte, tarea acotada a un componente): `LobbyGameCard`
+(`scripts/ui/casino/lobby_game_card.gd`, nuevo) sustituye los 7 botones
+de texto plano de `CardGrid` en `casino_floor.tscn` por los 7
+`lobby/card_*.png` reales (ya `FINAL`, incluyen el nombre del juego
+horneado en el arte). Grid 2→4 columnas para el aspecto retrato
+96×128→176×235 en pantalla. **432/432 tests GUT** (429 previos + 3
+nuevos). Commit `9bff9dd`, pusheado.
+
+**Verificación visual en editor no completada esta sesión** — se abrió
+Godot con la escena cargada (0 errores) pero la automatización de clic
+de Windows no logró cambiar de pestaña tras 2 intentos con foco
+confirmado (sospecha: desajuste de escalado DPI). Se cerró el editor en
+vez de seguir insistiendo. Detalle completo en
+`docs/art/ART_INTEGRATION_PLAN.md`, sección de cierre 2026-08-28
+"Lobby".
+
+Pendiente real, sin urgencia (siguientes ítems de
+`ART_INTEGRATION_PLAN.md` "Pendiente real", cada uno necesita una
+decisión de diseño antes de tocarse):
+- **Confirmación visual en editor de la tarjeta de Lobby** (ver arriba).
+- `felt_table_panel.gd` (Blackjack/Póker): ¿queda procedural o se usa
+  `felt_table_bg.png` como fondo decorativo?
+- Victoria/Derrota (`victory_bg`/`defeat_bg`): requiere rediseñar el
+  estilo del `Panel` (`StyleBoxTexture` no reproduce `corner_radius`).
+- `roulette_wheel.png` como fondo decorativo tras la rueda interactiva.
+- `crash_rocket_idle`/`_launch` sin usar todavía (sin estado
+  intermedio en `crash_graph.gd` que los necesite).
+
+Sigue sin cambios, arrastrado de cierres anteriores: playtest real de 2
+clientes Steam (Modo Batalla), 6 worktrees viejos sin limpiar, basura
+sin trackear en la raíz (`tests/unit/test_poker_table_view.gd.uid`).
+
 ## Cierre de sesión (2026-08-27)
 
 Estado al cerrar: **Planes 1-31 completados y mergeados a `main`**

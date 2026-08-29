@@ -1,5 +1,32 @@
 # Art Integration Plan — enganchar los 111 PNGs aprobados en escena
 
+## Cierre de sesión (2026-08-28, sesión pilar) — Lobby
+
+Ejecutado y verificado (432/432 tests GUT), commit `9bff9dd`, pusheado a
+`main`: item "Lobby: crear componente de tarjeta de selección de juego"
+de la sección "Pendiente real" de abajo. `LobbyGameCard`
+(`scripts/ui/casino/lobby_game_card.gd`, `TextureButton`) sustituye los
+7 botones de texto plano de `CardGrid` en `casino_floor.tscn` por los 7
+`lobby/card_*.png` reales (96×128, ya incluyen el nombre del juego en
+el arte — no hace falta `Label` aparte). Grid pasó de 2 a 4 columnas
+(176×235 en pantalla, aspecto retrato). Reutiliza el mismo lenguaje de
+hover/press por tween que `CasinoButton` (no hay variantes hover/
+pressed para estas cartas). `_on_card_pressed`/nombres de nodo
+(`BlackjackCard`…`PlinkoCard`) intactos — cero cambio de lógica de
+navegación.
+
+**Verificación visual en editor: no se pudo completar esta sesión.**
+Se abrió el editor con la escena cargada (sin errores, "0 errores" en
+Salida) pero la automatización de clic de Windows (`SetCursorPos`+
+`mouse_event`) no logró cambiar de la pestaña "Tienda de Assets" a "2D"
+tras 2 intentos con foco confirmado — probablemente desajuste de
+escalado DPI entre coordenadas físicas y el área cliente de la ventana.
+Se cerró el editor en vez de seguir insistiendo (mismo criterio de "no
+rabbit-holing" en automatización de UI). Queda pendiente que el usuario
+o una sesión con Godot a mano confirmen visualmente el grid de 7
+tarjetas antes de dar el ítem por cerrado del todo — mismo patrón que
+otras oleadas de este plan que se cerraron solo con tests en verde.
+
 ## Cierre de sesión (2026-08-28)
 
 Ejecutado y verificado (429/429 tests GUT en cada paso), pusheado a
@@ -26,10 +53,9 @@ aquí):**
   panel, no es una asignación de textura.
 - `roulette_wheel.png` como fondo decorativo detrás de la rueda
   interactiva real (doble dibujo, evaluar si vale la pena).
-- Tarjetas de Lobby (`lobby/card_*.png`) — hoy no hay componente de
-  tarjeta de selección de juego en `casino_floor.tscn`, son botones de
-  texto plano. Esto es UI nueva, no un reemplazo — más grande que todo
-  lo anterior.
+- ~~Tarjetas de Lobby (`lobby/card_*.png`)~~ — **hecho (2026-08-28,
+  `9bff9dd`)**, ver sección de cierre arriba. Visual en editor pendiente
+  de confirmar por el usuario.
 - `crash_rocket_idle`/`_launch` (generados en FASE 11) siguen sin
   usarse — no hay un estado intermedio en `crash_graph.gd` hoy que los
   necesite.
@@ -281,10 +307,8 @@ sustituirlo, conservando el borde de color).
     decorativo detrás del dibujo actual (que sigue siendo la fuente de
     verdad interactiva). Requiere decidir si vale la pena el doble
     dibujo (imagen + polígonos encima) o si se deja tal cual.
-13. Lobby: crear el componente de tarjeta de selección de juego que hoy
-    no existe (los botones de juego son texto plano) y usar los 7
-    `card_*.png` — esto es una **adición de UI nueva**, no un
-    reemplazo, más grande que las anteriores.
+13. ~~Lobby: crear el componente de tarjeta de selección de juego~~ —
+    **EJECUTADA (2026-08-28, `9bff9dd`).** Ver sección de cierre arriba.
 
 ## Verificación obligatoria en cada oleada
 
