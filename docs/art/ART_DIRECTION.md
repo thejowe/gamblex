@@ -163,13 +163,13 @@ Este documento la adopta y la extiende al resto de categorías:
 ```text
 Unidad de grid: 32px (1 "celda" de pixel art)
 
-Fichas (chip_*):            32×32   (1×1 celda)
-Iconos HUD (icon_*):        32×32   (1×1 celda)
+Fichas (chip_*):            32×32   (1×1 celda) — EXCEPCIÓN: 22×22 real, ver abajo
+Iconos HUD (icon_*):        32×32   (1×1 celda) — EXCEPCIÓN: 28×28 real, ver abajo
 Casillas Mines:             32×32   (1×1 celda)
 Celdas de ruleta:           32×32   (1×1 celda)
 Botones (button_*):         96×32   (3×1 celdas)
 Cartas (card_*):            64×96   (2×3 celdas)
-Fichas de lobby (card_*):   192×256 (6×8 celdas)
+Fichas de lobby (card_*):   192×256 (6×8 celdas) — EXCEPCIÓN: 96×128 real, ver abajo
 Fondos de pantalla completa: 220×264 lienzo base → escalado ×4 nearest
                              a 880×1056 dentro de 900×1080 (mantiene el
                              aspecto 5:6 real del viewport, pixel size
@@ -186,6 +186,34 @@ Esta tabla es la que usa `ART_ASSET_PLAN.md` por categoría. Si un asset
 concreto necesita un tamaño distinto (p. ej. `roulette_wheel`, que es
 circular y grande), se documenta como excepción ahí mismo, nunca en
 silencio.
+
+**Excepciones de tamaño confirmadas (detectadas en validación
+`artgroup-*`, 2026-08-28 — ver `ASSET_REGISTRY.md` para el detalle
+completo por categoría):**
+
+- **Fichas (`chip_*`): 22×22 real, no 32×32.** Las 6 denominaciones
+  (`chip_1/5/10/25/50/100`) fueron `APPROVED` por el gatekeeper a
+  22×22 desde `CHIP_MASTER`, consistentes entre sí y con el consumo
+  real en `CasinoChip` (`scripts/ui/casino/casino_chip.gd`,
+  `custom_minimum_size` 48×48 con `RADIUS=24` — ni 22×22 ni 32×32 caen
+  en escala entera contra ese tamaño de todos modos, así que no se
+  regenera). No se recorta el master para forzar 32×32.
+- **Iconos HUD (`icon_*`): 28×28 real, no 32×32.** Los 5 iconos
+  (`icon_pot/win/lose/crown_a/crown_b`) son el `ICON_MASTER` (32×32)
+  recortado al margen transparente real del pictograma, uniforme en
+  los 5 — no rompe el grid base de 32px, el hueco de 2px por lado
+  queda implícito al colocarlos en una celda de 32×32 en el nodo que
+  los consuma.
+- **Fichas de lobby (`card_*` en `lobby/`): 96×128 real, no 192×256.**
+  `LOBBY_CARD_MASTER` y las 7 tarjetas (`card_blackjack/roulette/
+  poker/dice/crash/mines/plinko`) están construidas y `APPROVED` a
+  96×128 (3×4 celdas de grid de 32px) desde FASE 14 — la entrada
+  192×256 de la tabla de arriba estaba desactualizada, no las 7
+  tarjetas reales.
+
+Ninguna de las tres motiva regenerar assets ya `FINAL` — quedan
+documentadas aquí para que la tabla deje de estar en silencio respecto
+al tamaño real aprobado.
 
 ## Decisiones que requerían confirmación del usuario — RESUELTAS (2026-08-28)
 

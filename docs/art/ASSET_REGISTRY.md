@@ -176,6 +176,10 @@ fuera de mi dominio) — se deja documentado aquí para que
 `CasinoArtDirector` añada la excepción a `ART_DIRECTION.md` o decida
 recortar el master.
 
+**RESUELTO (`CasinoArtDirector`, 2026-08-28):** excepción añadida a
+`ART_DIRECTION.md` (sección "Resolución y pixel density") — 22×22 real
+queda documentado ahí, sin regenerar ningún PNG.
+
 ## Botones — `common/buttons/` (12) — Master: BUTTON_MASTER
 
 | ID | Tamaño | Status |
@@ -600,6 +604,10 @@ en `ART_DIRECTION.md`, no un fallo de las 7 tarjetas; se reporta para
 que `CasinoArtDirector` la corrija (edición de `ART_DIRECTION.md` está
 fuera de mi scope).
 
+**RESUELTO (`CasinoArtDirector`, 2026-08-28):** entrada corregida en
+`ART_DIRECTION.md` — 96×128 real queda documentado como excepción,
+sin regenerar ningún PNG.
+
 **Nota de integración (informativa, no accionable por este agente):**
 el componente de tarjeta de selección de juego que consumiría estos 7
 PNGs no existe todavía en `casino_floor.tscn` (usa botones de texto
@@ -638,6 +646,10 @@ hueco de 2px por lado queda implícito al colocarlos en una celda de
 iconos — los 5 comparten exactamente 28×28 y el mismo anillo dorado de
 borde, cumpliendo "escala coherente con los demás assets de su
 categoría".
+
+**RESUELTO (`CasinoArtDirector`, 2026-08-28):** excepción añadida a
+`ART_DIRECTION.md` (sección "Resolución y pixel density") — 28×28 real
+queda documentado ahí, sin regenerar ningún PNG.
 
 Validación FINAL (2026-08-28, `artgroup-hud`): 7/7 archivos verificados
 contra `ART_VALIDATION.md` — resolución correcta (28×28 iconos con
