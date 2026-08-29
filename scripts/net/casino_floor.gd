@@ -38,6 +38,8 @@ var _state_line: String = ""
 
 var _lobby := LobbyController.new()
 var _table_nodes: Dictionary = {}
+var _goal_label_shown_balance: int = 0
+var _goal_label_target: int = GOAL_TARGET
 
 func _ready() -> void:
     for table_name in TABLE_NODE_NAMES:
@@ -206,9 +208,21 @@ func _request_goal_state() -> void:
 func _broadcast_goal_state() -> void:
     _receive_goal_state.rpc(_goal_state_dict())
 
+# Cambiar el número de golpe se sentía como una hoja de cálculo, no como un
+# casino — un count-up corto vende mucho más la sensación de que el pozo
+# realmente sube/baja, sobre todo cuando alguien mete una apuesta grande.
+func _animate_goal_label(new_balance: int, target: int) -> void:
+    _goal_label_target = target
+    var tween := create_tween()
+    tween.tween_method(_set_goal_label_balance, _goal_label_shown_balance, new_balance, 0.4)
+    _goal_label_shown_balance = new_balance
+
+func _set_goal_label_balance(balance: int) -> void:
+    goal_label.text = "Meta colectiva: %d / %d fichas" % [balance, _goal_label_target]
+
 @rpc("authority", "call_local", "reliable")
 func _receive_goal_state(state: Dictionary) -> void:
-    goal_label.text = "Meta colectiva: %d / %d fichas" % [state["balance"], state["target"]]
+    _animate_goal_label(state["balance"], state["target"])
     unlocked_banner.visible = state["unlocked"]
     if state["bankrupt"]:
         _show_result_overlay(defeat_overlay, "PERDISTE", "el pozo compartido se agotó")
