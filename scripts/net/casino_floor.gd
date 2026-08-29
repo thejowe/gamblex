@@ -24,6 +24,8 @@ const TABLE_NODE_NAMES := [
 @onready var victory_overlay: Control = $Hud/VictoryOverlay
 @onready var battle_controller: BattleController = $BattleController
 @onready var battle_status_label: Label = $Hud/BattleStatusLabel
+@onready var icon_crown_a: TextureRect = $Hud/IconCrownA
+@onready var icon_crown_b: TextureRect = $Hud/IconCrownB
 @onready var lobby_view: Control = $TablesLayer/Lobby
 @onready var card_grid: GridContainer = $TablesLayer/Lobby/CardGrid
 @onready var back_button: Button = $Hud/BackButton
@@ -261,11 +263,19 @@ func _on_match_state_changed(state: Dictionary) -> void:
             _show_result_overlay(defeat_overlay, "PERDISTE", "Tu equipo perdió — %s" % _reason_label(state["reason"], false))
     _state_line = msg
     _refresh_battle_label()
+    _refresh_leading_team_crown(state["pool_balances"][0], state["pool_balances"][1])
     if my_team != -1:
         _sync_bet_sidebars_max_amount(state["pool_balances"][my_team])
 
 func _refresh_battle_label() -> void:
     battle_status_label.text = _teams_line + "\n" + _state_line
+
+# Los iconos de corona (uno por equipo) solo estaban en disco, aprobados,
+# sin ningún nodo que los mostrara — sin esto no había forma visual rápida
+# de saber qué equipo va ganando salvo leyendo los números del pozo.
+func _refresh_leading_team_crown(pool_a: int, pool_b: int) -> void:
+    icon_crown_a.visible = pool_a > pool_b
+    icon_crown_b.visible = pool_b > pool_a
 
 # ---- pantallas de resultado (victoria/derrota) ----
 

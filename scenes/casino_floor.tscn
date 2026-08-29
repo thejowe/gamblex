@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/net/casino_floor.gd" id="2"]
@@ -24,6 +24,8 @@
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_pot/icon_pot.png" id="22"]
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_win/icon_win.png" id="23"]
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_lose/icon_lose.png" id="24"]
+[ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_crown_a/icon_crown_a.png" id="25"]
+[ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_crown_b/icon_crown_b.png" id="26"]
 
 [sub_resource type="StyleBoxFlat" id="DefeatPanelStyle"]
 bg_color = Color(0.0745098, 0.105882, 0.14902, 0)
@@ -219,10 +221,36 @@ grow_vertical = 0
 text = "¡Meta colectiva alcanzada! Nueva mesa desbloqueada."
 visible = false
 
-[node name="BattleStatusLabel" type="Label" parent="Hud"]
+[node name="IconCrownA" type="TextureRect" parent="Hud"]
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 20.0
+offset_top = -88.0
+offset_right = 42.0
+offset_bottom = -66.0
+grow_vertical = 0
+visible = false
+texture = ExtResource("25")
+texture_filter = 1
+stretch_mode = 5
+
+[node name="IconCrownB" type="TextureRect" parent="Hud"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -88.0
+offset_right = 42.0
+offset_bottom = -66.0
+grow_vertical = 0
+visible = false
+texture = ExtResource("26")
+texture_filter = 1
+stretch_mode = 5
+
+[node name="BattleStatusLabel" type="Label" parent="Hud"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 46.0
 offset_top = -90.0
 offset_right = 700.0
 offset_bottom = -20.0
