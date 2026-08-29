@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/blackjack_table_net.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/net/casino_floor.gd" id="2"]
@@ -27,6 +27,7 @@
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_crown_a/icon_crown_a.png" id="25"]
 [ext_resource type="Texture2D" path="res://assets/pixels/hud/icon_crown_b/icon_crown_b.png" id="26"]
 [ext_resource type="PackedScene" path="res://scenes/ui/casino/achievement_toast.tscn" id="27"]
+[ext_resource type="PackedScene" path="res://scenes/ui/casino/casino_button.tscn" id="28"]
 
 [sub_resource type="StyleBoxFlat" id="DefeatPanelStyle"]
 bg_color = Color(0.0745098, 0.105882, 0.14902, 0)
@@ -260,7 +261,7 @@ offset_bottom = -20.0
 grow_vertical = 0
 text = "Equipos: —"
 
-[node name="BackButton" type="Button" parent="Hud"]
+[node name="BackButton" parent="Hud" instance=ExtResource("28")]
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_top = 1.0
@@ -274,7 +275,7 @@ grow_vertical = 0
 text = "‹ Volver al lobby"
 visible = false
 
-[node name="ExitRoomButton" type="Button" parent="Hud"]
+[node name="ExitRoomButton" parent="Hud" instance=ExtResource("28")]
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_top = 1.0
@@ -286,6 +287,7 @@ offset_bottom = -35.0
 grow_horizontal = 0
 grow_vertical = 0
 text = "Salir de la sala"
+variant = 2
 
 [node name="DefeatOverlay" type="Control" parent="Hud"]
 anchor_right = 1.0

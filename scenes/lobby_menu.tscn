@@ -27,13 +27,14 @@ expand_mode = 1
 stretch_mode = 6
 texture_filter = 1
 
-[node name="CreateButton" type="Button" parent="."]
+[node name="CreateButton" parent="." instance=ExtResource("2")]
 layout_mode = 0
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 200.0
 offset_bottom = 56.0
 text = "Crear partida"
+variant = 1
 
 [node name="MatchTypeOption" type="OptionButton" parent="."]
 layout_mode = 0
@@ -42,7 +43,7 @@ offset_top = 62.0
 offset_right = 200.0
 offset_bottom = 98.0
 
-[node name="InviteButton" type="Button" parent="."]
+[node name="InviteButton" parent="." instance=ExtResource("2")]
 layout_mode = 0
 offset_left = 220.0
 offset_top = 60.0
@@ -50,7 +51,7 @@ offset_right = 400.0
 offset_bottom = 96.0
 text = "Invitar amigos"
 
-[node name="CancelButton" type="Button" parent="."]
+[node name="CancelButton" parent="." instance=ExtResource("2")]
 layout_mode = 0
 offset_left = 410.0
 offset_top = 60.0
@@ -58,6 +59,7 @@ offset_right = 590.0
 offset_bottom = 96.0
 text = "Cancelar"
 visible = false
+variant = 2
 
 [node name="MembersLabel" type="Label" parent="."]
 layout_mode = 0
@@ -85,7 +87,7 @@ offset_right = 200.0
 offset_bottom = 216.0
 text = "Créditos"
 
-[node name="SettingsButton" type="Button" parent="."]
+[node name="SettingsButton" parent="." instance=ExtResource("2")]
 layout_mode = 0
 offset_left = 600.0
 offset_top = 20.0
