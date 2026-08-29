@@ -1,21 +1,20 @@
 extends Control
 
+@onready var background: ColorRect = $Background
 @onready var create_button: Button = $CreateButton
 @onready var invite_button: Button = $InviteButton
 @onready var cancel_button: Button = $CancelButton
 @onready var members_label: Label = $MembersLabel
 @onready var match_type_option: OptionButton = $MatchTypeOption
 @onready var error_label: Label = $ErrorLabel
-@onready var credits_button: CasinoButton = $CreditsButton
-@onready var settings_button: Button = $SettingsButton
-@onready var settings_menu: SettingsMenu = $SettingsMenu
+@onready var back_button: CasinoButton = $BackButton
 
 var _transitioned: bool = false
 
 const FREE_MODE_MAX_MEMBERS := 4
 
 func _ready() -> void:
-	_apply_saved_display_settings()
+	background.color = CasinoTheme.PANEL_NAVY_DARK
 	match_type_option.add_item("Libre", -1)
 	match_type_option.add_item("1v1", TeamAssignment.MatchType.ONE_V_ONE)
 	match_type_option.add_item("2v2", TeamAssignment.MatchType.TWO_V_TWO)
@@ -23,8 +22,7 @@ func _ready() -> void:
 	create_button.pressed.connect(_on_create_pressed)
 	invite_button.pressed.connect(_on_invite_pressed)
 	cancel_button.pressed.connect(_on_cancel_pressed)
-	credits_button.pressed.connect(_on_credits_pressed)
-	settings_button.pressed.connect(func(): settings_menu.visible = true)
+	back_button.pressed.connect(_on_back_pressed)
 	SteamManager.lobby_ready.connect(_on_lobby_ready)
 	SteamManager.lobby_join_failed.connect(_on_lobby_join_failed)
 	SteamManager.steam_ready.connect(_on_steam_ready)
@@ -59,8 +57,13 @@ func _on_cancel_pressed() -> void:
 func _on_invite_pressed() -> void:
 	Steam.activateGameOverlayInviteDialog(SteamManager.current_lobby_id)
 
-func _on_credits_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/ui/casino/credits_menu.tscn")
+func _on_back_pressed() -> void:
+	if SteamManager.current_lobby_id > 0:
+		Steam.leaveLobby(SteamManager.current_lobby_id)
+		SteamManager.reset()
+	var loading: LoadingScreen = preload("res://scenes/ui/casino/loading_screen.tscn").instantiate()
+	add_child(loading)
+	loading.fade_and_change_scene("res://scenes/home_screen.tscn")
 
 func _on_lobby_ready(lobby_id: int, is_owner: bool) -> void:
 	invite_button.disabled = false
@@ -112,10 +115,3 @@ func _reset_to_idle() -> void:
 func _show_error(message: String) -> void:
 	error_label.text = message
 	error_label.visible = true
-
-func _apply_saved_display_settings() -> void:
-	var cfg := ConfigFile.new()
-	if cfg.load("user://settings.cfg") != OK:
-		return
-	var fullscreen: bool = cfg.get_value("display", "fullscreen", true)
-	get_window().mode = Window.MODE_FULLSCREEN if fullscreen else Window.MODE_WINDOWED
