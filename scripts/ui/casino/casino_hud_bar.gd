@@ -7,12 +7,20 @@ extends PanelContainer
 var _last_balance: int = -1
 var _last_bet: int = -1
 
+const PANEL_BORDER_TEXTURE_PATH := "res://assets/pixels/common/panels/panel_border/panel_border.png"
+
 func _ready() -> void:
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.078, 0.078, 0.059, 0.92)
-	box.border_width_top = 2
-	box.border_color = CasinoTheme.GOLD_ACCENT
+	# panel_border ya estaba FINAL en el registro (mismo lote que
+	# bet_sidebar_bg) pero ningún nodo lo consumía — este panel seguía con
+	# un StyleBoxFlat dibujado a mano en vez del pixel art ya aprobado.
+	var box := StyleBoxTexture.new()
+	box.texture = load(PANEL_BORDER_TEXTURE_PATH)
+	box.texture_margin_left = 16
+	box.texture_margin_right = 16
+	box.texture_margin_top = 16
+	box.texture_margin_bottom = 16
 	add_theme_stylebox_override("panel", box)
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	balance_label.add_theme_color_override("font_color", CasinoTheme.GOLD_ACCENT)
 	bet_label.add_theme_color_override("font_color", CasinoTheme.GOLD_ACCENT)
 
