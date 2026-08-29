@@ -18,9 +18,11 @@
 [ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_crash/card_crash.png" id="16"]
 [ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_mines/card_mines.png" id="17"]
 [ext_resource type="Texture2D" path="res://assets/pixels/lobby/card_plinko/card_plinko.png" id="18"]
+[ext_resource type="Texture2D" path="res://assets/pixels/hud/defeat_bg/defeat_bg.png" id="19"]
+[ext_resource type="Texture2D" path="res://assets/pixels/hud/victory_bg/victory_bg.png" id="20"]
 
 [sub_resource type="StyleBoxFlat" id="DefeatPanelStyle"]
-bg_color = Color(0.0745098, 0.105882, 0.14902, 1)
+bg_color = Color(0.0745098, 0.105882, 0.14902, 0)
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3
@@ -32,7 +34,7 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="VictoryPanelStyle"]
-bg_color = Color(0.0745098, 0.105882, 0.14902, 1)
+bg_color = Color(0.0745098, 0.105882, 0.14902, 0)
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3
@@ -242,6 +244,19 @@ anchor_bottom = 1.0
 color = Color(0.05, 0.02, 0.02, 0.6)
 mouse_filter = 2
 
+[node name="PanelBackground" type="NinePatchRect" parent="Hud/DefeatOverlay"]
+anchor_left = 0.32
+anchor_top = 0.32
+anchor_right = 0.68
+anchor_bottom = 0.68
+mouse_filter = 2
+texture = ExtResource("19")
+patch_margin_left = 30
+patch_margin_top = 30
+patch_margin_right = 30
+patch_margin_bottom = 30
+texture_filter = 1
+
 [node name="Panel" type="Panel" parent="Hud/DefeatOverlay"]
 anchor_left = 0.32
 anchor_top = 0.32
@@ -286,6 +301,19 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.02, 0.05, 0.02, 0.6)
 mouse_filter = 2
+
+[node name="PanelBackground" type="NinePatchRect" parent="Hud/VictoryOverlay"]
+anchor_left = 0.32
+anchor_top = 0.32
+anchor_right = 0.68
+anchor_bottom = 0.68
+mouse_filter = 2
+texture = ExtResource("20")
+patch_margin_left = 30
+patch_margin_top = 30
+patch_margin_right = 30
+patch_margin_bottom = 30
+texture_filter = 1
 
 [node name="Panel" type="Panel" parent="Hud/VictoryOverlay"]
 anchor_left = 0.32
