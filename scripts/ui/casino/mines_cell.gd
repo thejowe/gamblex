@@ -10,10 +10,14 @@ signal cell_pressed(index: int)
 @export var state: State = State.HIDDEN:
 	set(value):
 		var was_safe := state == State.SAFE
+		var was_mine := state == State.MINE
 		state = value
 		queue_redraw()
-		if state == State.SAFE and not was_safe and is_inside_tree():
-			_animate_reveal()
+		if is_inside_tree():
+			if state == State.SAFE and not was_safe:
+				_animate_reveal()
+			elif state == State.MINE and not was_mine:
+				_animate_explosion()
 
 const STATE_TEXTURE_PATHS := {
 	State.HIDDEN: "res://assets/pixels/mines/mines_cell_hidden/mines_cell_hidden.png",
@@ -31,6 +35,20 @@ func _animate_reveal() -> void:
 	scale = Vector2(0.8, 0.8)
 	var tween := create_tween()
 	tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.15)
+
+# La casilla que revela la mina que termina la ronda no tenía ningún énfasis
+# — el mismo cambio de textura silencioso que cualquier otra casilla, pese a
+# ser el momento de "perdiste" de toda la ronda.
+func _animate_explosion() -> void:
+	scale = Vector2(1.4, 1.4)
+	var scale_tween := create_tween()
+	scale_tween.tween_property(self, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	var base_position := position
+	var shake_tween := create_tween()
+	for i in range(4):
+		var offset := Vector2(randf_range(-4.0, 4.0), randf_range(-4.0, 4.0))
+		shake_tween.tween_property(self, "position", base_position + offset, 0.03)
+	shake_tween.tween_property(self, "position", base_position, 0.03)
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
