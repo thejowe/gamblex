@@ -58,7 +58,7 @@ func spin_to(result: int) -> void:
 	AudioManager.play_sfx("spin")
 	var target_angle := angle_for_result(result) + TAU * 4.0
 	var tween := create_tween()
-	tween.tween_property(self, "ball_angle", target_angle, 2.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "ball_angle", target_angle, 2.0).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.finished.connect(func():
 		last_result = result
 		ball_angle = wrapf(ball_angle, 0.0, TAU)
