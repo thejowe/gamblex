@@ -57,6 +57,11 @@ func _refresh_stats() -> void:
 	var chance := DiceTableState.win_chance(threshold, direction)
 	multiplier_label.text = "Multiplicador: %.2fx" % mult
 	probability_label.text = "Probabilidad: %.2f%%" % chance
+	# El multiplicador no cambiaba de color con el riesgo — un 1.05x (casi
+	# seguro) se veía igual de "normal" que un 50x (casi imposible), sin
+	# ninguna señal visual de cuánto estás arriesgando.
+	var risk_t: float = clampf(inverse_lerp(1.0, 20.0, mult), 0.0, 1.0)
+	multiplier_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT.lerp(CasinoTheme.GOLD_ACCENT, risk_t))
 
 func _on_bet_pressed(amount: int) -> void:
 	table_controller.roll(threshold_slider.threshold, threshold_slider.direction, amount)
