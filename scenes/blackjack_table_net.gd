@@ -219,8 +219,12 @@ func _sync_chip(seat_index: int, seat, anchor: Vector2) -> void:
 	var bet: int = seat["bet"] if seat != null else 0
 	if bet <= 0:
 		if existing != null:
-			existing.queue_free()
 			_seat_chip_nodes[seat_index] = null
+			var sweep_tween := create_tween()
+			sweep_tween.set_parallel(true)
+			sweep_tween.tween_property(existing, "position", hud_bar.position, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			sweep_tween.tween_property(existing, "modulate:a", 0.0, 0.25)
+			sweep_tween.chain().tween_callback(existing.queue_free)
 		return
 	if existing == null:
 		var chip: CasinoChip = CasinoChipScene.instantiate()
