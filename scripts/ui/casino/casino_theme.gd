@@ -32,3 +32,41 @@ const ACCENT_GREEN := Color("4caf6e")
 const ACCENT_RED := Color("d9534f")
 const TEXT_LIGHT := Color("e8edf2")
 const TEXT_MUTED := Color("7c8a9a")
+
+# Godot pinta LineEdit/OptionButton por defecto en blanco con texto negro —
+# sin esto cualquier control nativo sin estilizar rompe el tema navy/dorado
+# en medio de una mesa. Reutilizado por BetSidebarPanel y MinesTableNet.
+static func style_line_edit(edit: LineEdit) -> void:
+	var normal_box := StyleBoxFlat.new()
+	normal_box.bg_color = PANEL_NAVY_DARK
+	normal_box.border_color = PANEL_NAVY_LIGHT
+	normal_box.set_border_width_all(1)
+	normal_box.set_corner_radius_all(4)
+	normal_box.content_margin_left = 8
+	normal_box.content_margin_right = 8
+	normal_box.content_margin_top = 4
+	normal_box.content_margin_bottom = 4
+	var focus_box := normal_box.duplicate()
+	focus_box.border_color = GOLD_ACCENT
+	edit.add_theme_stylebox_override("normal", normal_box)
+	edit.add_theme_stylebox_override("focus", focus_box)
+	edit.add_theme_color_override("font_color", TEXT_LIGHT)
+	edit.add_theme_color_override("font_selected_color", PANEL_NAVY_DARK)
+	edit.add_theme_color_override("selection_color", GOLD_ACCENT)
+	edit.add_theme_color_override("caret_color", GOLD_ACCENT)
+
+static func style_option_button(button: OptionButton) -> void:
+	var box := StyleBoxFlat.new()
+	box.bg_color = PANEL_NAVY_DARK
+	box.border_color = PANEL_NAVY_LIGHT
+	box.set_border_width_all(1)
+	box.set_corner_radius_all(4)
+	box.content_margin_left = 8
+	box.content_margin_right = 8
+	box.content_margin_top = 4
+	box.content_margin_bottom = 4
+	button.add_theme_stylebox_override("normal", box)
+	button.add_theme_stylebox_override("hover", box)
+	button.add_theme_stylebox_override("pressed", box)
+	button.add_theme_color_override("font_color", TEXT_LIGHT)
+	button.add_theme_color_override("font_hover_color", GOLD_ACCENT)

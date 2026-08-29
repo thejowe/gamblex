@@ -31,6 +31,8 @@ func _display_name(peer_id: int) -> String:
 	return persona_name if not persona_name.is_empty() else "jugador %d" % peer_id
 
 func _ready() -> void:
+	CasinoTheme.style_option_button(size_option)
+	CasinoTheme.style_line_edit(mine_count_edit)
 	for option in SIZE_OPTIONS:
 		size_option.add_item(option["label"])
 	size_option.item_selected.connect(func(_i): _rebuild_grid(); _refresh_density_label())

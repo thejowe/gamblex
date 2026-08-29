@@ -18,7 +18,7 @@ func _ready() -> void:
 	var box := StyleBoxFlat.new()
 	box.bg_color = Color(CasinoTheme.PANEL_NAVY_MID, 0.0)
 	add_theme_stylebox_override("panel", box)
-	_style_amount_edit()
+	CasinoTheme.style_line_edit(amount_edit)
 	amount_edit.text = str(amount)
 	amount_edit.text_submitted.connect(_commit_typed_amount)
 	amount_edit.focus_exited.connect(func(): _commit_typed_amount(amount_edit.text))
@@ -26,28 +26,6 @@ func _ready() -> void:
 	$Margin/VBox/AmountRow/HalfButton.pressed.connect(_on_half_pressed)
 	$Margin/VBox/AmountRow/DoubleButton.pressed.connect(_on_double_pressed)
 	$Margin/VBox/AmountRow/MaxButton.pressed.connect(_on_max_pressed)
-
-# El LineEdit por defecto de Godot es blanco con texto negro — sin esto
-# quedaba un rectángulo claro flotando en medio de un panel navy oscuro en
-# las 7 mesas, el único control que no seguía el tema del casino.
-func _style_amount_edit() -> void:
-	var normal_box := StyleBoxFlat.new()
-	normal_box.bg_color = CasinoTheme.PANEL_NAVY_DARK
-	normal_box.border_color = CasinoTheme.PANEL_NAVY_LIGHT
-	normal_box.set_border_width_all(1)
-	normal_box.set_corner_radius_all(4)
-	normal_box.content_margin_left = 8
-	normal_box.content_margin_right = 8
-	normal_box.content_margin_top = 4
-	normal_box.content_margin_bottom = 4
-	var focus_box := normal_box.duplicate()
-	focus_box.border_color = CasinoTheme.GOLD_ACCENT
-	amount_edit.add_theme_stylebox_override("normal", normal_box)
-	amount_edit.add_theme_stylebox_override("focus", focus_box)
-	amount_edit.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
-	amount_edit.add_theme_color_override("font_selected_color", CasinoTheme.PANEL_NAVY_DARK)
-	amount_edit.add_theme_color_override("selection_color", CasinoTheme.GOLD_ACCENT)
-	amount_edit.add_theme_color_override("caret_color", CasinoTheme.GOLD_ACCENT)
 
 func set_max_amount(value: int) -> void:
 	max_amount = value
