@@ -42,6 +42,39 @@ sesión pilar para evitar conflictos entre ramas.
 
 ---
 
+## Ampliación v1.9: pantalla de inicio (2026-08-29)
+
+El usuario pidió, en sesión de brainstorming, una pantalla de inicio
+típica de cualquier juego (Iniciar Partida/Ajustes/Créditos/Ayuda/Salir)
+delante de lo que hoy es el arranque real: `LobbyMenu` mezcla crear/unirse
+sala Steam con los botones de Ajustes/Créditos.
+
+Decisiones confirmadas con el usuario:
+- `HomeScreen` nueva pasa a ser `run/main_scene`. `LobbyMenu` se degrada a
+  sub-pantalla ("crear/unirse sala"), alcanzable solo desde "Iniciar
+  Partida", con botón "Volver" nuevo.
+- Ajustes/Créditos se mueven de `LobbyMenu` a `HomeScreen` (un solo
+  sitio, no duplicado).
+- Ayuda de Home = ayuda general del casino (Steam/Modo Libre vs
+  Batalla/fichas), texto nuevo — no duplica las reglas por juego que ya
+  vive en el `HelpOverlay` de cada mesa (Plan 28).
+- `lobby_bg.png` (`inicio/`, ya `FINAL`) se reasigna de `LobbyMenu` a
+  `HomeScreen` — es literalmente la "pantalla de bienvenida" para la que
+  se diseñó. `LobbyMenu` se queda con fondo navy plano de `CasinoTheme`,
+  sin arte nuevo (decisión explícita del usuario, no hace falta
+  `CasinoArtDirector` para esto).
+- Salir (quit a escritorio) sí se incluye en Home, con el mismo patrón de
+  confirmación ya usado en `PauseMenu`/`SettingsMenu`
+  (`CasinoTheme.style_confirmation_dialog`).
+
+Creado `plan32-home-screen`, desbloqueado, sin dependencias. Plan de
+implementación completo (7 tareas con TDD, interfaces reales
+confirmadas leyendo el repo — `CasinoButton`/`SettingsMenu`/
+`CreditsMenu`/`HelpOverlay`/`LoadingScreen`) ya escrito por esta sesión
+pilar: `docs/superpowers/plans/2026-08-29-home-screen.md`.
+
+---
+
 ## Cierre de sesión (2026-08-28, sesión pilar — las 5 decisiones pendientes de ART_INTEGRATION_PLAN.md)
 
 Retomado `docs/art/ART_INTEGRATION_PLAN.md` desde "Pendiente real" (ver
