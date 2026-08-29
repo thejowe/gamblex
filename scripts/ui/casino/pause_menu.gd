@@ -37,6 +37,7 @@ func _ready() -> void:
 	exit_room_button.pressed.connect(func(): exit_room_requested.emit())
 	quit_button.pressed.connect(quit_confirm.popup_centered)
 	quit_confirm.confirmed.connect(func(): get_tree().quit())
+	CasinoTheme.style_confirmation_dialog(quit_confirm)
 	visibility_changed.connect(func():
 		if visible:
 			CasinoTheme.play_modal_pop_in(panel)

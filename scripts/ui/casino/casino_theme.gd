@@ -81,6 +81,13 @@ static func play_modal_pop_in(node: Control) -> void:
 	var tween := node.create_tween()
 	tween.tween_property(node, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
+# ConfirmationDialog es una ventana nativa aparte — sus botones OK/Cancel
+# generados automáticamente también heredan el tema por defecto de Godot en
+# vez de la paleta del casino si no se tocan explícitamente.
+static func style_confirmation_dialog(dialog: ConfirmationDialog) -> void:
+	dialog.get_ok_button().add_theme_color_override("font_color", TEXT_LIGHT)
+	dialog.get_cancel_button().add_theme_color_override("font_color", TEXT_LIGHT)
+
 static func style_option_button(button: OptionButton) -> void:
 	var box := StyleBoxFlat.new()
 	box.bg_color = PANEL_NAVY_DARK
