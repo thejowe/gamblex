@@ -90,6 +90,8 @@ func _on_ball_landed(_slot: int) -> void:
 	rows_plus_button.disabled = false
 	bet_sidebar.bet_button.disabled = false
 	AudioManager.play_win_sfx(_pending_round_win, _pending_round_payout, _pending_round_amount)
+	if _pending_round_win and _pending_round_amount > 0 and _pending_round_payout >= _pending_round_amount * 5:
+		CasinoTheme.spawn_confetti_burst(self, board.position + board.size / 2.0)
 
 func _refresh_players_label() -> void:
 	if _last_players.is_empty():

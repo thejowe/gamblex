@@ -112,7 +112,11 @@ func _maybe_flash_result(mine: Dictionary) -> void:
 		return
 	_last_round_seen[my_id] = last_round
 	crash_graph.state = CrashGraph.State.CASHED_OUT if last_round["win"] else CrashGraph.State.CRASHED
-	AudioManager.play_win_sfx(last_round["win"], last_round.get("payout", 0), last_round.get("bet_amount", 0))
+	var payout: int = last_round.get("payout", 0)
+	var bet_amount: int = last_round.get("bet_amount", 0)
+	AudioManager.play_win_sfx(last_round["win"], payout, bet_amount)
+	if last_round["win"] and bet_amount > 0 and payout >= bet_amount * 5:
+		CasinoTheme.spawn_confetti_burst(self, crash_graph.position + crash_graph.size / 2.0)
 
 func _refresh_players_label() -> void:
 	if _last_players.is_empty():

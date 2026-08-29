@@ -114,7 +114,11 @@ func _maybe_play_round_result_sfx() -> void:
 	if _last_round_seen.get(my_seat_index, {}) == last_round:
 		return
 	_last_round_seen[my_seat_index] = last_round
-	AudioManager.play_win_sfx(last_round["win"], last_round.get("payout", 0), last_round.get("amount", 0))
+	var payout: int = last_round.get("payout", 0)
+	var amount: int = last_round.get("amount", 0)
+	AudioManager.play_win_sfx(last_round["win"], payout, amount)
+	if last_round["win"] and amount > 0 and payout >= amount * 5:
+		CasinoTheme.spawn_confetti_burst(self, wheel.position + wheel.size / 2.0)
 
 func _set_betting_enabled(enabled: bool) -> void:
 	bet_sidebar.bet_button.disabled = not enabled

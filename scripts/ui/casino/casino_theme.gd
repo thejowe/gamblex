@@ -88,6 +88,27 @@ static func style_confirmation_dialog(dialog: ConfirmationDialog) -> void:
 	dialog.get_ok_button().add_theme_color_override("font_color", TEXT_LIGHT)
 	dialog.get_cancel_button().add_theme_color_override("font_color", TEXT_LIGHT)
 
+# Blackjack/Póker ya soltaban un estallido dorado al ganar; Dice/Crash/
+# Mines/Plinko/Ruleta solo tenían el sonido de jackpot diferenciado (arpegio
+# en vez del tono plano) pero nada visual que marcara un premio grande.
+static func spawn_confetti_burst(parent: Node, position: Vector2) -> void:
+	var particles := CPUParticles2D.new()
+	particles.position = position
+	particles.emitting = true
+	particles.one_shot = true
+	particles.amount = 32
+	particles.lifetime = 1.0
+	particles.spread = 180.0
+	particles.gravity = Vector2(0, 200)
+	particles.initial_velocity_min = 80.0
+	particles.initial_velocity_max = 180.0
+	particles.color = GOLD_ACCENT
+	parent.add_child(particles)
+	parent.get_tree().create_timer(1.2).timeout.connect(func():
+		if is_instance_valid(particles):
+			particles.queue_free()
+	)
+
 static func style_option_button(button: OptionButton) -> void:
 	var box := StyleBoxFlat.new()
 	box.bg_color = PANEL_NAVY_DARK
