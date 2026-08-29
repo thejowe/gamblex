@@ -18,6 +18,7 @@ Cada mesa tiene su propio botón de ayuda (?) con las reglas concretas
 de ese juego."""
 
 func _ready() -> void:
+	_apply_saved_display_settings()
 	start_button.pressed.connect(_on_start_pressed)
 	settings_button.pressed.connect(func(): settings_menu.visible = true)
 	help_button.pressed.connect(func(): help_overlay.set_rules_text(HELP_TEXT); help_overlay.open())
@@ -29,3 +30,10 @@ func _on_start_pressed() -> void:
 	var loading: LoadingScreen = preload("res://scenes/ui/casino/loading_screen.tscn").instantiate()
 	add_child(loading)
 	loading.fade_and_change_scene("res://scenes/lobby_menu.tscn")
+
+func _apply_saved_display_settings() -> void:
+	var cfg := ConfigFile.new()
+	if cfg.load("user://settings.cfg") != OK:
+		return
+	var fullscreen: bool = cfg.get_value("display", "fullscreen", true)
+	get_window().mode = Window.MODE_FULLSCREEN if fullscreen else Window.MODE_WINDOWED

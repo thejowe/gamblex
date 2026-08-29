@@ -15,7 +15,6 @@ const FREE_MODE_MAX_MEMBERS := 4
 
 func _ready() -> void:
 	background.color = CasinoTheme.PANEL_NAVY_DARK
-	_apply_saved_display_settings()
 	match_type_option.add_item("Libre", -1)
 	match_type_option.add_item("1v1", TeamAssignment.MatchType.ONE_V_ONE)
 	match_type_option.add_item("2v2", TeamAssignment.MatchType.TWO_V_TWO)
@@ -116,10 +115,3 @@ func _reset_to_idle() -> void:
 func _show_error(message: String) -> void:
 	error_label.text = message
 	error_label.visible = true
-
-func _apply_saved_display_settings() -> void:
-	var cfg := ConfigFile.new()
-	if cfg.load("user://settings.cfg") != OK:
-		return
-	var fullscreen: bool = cfg.get_value("display", "fullscreen", true)
-	get_window().mode = Window.MODE_FULLSCREEN if fullscreen else Window.MODE_WINDOWED
