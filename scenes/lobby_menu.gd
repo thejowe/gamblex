@@ -17,6 +17,8 @@ const FREE_MODE_MAX_MEMBERS := 4
 func _ready() -> void:
 	_apply_saved_display_settings()
 	CasinoTheme.style_option_button(match_type_option)
+	members_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
+	error_label.add_theme_color_override("font_color", CasinoTheme.ACCENT_RED)
 	match_type_option.add_item("Libre", -1)
 	match_type_option.add_item("1v1", TeamAssignment.MatchType.ONE_V_ONE)
 	match_type_option.add_item("2v2", TeamAssignment.MatchType.TWO_V_TWO)

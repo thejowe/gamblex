@@ -16,8 +16,21 @@ const MAX_DB := 0.0
 @onready var close_button: CasinoButton = $Panel/Margin/VBox/CloseButton
 @onready var quit_button: CasinoButton = $Panel/Margin/VBox/QuitButton
 @onready var quit_confirm: ConfirmationDialog = $QuitConfirm
+@onready var title_label: Label = $Panel/Margin/VBox/Title
+@onready var master_label: Label = $Panel/Margin/VBox/MasterRow/MasterLabel
+@onready var music_label: Label = $Panel/Margin/VBox/MusicRow/MusicLabel
+@onready var sfx_label: Label = $Panel/Margin/VBox/SfxRow/SfxLabel
 
 func _ready() -> void:
+	# Sin tema de proyecto propio (no hay ninguno en project.godot), estos
+	# Label/CheckBox usan el tema compilado por defecto de Godot, que no es
+	# el mismo gris oscuro que el editor — sin esto el texto podía leerse mal
+	# sobre el panel navy.
+	for lbl in [title_label, master_label, music_label, sfx_label]:
+		lbl.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
+	for chk in [master_mute, music_mute, sfx_mute, fullscreen_toggle]:
+		chk.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
+		chk.add_theme_color_override("font_hover_color", CasinoTheme.GOLD_ACCENT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	backdrop.color = Color(CasinoTheme.PANEL_NAVY_DARK, 0.85)
 	var box := StyleBoxFlat.new()

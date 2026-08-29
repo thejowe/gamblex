@@ -33,6 +33,7 @@ func _display_name(peer_id: int) -> String:
 	return persona_name if not persona_name.is_empty() else "jugador %d" % peer_id
 
 func _ready() -> void:
+	status_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
 	CasinoTheme.style_option_button(size_option)
 	CasinoTheme.style_line_edit(mine_count_edit)
 	for option in SIZE_OPTIONS:

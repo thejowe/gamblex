@@ -55,6 +55,7 @@ func _ready() -> void:
 	pot_label.add_theme_color_override("font_color", CasinoTheme.GOLD_ACCENT)
 	pot_label.add_theme_font_size_override("font_size", 24)
 	status_label.add_theme_color_override("font_color", CasinoTheme.TEXT_CREAM)
+	raise_value_label.add_theme_color_override("font_color", CasinoTheme.TEXT_CREAM)
 	CasinoTheme.style_slider(raise_slider)
 
 	_force_full_rect_size()

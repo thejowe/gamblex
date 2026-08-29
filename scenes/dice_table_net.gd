@@ -25,6 +25,8 @@ func _display_name(peer_id: int) -> String:
 	return persona_name if not persona_name.is_empty() else "jugador %d" % peer_id
 
 func _ready() -> void:
+	players_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
+	probability_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
 	table_controller.state_changed.connect(_on_state_changed)
 	bet_sidebar.bet_pressed.connect(_on_bet_pressed)
 	help_button.pressed.connect(func(): help_overlay.set_rules_text(RULES_TEXT); help_overlay.open())

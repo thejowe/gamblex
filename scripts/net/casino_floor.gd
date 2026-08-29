@@ -44,6 +44,9 @@ var _goal_label_shown_balance: int = 0
 var _goal_label_target: int = GOAL_TARGET
 
 func _ready() -> void:
+    goal_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
+    battle_status_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
+    unlocked_banner.add_theme_color_override("font_color", CasinoTheme.GOLD_ACCENT)
     for table_name in TABLE_NODE_NAMES:
         _table_nodes[table_name] = get_node("TablesLayer/" + table_name)
     for card in card_grid.get_children():

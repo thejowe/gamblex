@@ -11,8 +11,12 @@ signal exit_room_requested
 @onready var quit_button: CasinoButton = $Panel/Margin/VBox/QuitButton
 @onready var quit_confirm: ConfirmationDialog = $QuitConfirm
 @onready var settings_menu: SettingsMenu = $SettingsMenu
+@onready var title_label: Label = $Panel/Margin/VBox/Title
 
 func _ready() -> void:
+	# Sin tema de proyecto propio, este Label usa el tema compilado por
+	# defecto de Godot, no el gris oscuro del editor.
+	title_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	backdrop.color = Color(CasinoTheme.PANEL_NAVY_DARK, 0.85)
 	var box := StyleBoxFlat.new()

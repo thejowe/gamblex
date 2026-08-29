@@ -5,6 +5,7 @@ signal bet_pressed(amount: int)
 
 @onready var amount_edit: LineEdit = $Margin/VBox/AmountRow/AmountEdit
 @onready var bet_button: CasinoButton = $Margin/VBox/BetButton
+@onready var amount_label: Label = $Margin/VBox/AmountLabel
 
 @export var max_amount: int = 500
 
@@ -19,6 +20,7 @@ func _ready() -> void:
 	box.bg_color = Color(CasinoTheme.PANEL_NAVY_MID, 0.0)
 	add_theme_stylebox_override("panel", box)
 	CasinoTheme.style_line_edit(amount_edit)
+	amount_label.add_theme_color_override("font_color", CasinoTheme.TEXT_LIGHT)
 	amount_edit.text = str(amount)
 	amount_edit.text_submitted.connect(_commit_typed_amount)
 	amount_edit.focus_exited.connect(func(): _commit_typed_amount(amount_edit.text))
