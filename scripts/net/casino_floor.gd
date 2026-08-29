@@ -220,9 +220,22 @@ func _animate_goal_label(new_balance: int, target: int) -> void:
 func _set_goal_label_balance(balance: int) -> void:
     goal_label.text = "Meta colectiva: %d / %d fichas" % [balance, _goal_label_target]
 
+# Llegar a la meta colectiva de Modo Libre era el mismo cambio silencioso de
+# visible=true que cualquier otro toggle de UI — para el logro de grupo más
+# grande de esa partida no había ni sonido ni ningún tipo de énfasis.
+func _celebrate_goal_unlocked() -> void:
+    AudioManager.play_sfx("win")
+    unlocked_banner.visible = true
+    unlocked_banner.pivot_offset = unlocked_banner.size / 2.0
+    unlocked_banner.scale = Vector2(1.6, 1.6)
+    var tween := create_tween()
+    tween.tween_property(unlocked_banner, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
 @rpc("authority", "call_local", "reliable")
 func _receive_goal_state(state: Dictionary) -> void:
     _animate_goal_label(state["balance"], state["target"])
+    if state["unlocked"] and not unlocked_banner.visible:
+        _celebrate_goal_unlocked()
     unlocked_banner.visible = state["unlocked"]
     if state["bankrupt"]:
         _show_result_overlay(defeat_overlay, "PERDISTE", "el pozo compartido se agotó")
