@@ -18,3 +18,7 @@ func test_covers_full_screen() -> void:
 	var home := _make()
 	assert_eq(home.anchor_right, 1.0)
 	assert_eq(home.anchor_bottom, 1.0)
+
+func test_start_button_text() -> void:
+	var home := _make()
+	assert_eq(home.start_button.text, "Iniciar Partida")

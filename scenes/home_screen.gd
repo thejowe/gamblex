@@ -11,4 +11,9 @@ extends Control
 @onready var quit_confirm: ConfirmationDialog = $QuitConfirm
 
 func _ready() -> void:
-	pass # wiring en tareas siguientes
+	start_button.pressed.connect(_on_start_pressed)
+
+func _on_start_pressed() -> void:
+	var loading: LoadingScreen = preload("res://scenes/ui/casino/loading_screen.tscn").instantiate()
+	add_child(loading)
+	loading.fade_and_change_scene("res://scenes/lobby_menu.tscn")
