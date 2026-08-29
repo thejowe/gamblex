@@ -42,3 +42,4 @@ enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 [rendering]
 
 environment/defaults/default_clear_color=Color(0.0745, 0.1059, 0.149, 1)
+textures/canvas_textures/default_texture_filter=0
