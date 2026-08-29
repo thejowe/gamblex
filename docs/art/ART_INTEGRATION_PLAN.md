@@ -1,5 +1,84 @@
 # Art Integration Plan — enganchar los 111 PNGs aprobados en escena
 
+## Cierre de sesión (2026-08-28, sesión pilar) — las 5 decisiones pendientes
+
+Ejecutadas 3 de 5, documentadas 2 como "no aplica" con motivo técnico
+verificado (no es solo juicio de diseño). 441/441 tests GUT en cada
+paso. Commits: `9b741cb` (fieltro) → `b825a90` (victoria/derrota) →
+`4e9eca6` (bet sidebar).
+
+1. **`felt_table_panel.gd` — EJECUTADO.** `NinePatchRect` con
+   `felt_table_bg.png` como hermano previo a `FeltTablePanel` en
+   `blackjack_table_net.tscn`/`poker_table_net.tscn` (dibuja detrás, cero
+   cambios en `felt_table_panel.gd`). Se descartó sustituir el óvalo
+   paramétrico: `felt_table_bg.png` es un pill completo (redondeado en
+   ambos extremos), pero Blackjack dibuja solo el semi-óvalo superior
+   (`_arc_points` con `angle_end=PI`) — sustituir habría puesto una forma
+   incorrecta además de perder adaptabilidad. `NinePatchRect`
+   (`patch_margin` 40) preserva las esquinas redondeadas al escalar con
+   la ventana.
+2. **Victoria/Derrota — EJECUTADO.** `bg_color` de `DefeatPanelStyle`/
+   `VictoryPanelStyle` pasó a alpha 0 (conserva `corner_radius` +
+   `border_color`); `NinePatchRect` nuevo (`PanelBackground`) con
+   `victory_bg.png`/`defeat_bg.png` insertado detrás de cada `Panel`,
+   mismos anchors 0.32–0.68. Antes el `StyleBoxFlat` opaco tapaba
+   cualquier imagen detrás — ahora el borde de color queda encima de la
+   textura decorativa en vez de sustituir el estilo entero (igual que la
+   recomendación original de este documento).
+3. **`roulette_wheel.png` como fondo decorativo — NO APLICA, verificado
+   en código.** `roulette_wheel_display.gd._draw()` pinta 37 gajos con
+   `draw_colored_polygon` opacos que cubren el círculo completo (radio
+   130, sin huecos) — cualquier textura puesta detrás quedaría 100%
+   oculta, cero ganancia visual a cambio de un dibujo doble. No se
+   ejecuta, no es "postergado", es un descarte técnico definitivo salvo
+   que se rediseñe `roulette_wheel_display.gd` para dejar huecos (fuera
+   de alcance de esta decisión).
+4. **Overlays Ajustes/Pausa/Ayuda — NO APLICA.** Confirmado que
+   `settings_menu.tscn`/`pause_menu.tscn`/`help_overlay.tscn` siguen con
+   `Backdrop` `ColorRect(PANEL_NAVY_DARK, 0.85)` semitransparente. Los
+   PNG (`settings_bg`/`pause_bg`/`help_bg`) son fondos opacos pensados
+   para pantalla completa (mismo assets que loading/credits/lobby) — no
+   existe una versión con alfa parcial en el registro, y generar una
+   nueva variante es trabajo de `CasinoArtDirector`/`ART_ASSET_PLAN.md`,
+   no de esta sesión. Se cierra el ítem tal cual, sin cambio de código.
+5. **`bet_sidebar_panel.gd` — EJECUTADO.** `NinePatchRect`
+   (`bet_sidebar_bg.png`, `patch_margin` 12) como primer hijo de
+   `BetSidebarPanel`, detrás de `Margin/VBox`. El `StyleBoxFlat`
+   programático en `_ready()` pasa a alpha 0 (ya no pinta panel sólido,
+   solo evita que se vea el estilo por defecto de `PanelContainer`).
+
+`crash_rocket_idle`/`_launch`: sin cambios, se deja documentado como ya
+estaba (no hay estado de gameplay que los necesite hoy).
+
+**Verificación visual: 2 de 3 confirmadas en vivo con capturas reales.**
+El editor abierto con una escena `Control` aislada no sirve (nodo raíz
+sin padre = rect 0×0, no se ve color) — el truco real, ya usado en la
+sesión de Ruleta de hoy mismo, es correr la escena suelta directamente:
+`Godot_v4.7.1-stable_win64_console.exe --path . scenes/<escena>.tscn`
+lanza una ventana de juego real con tamaño de viewport correcto, sin
+pasar por Lobby/Steam. Capturas (`CopyFromScreen` sobre el rect de la
+ventana):
+- **`blackjack_table_net.tscn`**: fieltro con el riel de madera +
+  4 iconos de palo de `felt_table_bg.png` visibles detrás del óvalo
+  procedural (semi-óvalo superior intacto, sin doble dibujo raro), panel
+  lateral de apuesta renderiza sin artefactos.
+- **`poker_table_net.tscn`** (`full_oval=true`): las 4 esquinas del
+  `NinePatchRect` completo visibles alrededor del óvalo procedural
+  completo — confirma que el `patch_margin=40` escala bien el pill.
+- **Victoria/Derrota — no confirmado en vivo.** `casino_floor.gd` fuerza
+  `defeat_overlay.visible = false` en cuanto llega el primer estado del
+  pozo (`_on_goal_state_changed`, línea ~202) aunque el `.tscn` diga
+  `visible=true` a mano — forzar el overlay sin jugar una partida real
+  hasta la bancarrota exige más que un toggle de visibilidad (se probó,
+  se revirtió sin commitear). La técnica en sí (`NinePatchRect` +
+  `StyleBoxFlat` a alpha 0) es exactamente la misma que ya se confirmó
+  funcionando en vivo para `bet_sidebar_panel.gd` — riesgo bajo, pero
+  **pendiente que el usuario lo vea con una partida real que llegue a
+  victoria/derrota**.
+- Efecto colateral de abrir el editor headless antes de esto:
+  `project.godot` y `assets/icon.svg.import` se tocaron solo por abrirlo
+  (gotcha de siempre), revertidos antes de commitear.
+
 ## Cierre de sesión (2026-08-28, sesión pilar) — Lobby
 
 Ejecutado y verificado (432/432 tests GUT), commit `9bff9dd`, pusheado a
@@ -39,26 +118,31 @@ parcial** (cohete de Crash en la punta del gráfico).
 Commits: `998813c` (Oleada 1) → `3eec9e0` (Oleada 2) → `fd330eb`
 (Oleada 3 cartas) → `dd90f48` (Oleada 4 cohete).
 
-**Pendiente real, sin urgencia, cada uno necesita una decisión de
-diseño antes de tocarse (no es trabajo mecánico, por eso se paró
-aquí):**
-- `felt_table_panel.gd` (mesa de fieltro Blackjack/Póker) — hoy es un
-  óvalo paramétrico que se adapta a cualquier tamaño de ventana,
-  `felt_table_bg.png` es una imagen fija a 320×180. Decidir: ¿se deja
-  procedural, se usa la textura como fondo decorativo con
-  `NinePatchRect`, o se acepta perder la adaptabilidad?
-- Victoria/Derrota (`victory_bg`/`defeat_bg`) — el panel usa
-  `StyleBoxFlat` con `corner_radius` y borde de color que
-  `StyleBoxTexture` no reproduce; hace falta rediseñar el estilo del
-  panel, no es una asignación de textura.
-- `roulette_wheel.png` como fondo decorativo detrás de la rueda
-  interactiva real (doble dibujo, evaluar si vale la pena).
+**Pendiente real — actualizado 2026-08-28 (sesión pilar), ver cierre de
+sesión arriba para el detalle completo:**
+- ~~`felt_table_panel.gd`~~ — **hecho**, `9b741cb` (NinePatchRect
+  decorativo, dibujo procedural intacto).
+- ~~Victoria/Derrota~~ — **hecho**, `b825a90` (NinePatchRect detrás,
+  borde de color conservado vía alpha 0 en el `StyleBoxFlat`).
+- ~~`roulette_wheel.png` como fondo decorativo~~ — **cerrado, no
+  aplica** (el dibujo procedural es 100% opaco, cualquier textura detrás
+  quedaría oculta).
+- ~~Overlays Ajustes/Pausa/Ayuda~~ — **cerrado, no aplica** (el Backdrop
+  semitransparente actual cumple su función; no hay asset con alfa
+  parcial en el registro).
+- ~~`bet_sidebar_panel.gd`~~ — **hecho**, `4e9eca6` (NinePatchRect de
+  fondo).
 - ~~Tarjetas de Lobby (`lobby/card_*.png`)~~ — **hecho (2026-08-28,
   `9bff9dd`)**, ver sección de cierre arriba. Visual en editor pendiente
   de confirmar por el usuario.
 - `crash_rocket_idle`/`_launch` (generados en FASE 11) siguen sin
   usarse — no hay un estado intermedio en `crash_graph.gd` hoy que los
-  necesite.
+  necesite. Sin urgencia, documentado sin más.
+
+**Confirmación visual en vivo pendiente para todo lo de hoy** — ver
+"Verificación visual" en el cierre de sesión de arriba (limitación real
+del editor con escenas `Control` aisladas + Lobby tapando `TablesLayer`,
+no solo el bloqueador de clic sintético de siempre).
 
 Prompt para retomar en una sesión nueva: igual que siempre, actuar como
 `CasinoArtDirector` (ver `.claude/agents/CasinoArtDirector.md`), y
@@ -257,39 +341,27 @@ todavía — pendiente que alguien lo abra y lo mire (ART_VALIDATION.md
    borró. Verificado: 429/429 tests GUT, incluidos
    `test_blackjack_table_scene_structure.gd`/
    `test_poker_table_scene_structure.gd` (no asumen tamaño de carta).
-9. `felt_table_panel.gd`: **riesgo más alto de la oleada** — hoy dibuja
-   un óvalo *paramétrico* que se adapta a cualquier `size` del
-   contenedor (usado en Blackjack Y Póker con `full_oval` distinto).
-   `felt_table_bg.png` es una imagen fija a 320×180. Sustituir el
-   dibujo por la textura pierde la adaptabilidad a distintos tamaños de
-   ventana (el juego usa `stretch/aspect=expand`, tamaños de ventana
-   variables). Recomendación: **no sustituir esta por ahora** — dejarla
-   procedural, o usar la textura solo como fondo decorativo con
-   `NinePatchRect` si se quiere textura real sin perder el
-   adaptabilidad. Marcar como decisión pendiente del usuario, no
-   ejecutar sin confirmar.
-10. `bet_sidebar_panel.gd`: mismo patrón que 9 pero más simple
-    (`bet_sidebar_bg.png` ya se generó a 96×144 pensado como 9-slice) —
-    usar `NinePatchRect` en vez de `TextureRect` para que escale bien.
+9. `felt_table_panel.gd`: **EJECUTADA (2026-08-28, `9b741cb`).**
+   `NinePatchRect` con `felt_table_bg.png` como fondo decorativo detrás
+   del dibujo procedural (que se dejó intacto) — ver detalle en el
+   cierre de sesión de arriba.
+10. `bet_sidebar_panel.gd`: **EJECUTADA (2026-08-28, `4e9eca6`).**
+    `NinePatchRect` con `bet_sidebar_bg.png` (96×144, 9-slice) como
+    fondo, `StyleBoxFlat` programático a alpha 0.
 
-### Oleada nueva — Victoria/Derrota (`victory_bg`/`defeat_bg`), pendiente de diseño
+### Oleada nueva — Victoria/Derrota (`victory_bg`/`defeat_bg`) — EJECUTADA (2026-08-28, `b825a90`)
 
-`Hud/DefeatOverlay` y `Hud/VictoryOverlay` en `casino_floor.tscn` tienen
+`Hud/DefeatOverlay` y `Hud/VictoryOverlay` en `casino_floor.tscn` tenían
 `Dim` (`ColorRect` translúcido sobre la mesa) + `Panel` centrado
-(`StyleBoxFlat` con `corner_radius` y borde de color, rojo/dorado). Los
-220×264 generados en FASE 15-16 no encajan directamente en ninguno de
-los dos:
-- Sobre `Dim` (pantalla completa): lo mismo que Ajustes/Pausa/Ayuda,
-  taparía la mesa detrás.
-- Como fondo de `Panel`: `StyleBoxTexture` no tiene `corner_radius`
-  nativo (usa 9-slice + `texture_margin_*`), así que meter la imagen ahí
-  significa rehacer el estilo del panel, no solo asignar una textura —
-  trabajo de diseño real, no un cambio mecánico.
-
-No ejecutar sin decidir el tratamiento (opción más simple: usar
-`victory_bg`/`defeat_bg` recortado como fondo del `Panel` vía
-`NinePatchRect` propio detrás del `StyleBoxFlat` actual en vez de
-sustituirlo, conservando el borde de color).
+(`StyleBoxFlat` con `corner_radius` y borde de color, rojo/dorado). Se
+aplicó la opción recomendada: `bg_color` de `DefeatPanelStyle`/
+`VictoryPanelStyle` a alpha 0 (conserva `corner_radius` + borde) y un
+`NinePatchRect` nuevo (`PanelBackground`) con `victory_bg.png`/
+`defeat_bg.png` insertado como hermano justo antes del `Panel`, mismos
+anchors 0.32–0.68 — el borde de color queda encima de la imagen en vez
+de sustituir el estilo. `casino_floor.gd` no necesitó cambios
+(`_play_victory_pulse` sigue usando `get_node("Panel")`, que no se
+movió). 441/441 tests GUT.
 
 ### Oleada 4 — decorativo sobre lógica dinámica (opcional, bajo impacto)
 11. `crash_graph.gd` — **EJECUTADA (2026-08-28).** El marcador de punta
@@ -303,10 +375,10 @@ sustituirlo, conservando el borde de color).
     librería para cuando se quiera ese matiz. `texture_filter` nearest
     añadido en `_init()` (no existía antes en este script).
     Verificado: 429/429 tests GUT.
-12. `roulette_wheel_display.gd`: `roulette_wheel.png` como fondo
-    decorativo detrás del dibujo actual (que sigue siendo la fuente de
-    verdad interactiva). Requiere decidir si vale la pena el doble
-    dibujo (imagen + polígonos encima) o si se deja tal cual.
+12. `roulette_wheel_display.gd`: **cerrado, no aplica (2026-08-28)** —
+    `_draw()` pinta 37 gajos opacos que cubren el círculo completo, sin
+    huecos; `roulette_wheel.png` detrás quedaría 100% oculto. Descarte
+    técnico, no decisión de gusto.
 13. ~~Lobby: crear el componente de tarjeta de selección de juego~~ —
     **EJECUTADA (2026-08-28, `9bff9dd`).** Ver sección de cierre arriba.
 

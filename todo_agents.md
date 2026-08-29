@@ -42,6 +42,55 @@ sesión pilar para evitar conflictos entre ramas.
 
 ---
 
+## Cierre de sesión (2026-08-28, sesión pilar — las 5 decisiones pendientes de ART_INTEGRATION_PLAN.md)
+
+Retomado `docs/art/ART_INTEGRATION_PLAN.md` desde "Pendiente real" (ver
+esa sección para el detalle completo). Ejecutadas 3 de 5, cerradas 2
+como "no aplica" con motivo técnico verificado. 441/441 tests GUT en
+cada paso. Commits: `9b741cb` (fieltro decorativo) → `b825a90`
+(victoria/derrota) → `4e9eca6` (bet sidebar) → doc de cierre.
+
+1. `felt_table_panel.gd` — **hecho**. `NinePatchRect` con
+   `felt_table_bg.png` detrás del óvalo procedural (sin tocar el
+   `_draw()`), en Blackjack y Póker. Se descartó sustituir el dibujo:
+   la imagen es un pill completo pero Blackjack solo dibuja el
+   semi-óvalo superior — sustituir habría puesto forma incorrecta,
+   no solo perdido adaptabilidad.
+2. Victoria/Derrota — **hecho**. `bg_color` de los `StyleBoxFlat` de
+   Panel a alpha 0 (conserva borde de color), `NinePatchRect` nuevo
+   detrás con `victory_bg`/`defeat_bg`.
+3. `roulette_wheel.png` decorativo — **cerrado, no aplica**:
+   `roulette_wheel_display.gd._draw()` pinta el círculo completo con
+   gajos opacos, cualquier textura detrás quedaría 100% oculta.
+   Descarte técnico, verificado leyendo el código, no solo criterio.
+4. Overlays Ajustes/Pausa/Ayuda — **cerrado, no aplica**: su Backdrop
+   semitransparente actual cumple su función, no hay asset con alfa
+   parcial en el registro para sustituirlo.
+5. `bet_sidebar_panel.gd` — **hecho**. `NinePatchRect` con
+   `bet_sidebar_bg.png` como fondo, `StyleBoxFlat` programático a
+   alpha 0.
+
+`crash_rocket_idle`/`_launch`: sin cambios, documentado sin más (no
+urgente, sin estado de gameplay que los necesite).
+
+**Verificación visual: 2 de 3 confirmadas en vivo con capturas reales.**
+Hallazgo reutilizable: para ver una escena `Control` con color real hace
+falta correrla suelta (`Godot..._console.exe --path . scenes/X.tscn`,
+ventana de juego real, mismo truco que ya usó la sesión de Ruleta de
+hoy) — abrirla en el editor como escena aislada da un `Control` sin
+padre = rect 0×0, no se ve nada. Confirmado así: fieltro de Blackjack
+(riel + iconos de `felt_table_bg` visibles, sin doble dibujo raro) y de
+Póker (`full_oval=true`, las 4 esquinas del `NinePatchRect` se ven bien
+alrededor del óvalo completo), y panel de apuesta sin artefactos. **No
+confirmado**: Victoria/Derrota — `casino_floor.gd` fuerza
+`defeat_overlay.visible = false` en el primer estado del pozo aunque el
+`.tscn` diga `visible=true` a mano, así que forzarlo en frío no sirve;
+hace falta una partida real hasta bankruptcy/victoria. La técnica es la
+misma que ya se vio funcionando (NinePatchRect + alpha 0), riesgo bajo,
+pero pendiente que el usuario lo confirme jugando.
+
+---
+
 ## Cierre de sesión (2026-08-28, sesión pilar — reskin estructural de Ruleta + ronda con timer)
 
 El usuario aportó una referencia real (mesa clásica de Evolution
