@@ -263,6 +263,7 @@ func _render_seat(seat_index: int, seat, hand_active: bool) -> void:
 	var container := _seat_containers[seat_index] as Control
 	var avatar := _seat_avatars[seat_index] as SeatAvatar
 	var info_label := _seat_info_labels[seat_index] as Label
+	var was_occupied := avatar.visible
 	container.position = seat_anchor_oval(seat_index, SEAT_COUNT)
 
 	if seat == null:
@@ -275,6 +276,10 @@ func _render_seat(seat_index: int, seat, hand_active: bool) -> void:
 
 	avatar.visible = true
 	info_label.visible = true
+	if not was_occupied:
+		# Un jugador nuevo se sentaba de golpe, sin ningún tipo de entrada —
+		# el mismo pop de escala que ya usan los modales al abrirse.
+		CasinoTheme.play_modal_pop_in(avatar)
 	var display_name := _display_name(seat["player_id"])
 	avatar.player_id = seat["player_id"]
 	avatar.initial = display_name.substr(0, 1).to_upper()
