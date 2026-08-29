@@ -22,6 +22,8 @@ const RULES_TEXT := "Mines: elige tamano de grid (5x5, 8x8 o 10x10) y cuantas mi
 
 var _last_players: Dictionary = {}
 var _last_round_seen: Dictionary = {}
+var _cash_out_pulse: Tween = null
+var _cash_out_was_pulsing: bool = false
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -102,6 +104,10 @@ func _render_state(state: Dictionary) -> void:
 		bet_sidebar.bet_button.disabled = is_active
 		size_option.disabled = is_active
 		mine_count_edit.editable = not is_active
+		var can_cash_out: bool = is_active and not active_round.get("revealed", []).is_empty()
+		if can_cash_out != _cash_out_was_pulsing:
+			_cash_out_was_pulsing = can_cash_out
+			_set_cash_out_pulsing(can_cash_out)
 		var round_data: Dictionary = active_round if is_active else last_round
 		if not round_data.is_empty():
 			var cell_states: Array = MinesCell.compute_cell_states(round_data, is_active)
@@ -111,6 +117,19 @@ func _render_state(state: Dictionary) -> void:
 				cell.interactive = is_active
 		_maybe_flash_result(my_id, last_round)
 	_refresh_status_label()
+
+# Igual que en Crash: mientras hay algo real que cobrar, el botón de retirar
+# no comunicaba ninguna urgencia — se veía igual habilitado con 1 casilla
+# segura destapada que con 20.
+func _set_cash_out_pulsing(pulsing: bool) -> void:
+	if _cash_out_pulse != null and _cash_out_pulse.is_valid():
+		_cash_out_pulse.kill()
+	cash_out_button.modulate = Color.WHITE
+	if not pulsing:
+		return
+	_cash_out_pulse = create_tween().set_loops()
+	_cash_out_pulse.tween_property(cash_out_button, "modulate", CasinoTheme.GOLD_ACCENT, 0.5)
+	_cash_out_pulse.tween_property(cash_out_button, "modulate", Color.WHITE, 0.5)
 
 func _maybe_flash_result(my_id: int, last_round: Dictionary) -> void:
 	if last_round.is_empty():
