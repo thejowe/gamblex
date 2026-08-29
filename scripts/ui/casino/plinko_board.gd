@@ -20,6 +20,8 @@ const SLOT_BG_TEXTURE_PATH := "res://assets/pixels/plinko/plinko_slot_bg/plinko_
 
 var _ball_visible: bool = false
 var _ball_position: Vector2 = Vector2.ZERO
+var _landed_slot: int = -1
+var _landed_glow: float = 0.0
 
 func _init() -> void:
 	custom_minimum_size = Vector2(0, 360)
@@ -85,6 +87,8 @@ func _draw_multiplier_row() -> void:
 		var tint: Color = CasinoTheme.PANEL_NAVY_LIGHT.lerp(CasinoTheme.ACCENT_GREEN, t)
 		var slot_rect := Rect2(x - pitch / 2.0 + 2.0, y - 12.0, pitch - 4.0, 24.0)
 		draw_texture_rect(slot_bg_tex, slot_rect, false, tint)
+		if slot == _landed_slot and _landed_glow > 0.0:
+			draw_rect(slot_rect.grow(2.0), Color(CasinoTheme.GOLD_ACCENT, _landed_glow), false, 3.0)
 		var text := ("%.0f" if mult >= 100.0 else "%.1f" if mult >= 10.0 else "%.2f") % mult
 		var font_size := clampi(int(pitch * 0.42), 8, 11)
 		var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size)
@@ -110,9 +114,23 @@ func drop_ball(bounces: Array) -> void:
 		tween.tween_method(_set_ball_position, current_pos, target, STEP_DURATION)
 		current_pos = target
 	tween.finished.connect(func():
-		ball_landed.emit(slot_from_bounces(bounces))
+		var slot := slot_from_bounces(bounces)
+		_flash_landed_slot(slot)
+		ball_landed.emit(slot)
 	)
 
 func _set_ball_position(pos: Vector2) -> void:
 	_ball_position = pos
+	queue_redraw()
+
+# Sin esto la casilla donde cae la bola no se distinguía en nada del resto
+# una vez terminaba de rebotar — ningún destello marcaba dónde se resolvió
+# la apuesta.
+func _flash_landed_slot(slot: int) -> void:
+	_landed_slot = slot
+	var glow_tween := create_tween()
+	glow_tween.tween_method(_set_landed_glow, 1.0, 0.0, 0.6)
+
+func _set_landed_glow(value: float) -> void:
+	_landed_glow = value
 	queue_redraw()
