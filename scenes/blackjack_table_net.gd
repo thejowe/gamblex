@@ -28,6 +28,8 @@ var _dealer_card_nodes: Array = []
 var _seat_chip_nodes: Array = [null, null, null, null]
 var _seat_value_badges: Array = [null, null, null, null]
 var _seat_name_labels: Array = [null, null, null, null]
+var _turn_pulse: Tween = null
+var _turn_seat_index: int = -1
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -117,6 +119,7 @@ func _render_state(state: Dictionary) -> void:
 	for i in range(seats.size()):
 		var previous_seat = previous_seats[i] if i < previous_seats.size() else null
 		_render_seat(i, seats[i], previous_seat, seats.size())
+	_update_turn_highlight(state.get("active_seat_index", -1))
 	_last_state = state
 	if my_seat_index >= 0 and my_seat_index < seats.size() and seats[my_seat_index] != null:
 		bet_sidebar.bet_button.disabled = seats[my_seat_index]["bet"] > 0
@@ -125,6 +128,29 @@ func _render_state(state: Dictionary) -> void:
 	var is_my_turn: bool = my_seat_index >= 0 and state.get("active_seat_index", -1) == my_seat_index
 	hit_button.disabled = not is_my_turn
 	stand_button.disabled = not is_my_turn
+
+# El turno activo solo se comunicaba al propio jugador (sus botones Pedir/
+# Plantarse se habilitaban) — nadie más en la mesa tenía forma de saber de
+# un vistazo a quién le tocaba, tenían que fijarse en qué asiento mueve
+# cartas para deducirlo.
+func _update_turn_highlight(active_seat_index: int) -> void:
+	if active_seat_index == _turn_seat_index:
+		return
+	if _turn_seat_index >= 0 and _turn_seat_index < _seat_name_labels.size():
+		var previous_label = _seat_name_labels[_turn_seat_index]
+		if previous_label != null:
+			previous_label.add_theme_color_override("font_color", CasinoTheme.TEXT_CREAM)
+	if _turn_pulse != null and _turn_pulse.is_valid():
+		_turn_pulse.kill()
+	_turn_seat_index = active_seat_index
+	if active_seat_index < 0 or active_seat_index >= _seat_name_labels.size():
+		return
+	var label = _seat_name_labels[active_seat_index]
+	if label == null:
+		return
+	_turn_pulse = create_tween().set_loops()
+	_turn_pulse.tween_property(label, "theme_override_colors/font_color", CasinoTheme.GOLD_ACCENT, 0.4)
+	_turn_pulse.tween_property(label, "theme_override_colors/font_color", CasinoTheme.TEXT_CREAM, 0.4)
 
 func _render_dealer(hand_data: Array, dealer_value: int) -> void:
 	var has_hidden_card := hand_data.any(func(c): return c.has("hidden"))
