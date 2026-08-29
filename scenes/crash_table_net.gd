@@ -13,6 +13,8 @@ const RULES_TEXT := "Crash: apuestas antes de que despegue el multiplicador. En 
 var _last_players: Dictionary = {}
 var _local_elapsed: Dictionary = {} # player_id -> float, extrapolación local desde el último broadcast
 var _last_round_seen: Dictionary = {}
+var _cash_out_pulse: Tween = null
+var _cash_out_was_active: bool = false
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -66,9 +68,26 @@ func _on_state_changed(state: Dictionary) -> void:
 	cash_out_button.disabled = not mine_active
 	if not (not multiplayer.is_server() and multiplayer.multiplayer_peer != null and multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED):
 		bet_sidebar.bet_button.disabled = mine_active
+	if mine_active != _cash_out_was_active:
+		_cash_out_was_active = mine_active
+		_set_cash_out_pulsing(mine_active)
 	_refresh_players_label()
 	_refresh_graph()
 	_maybe_flash_result(mine)
+
+# Retirar a tiempo en Crash es la decisión más urgente de todas las mesas
+# (cada segundo que esperas sube el multiplicador pero también el riesgo de
+# explosión) — el botón se quedaba estático igual que cualquier otro botón
+# deshabilitado/habilitado normal, sin comunicar esa urgencia.
+func _set_cash_out_pulsing(pulsing: bool) -> void:
+	if _cash_out_pulse != null and _cash_out_pulse.is_valid():
+		_cash_out_pulse.kill()
+	cash_out_button.modulate = Color.WHITE
+	if not pulsing:
+		return
+	_cash_out_pulse = create_tween().set_loops()
+	_cash_out_pulse.tween_property(cash_out_button, "modulate", CasinoTheme.GOLD_ACCENT, 0.5)
+	_cash_out_pulse.tween_property(cash_out_button, "modulate", Color.WHITE, 0.5)
 
 func _refresh_graph() -> void:
 	var my_id := multiplayer.get_unique_id()
