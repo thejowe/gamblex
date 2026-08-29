@@ -27,6 +27,7 @@ var _seat_card_nodes: Array = [[], [], [], []]
 var _dealer_card_nodes: Array = []
 var _seat_chip_nodes: Array = [null, null, null, null]
 var _seat_value_badges: Array = [null, null, null, null]
+var _seat_name_labels: Array = [null, null, null, null]
 
 func _display_name(peer_id: int) -> String:
 	var steam_id: int = NetworkManager.peer_steam_ids.get(peer_id, 0)
@@ -155,6 +156,29 @@ func _render_seat(seat_index: int, seat, previous_seat, seat_count: int) -> void
 	_sync_hand_visual(seats_root, _seat_card_nodes[seat_index], hand_data, anchor)
 	_sync_chip(seat_index, seat, anchor)
 	_sync_value_badge(seat_index, seat, anchor)
+	_sync_name_label(seat_index, seat, anchor)
+
+# _display_name existía sin ningún punto de uso — Blackjack era la única
+# mesa multijugador que no mostraba el nombre de quién ocupa cada asiento,
+# a diferencia de Póker/Ruleta/Dice/Crash/Mines/Plinko (todas listan
+# jugadores por nombre en algún label).
+func _sync_name_label(seat_index: int, seat, anchor: Vector2) -> void:
+	var label = _seat_name_labels[seat_index]
+	if seat == null:
+		if label != null:
+			label.visible = false
+		return
+	if label == null:
+		label = Label.new()
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.add_theme_color_override("font_color", CasinoTheme.TEXT_CREAM)
+		label.add_theme_font_size_override("font_size", 14)
+		seats_root.add_child(label)
+		_seat_name_labels[seat_index] = label
+	label.visible = true
+	label.text = _display_name(seat["player_id"])
+	label.position = anchor + Vector2(-60, 90)
+	label.size = Vector2(120, 20)
 
 func _sync_value_badge(seat_index: int, seat, anchor: Vector2) -> void:
 	var hand: Array = seat["hand"] if seat != null else []
