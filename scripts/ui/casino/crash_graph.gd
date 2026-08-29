@@ -86,6 +86,8 @@ func _draw() -> void:
 			draw_circle(tip, 11.0, Color(line_color, 0.22))
 			draw_circle(tip, 6.0, line_color)
 		else:
+			if state == State.CASHED_OUT:
+				draw_circle(tip, 16.0, Color(CasinoTheme.GOLD_ACCENT, 0.28))
 			_draw_rocket(tip)
 	var font := ThemeDB.fallback_font
 	var text := "%.2fx" % current_multiplier()
