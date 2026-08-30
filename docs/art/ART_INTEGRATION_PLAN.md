@@ -1,5 +1,54 @@
 # Art Integration Plan — enganchar los 111 PNGs aprobados en escena
 
+## Pendiente real — recomponer `lobby_bg`/`credits_bg`/`loading_bg` para COVER en ultra-wide (2026-08-29, sesión pilar)
+
+**Encargo para `CasinoArtDirector`** (parámetros, no diseño — el
+director decide cómo dibujarlo):
+
+Usuario reportó que en su monitor ultra-wide (~3.55:1 real) el fondo
+de `HomeScreen` (`inicio/lobby_bg/lobby_bg.png`, la entrada de casino
+con puertas/neón/alfombra regenerada el 2026-08-29) se ve muy ampliado
+y recortado. Causa raíz confirmada por la sesión pilar de código: las 3
+escenas full-bleed (`home_screen.tscn`, `credits_menu.tscn`,
+`loading_screen.tscn`) usan `TextureRect` con `stretch_mode=
+KEEP_ASPECT_COVERED` sobre un lienzo portrait 220×264 — con ese aspect
+ratio tan distinto al de un monitor ultra-wide, `COVER` escala por el
+ancho y recorta el alto agresivamente.
+
+**Se probó y el usuario rechazó explícitamente** cambiar a
+`KEEP_ASPECT_CENTERED` (sin recorte, pero con barras de color sólido a
+los lados en pantallas anchas — "salen espacios negros a los lados").
+Quiere que el arte se recomponga para seguir cubriendo la pantalla sin
+barras, no que se cambie el modo de stretch. **No se toca el motor**:
+las 3 escenas siguen en `stretch_mode=6` (COVER), sin cambios de
+código pendientes ahí.
+
+Los 3 números con los que trabajar (calculados por la sesión pilar de
+código, verificar antes de dar por buenos si el lienzo cambia de
+tamaño):
+
+1. **Modo de stretch a respetar:** `COVER` (`KEEP_ASPECT_COVERED`) en
+   las 3 escenas — no cambia.
+2. **Rango de aspect ratio a soportar sin que el recorte destroce el
+   detalle central:** desde 4:3 (1.33:1) hasta 3.55:1 (ultra-wide real
+   del usuario, peor caso). Siempre landscape — el lienzo portrait
+   220×264 nunca pierde ancho en ese rango, solo alto.
+3. **Área garantizada visible en el peor caso (3.55:1):** franja
+   horizontal central de **220×62px** (ancho completo del lienzo,
+   filas ~101–163 de las 264 de alto — el resto, ~101px arriba y
+   ~101px abajo, se recorta en ultra-wide pero se ve en monitores menos
+   anchos, sangrado progresivo).
+
+Aplica a los 3 fondos que comparten exactamente este problema
+(`lobby_bg`, `credits_bg`, `loading_bg`, los 3 a 220×264,
+`FINAL`/`APPROVED` hoy) — decidir si conviene recomponerlos los 3 a la
+vez con el mismo criterio o uno a uno empezando por `lobby_bg`
+(mayor visibilidad, ya regenerado hoy mismo). Actualizar
+`ASSET_REGISTRY.md` con el estado de cada uno tras el retoque, como
+siempre. Cuando termines, avisa a la sesión pilar de código para
+verificar en vivo (esta vez con capturas reales, no solo lectura de
+`.tscn`) antes de cerrarlo.
+
 ## Cierre de sesión (2026-08-28, sesión pilar) — las 5 decisiones pendientes
 
 Ejecutadas 3 de 5, documentadas 2 como "no aplica" con motivo técnico
