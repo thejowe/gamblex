@@ -166,6 +166,35 @@ toca a `CasinoArtDirector` con los 3 números ya calculados arriba
 220×62px centrada). Regla `CLAUDE.md` master-first aplica: pilar no
 dibuja pixel art, solo entrega los parámetros.
 
+**Cierre de Bug 2, verificado (2026-08-29, mismo día):**
+`CasinoArtDirector` entregó `478f1b8` (`lobby_bg`) y `767fc41`
+(`credits_bg`+`loading_bg`), `ASSET_REGISTRY.md` actualizado en ambos
+commits. Verificado por esta sesión pilar, no solo leído: 449/449
+tests tras reconstruir caché, dimensiones reales confirmadas (220×264
+en las 3, `Format32bppArgb`) con `System.Drawing`, `.import` sin
+tocar. **Simulación real del peor caso (recorte de las filas 101–163,
+la franja de 62px que sobrevive a 3.55:1) sobre los 3 PNG finales**
+(no sobre `.tscn` en el editor — el motor ignoró `--resolution`/
+`--windowed` en un par de intentos de forzar la ventana, así que se
+verificó recortando el archivo directamente, más preciso que
+depender del launcher):
+- `lobby_bg`: **franja legible de verdad** — dintel, letrero dorado,
+  arco superior de ambas hojas y arranque de tiradores, tal como
+  documentó el agente.
+- `credits_bg`/`loading_bg`: banda muestra la regla doble dorada con
+  remaches en ambos bordes verticales + vignette navy central — ya no
+  es "navy liso ciego" (el problema original), pero es una mejora
+  modesta, no rica en detalle, porque el agente no tenía PixelLab
+  disponible (trial agotado el mismo día) y lo resolvió 100% por
+  código reutilizando las esquinas del master. Aceptable porque estas
+  2 pantallas llevan texto/indicador superpuesto en el centro — el
+  fondo es secundario ahí. Si se recarga el trial de PixelLab, sería
+  la primera candidata a iterar de nuevo con una composición más
+  currada (no urgente).
+
+**Con esto, el triage completo (fullscreen + recorte de fondos) queda
+cerrado.**
+
 ---
 
 ## Ampliación v1.9: pantalla de inicio (2026-08-29)
