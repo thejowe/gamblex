@@ -24,6 +24,27 @@ necesita `edit_image`/`inpaint_image`/animación (coste alto), comprobar
 saldo con `get_balance` antes de planificarla — puede requerir comprar
 créditos o esperar recarga del trial en pixellab.ai.
 
+**2026-08-29 (misma sesión, encargo de recomponer `credits_bg`/
+`loading_bg` para COVER en ultra-wide, ver `ART_INTEGRATION_PLAN.md`):**
+**gotcha nuevo — el MCP de PixelLab no estaba disponible como
+herramienta en esta sesión** (no aparece en la lista de funciones
+invocables, a diferencia de sesiones anteriores donde sí se pudo llamar
+`get_balance`/`create_image_pixflux`). No se pudo comprobar el saldo
+real ni generar nada nuevo con PixelLab por esta vía. Dado que la nota
+inmediatamente anterior (mismo día) ya deja registrado que el trial se
+agotó justo tras generar `lobby_bg` (**"trial generations used up"**,
+$0.00 créditos) y no hay evidencia de recarga entre una sesión y la
+siguiente del mismo día, se asume saldo efectivo 0 también para esta
+tarea — coherente con la ausencia de la herramienta. Excepción de
+`ART_PIPELINE.md` regla 4 aplicada igual que en la corrección del texto
+horneado de `lobby_bg`: recomposición hecha **100% por código (Pillow)**
+reutilizando los propios sprites de ornamento ya aprobados de
+`BACKGROUND_MASTER` (extracción + recolocación, sin dibujar pixel art
+nuevo desde cero) — ver detalle en "Home / Loading" y "Menús" más abajo.
+Si en una sesión futura el MCP de PixelLab vuelve a estar disponible y
+con saldo, la primera tarea pendiente es revisar si esta recomposición
+por código se puede/debe pulir con una generación real.
+
 **Corrección de plan encontrada en FASE 6:** `ART_ASSET_PLAN.md` tenía
 mal asignado `PANEL_MASTER` como master de `bet_sidebar_bg`/
 `panel_border`. El código real (`scripts/ui/casino/bet_sidebar_panel.gd`)
@@ -686,7 +707,7 @@ integración de `pilar.md`, no de este agente).
 | ID | Tamaño | Status |
 |---|---|---|
 | lobby_bg (`inicio/`) | 220×264 | FINAL — **regenerado 2026-08-29**, ver nota abajo |
-| loading_bg (`carga/`) | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
+| loading_bg (`carga/`) | 220×264 | FINAL — **recompuesto 2026-08-29**, ver nota abajo |
 
 **Regeneración `lobby_bg` (`CasinoArtDirector`, 2026-08-29):** sustituido a
 petición del usuario — el `lobby_bg` anterior (marco ornamental
@@ -811,13 +832,105 @@ en `assets/pixels/roulette/`, commit `8a6dee2`). Corregidos a `false`
 en ambos `.import` — `compress/mode=0` y `mipmaps/generate=false` ya
 estaban correctos, no hizo falta regenerar el PNG ni usar PixelLab.
 
+**Recomposición `loading_bg` para COVER en ultra-wide
+(`CasinoArtDirector`, 2026-08-29):** encargo de `pilar.md`
+(`ART_INTEGRATION_PLAN.md`, "Pendiente real — recomponer lobby_bg/
+credits_bg/loading_bg para COVER en ultra-wide") — `loading_screen.tscn`
+usa el mismo `TextureRect.stretch_mode=6` (`KEEP_ASPECT_COVERED`) que
+`home_screen.tscn`; en el peor caso (monitor 3.55:1) solo se ve la
+franja horizontal central de 220×62px (filas 101-163 de 264).
+
+Diagnóstico por simulación de recorte (`PIL`, crop `(0,101,220,163)`
+contra el archivo real, no adivinado): antes de este cambio,
+`loading_bg` era byte-idéntico a `BACKGROUND_MASTER` (marco de filigrana
+dorada en las 4 esquinas + vignette navy circular centrada). Medido con
+precisión de píxel: las esquinas ocupan filas 8-54 (superior) y 209-255
+(inferior) de las 264 — **fuera de la franja segura incluso en el caso
+menos extremo del rango pedido (4:3 → banda visible filas 49-215, solo
+roza 5-6px de esquina)**, y completamente fuera para cualquier aspect
+ratio ≳1.41:1 (la mayoría del rango 4:3-3.55:1 pedido). Resultado: en
+todo el rango relevante el usuario solo veía navy liso + vignette, sin
+ningún rastro del marco ornamental — no hay corrupción/ilegibilidad
+(la vignette en sí sobrevive intacta, sigue sirviendo de fondo neutro
+para el spinner/texto), pero se pierde el 100% de la identidad
+decorativa del asset en casi todo el rango soportado. Se decidió
+recomponer, no dejar tal cual.
+
+Método: **100% por código (Pillow), no PixelLab** — excepción
+documentada de `ART_PIPELINE.md` regla 4 (MCP de PixelLab no disponible
+como herramienta esta sesión + saldo asumido en 0 por continuidad con la
+nota de `lobby_bg` del mismo día, ver nota de sesión al inicio del
+archivo). Reconstrucción exacta de la base (navy + vignette de 3 bandas
+concéntricas ajustadas por radio: r<32 `#030E24`, 32≤r<90 `#020A20`,
+r≥90 `#03041A`, centro (110,132) — fórmula ajustada por muestreo directo
+del PNG original, no inventada) + los 4 sprites de esquina originales
+reubicados sin modificar (mismos píxeles, mismas posiciones) + **una
+regla doble dorada nueva** (2 líneas de 1px, columnas 3/6 desde el borde
+izquierdo y sus espejos 216/213 desde el derecho, con remaches en
+rombo cada 24px) que conecta las esquinas superior e inferior a lo largo
+de ambos bordes verticales, filas 56-208. Paleta de la regla/remaches
+100% muestreada del propio ornamento existente (`#84523B` highlight,
+`#5D3C30` medio, `#21151F` sombra) — cero tonos nuevos fuera de familia.
+
+Por qué este diseño resuelve el problema: `stretch_mode=6` sobre este
+lienzo portrait **nunca recorta el ancho, solo el alto** — cualquier
+elemento que recorra los bordes izquierdo/derecho de punta a punta es
+por definición visible en el 100% de los aspect ratios posibles, no solo
+en el rango 4:3-3.55:1 pedido. La vignette central queda intacta y
+despejada para el spinner (`loading_indicator.gd`) y el `Label`
+"Cargando…", que en `loading_screen.tscn` están anclados al centro con
+márgenes que no llegan a las columnas donde vive la regla (offsets
+±30/±60px sobre un lienzo de 220px de ancho) — sin riesgo de choque con
+la UI real.
+
+Validación técnica (`ART_VALIDATION.md`) contra el archivo real:
+220×264 RGBA confirmado, alfa constante 255 en el 100% de los píxeles
+(opaco, sin halo de anti-aliasing — todos los píxeles nuevos son de
+color sólido exacto, sin blending), 16 colores únicos (más compacto que
+los 16 originales de `loading_bg`/42 de `lobby_bg` — igual de cuantizado,
+sin degradado continuo). Visual: paleta 100% heredada de
+`BACKGROUND_MASTER` (familia navy `PANEL_NAVY_DARK/MID` + familia oro
+`GOLD_ACCENT`), coherente con el master del que deriva, silueta legible
+a tamaño real (confirmado visualmente en el PNG nativo 220×264, sin
+zoom). Gameplay: simulado el crop en 4 aspect ratios del rango pedido
+(4:3, 16:9, 21:9, 3.55:1 peor caso) — la regla dorada + remaches
+aparecen enteros en los 4; las esquinas reaparecen progresivamente según
+el aspect se acerca a 4:3 (sangrado progresivo, mismo patrón que
+`lobby_bg`); sin interferencia con el `Label`/`Indicator` centrados de
+`loading_screen.tscn`. Import: `.import` existente ya tenía
+`compress/mode=0`/`mipmaps/generate=false`/`fix_alpha_border=false`
+correctos — mismo tamaño/formato de archivo, no requirió cambios;
+`texture_filter=1` (NEAREST) ya aplicado en el `TextureRect` del
+`.tscn`, sin tocar la escena. Con eso, técnica/visual/gameplay/import
+pasan completos → `FINAL`.
+
+**Diverge de `credits_bg`/`settings_bg`/`pause_bg`/`help_bg` a partir de
+ahora:** `loading_bg` deja de ser byte-idéntico a
+`assets/pixels/_masters/BACKGROUND_MASTER.png` (que se queda sin tocar
+— sigue siendo el master reutilizado tal cual por `settings_bg`/
+`pause_bg`/`help_bg`, que no tienen el problema de recorte porque sus
+escenas modales usan `ColorRect` semitransparente, no `TextureRect`
+full-bleed en `stretch_mode=6` sobre gameplay en curso — ver nota de
+integración en la sección "Menús"). Solo `lobby_bg`, `credits_bg` y
+`loading_bg` — las 3 escenas full-bleed reales listadas en el encargo —
+necesitaban esta recomposición.
+
+**Pendiente para `pilar.md`:** verificar en vivo con capturas reales
+(no solo lectura de `.tscn`) igual que se hizo con el resto de items de
+`ART_INTEGRATION_PLAN.md` — lanzar
+`scenes/ui/casino/loading_screen.tscn` suelto con
+`--path . scenes/ui/casino/loading_screen.tscn` y, si es posible,
+simular/forzar una ventana ultra-wide (o al menos confirmar que en la
+resolución de desarrollo normal no se ve peor que antes) antes de cerrar
+el ítem.
+
 ## Menús (4) — FASE 17 completa (2026-08-28) — validado `artgroup-menus` (2026-08-28)
 
 | ID | Tamaño | Status |
 |---|---|---|
 | settings_bg | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
 | pause_bg | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
-| credits_bg | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
+| credits_bg | 220×264 | FINAL — **recompuesto 2026-08-29**, ver nota abajo |
 | help_bg | 220×264 | FINAL (= `BACKGROUND_MASTER`) |
 
 Los 4 reutilizan `BACKGROUND_MASTER` tal cual — son pantallas de menú
@@ -844,6 +957,45 @@ propósito, ver nota de integración abajo); `credits_bg` sí está
 integrado en `credits_menu.tscn` (`TextureRect` de fondo a pantalla
 completa, `texture_filter = 1` NEAREST) — el registro no lo reflejaba
 antes de esta validación.
+
+**Recomposición `credits_bg` para COVER en ultra-wide
+(`CasinoArtDirector`, 2026-08-29):** mismo encargo, mismo diagnóstico y
+mismo método que `loading_bg` (ver detalle completo en la sección
+"Home / Loading" — `credits_menu.tscn` usa idéntico
+`TextureRect.stretch_mode=6` full-bleed, `credits_bg` era también
+byte-idéntico a `BACKGROUND_MASTER` antes de este cambio, mismo problema
+de esquinas fuera de la franja segura en todo el rango 4:3-3.55:1). El
+archivo resultante de `credits_bg.png` es **idéntico píxel a píxel** al
+nuevo `loading_bg.png` (misma recomposición: base navy+vignette
+reconstruida + 4 esquinas originales reubicadas + regla doble dorada con
+remaches en ambos bordes verticales, filas 56-208) — mismo criterio que
+ya se usaba antes de este cambio (ambos reutilizaban `BACKGROUND_MASTER`
+tal cual, ahora reutilizan la misma recomposición tal cual — coherencia
+mantenida entre los dos).
+
+Verificado que la regla dorada (columnas 3/6 y 216/213) no choca con el
+`VBox` de `credits_menu.tscn` (anclado al centro, offsets ±220/±170px
+sobre un lienzo de 220px de ancho — en el caso normal ocupa casi todo el
+ancho del lienzo, pero en el recorte ultra-wide real la relación
+lienzo-a-pantalla se expande y el `VBox` termina ocupando solo una franja
+angosta central del lienzo, muy lejos de los bordes 3-9/211-217; a
+aspect ratios menos extremos el `VBox` nunca llega a esas columnas
+extremas tampoco) ni con el `BackButton` (anclado abajo-centro). Import:
+`.import` ya correcto (`compress/mode=0`/`mipmaps/generate=false`/
+`fix_alpha_border=false`), `texture_filter=1` NEAREST ya aplicado en el
+`TextureRect` — sin cambios de escena. Validación técnica/visual/
+gameplay/import completa (mismos resultados que `loading_bg`: 220×264
+RGBA, alfa constante 255, 16 colores únicos, silueta legible a tamaño
+real, sangrado progresivo confirmado en 4 aspect ratios simulados) →
+`FINAL`.
+
+`credits_bg` diverge ahora de `settings_bg`/`pause_bg`/`help_bg` (que
+siguen siendo `BACKGROUND_MASTER` sin tocar, ver nota de integración
+justo abajo — no tienen el problema porque sus overlays usan `ColorRect`
+semitransparente, no `TextureRect` full-bleed). **Pendiente para
+`pilar.md`:** verificar en vivo con capturas reales lanzando
+`scenes/ui/casino/credits_menu.tscn` suelto, mismo procedimiento que
+`loading_bg`.
 
 **Nota de integración (no es tarea de `artgroup-menus`, informativo
 para `pilar.md`):** `settings_menu.gd`/`pause_menu.gd`/`help_overlay.gd`
