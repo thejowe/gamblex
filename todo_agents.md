@@ -119,6 +119,14 @@ ser reencuadre/recomposición del detalle ya existente). No es
 bloqueante (el recorte es feo pero no rompe gameplay), sin urgencia
 alta.
 
+**Confirmado en vivo (2026-08-29, mismo día):** lanzado el juego real
+(`Godot_v4.7.1-stable_win64_console.exe --path .`), ventana
+`Casino Pixel (DEBUG)` inspeccionada con Win32 `GetWindowLong`/
+`GetWindowRect` — `HasCaption=False` (sin barra de título), rect
+1920×1080 = pantalla completa. Fix del `settings.cfg` (reset a
+`fullscreen=true`) confirmado funcionando, no solo por lectura de
+código. Bug 1 cerrado del todo.
+
 ---
 
 ## Ampliación v1.9: pantalla de inicio (2026-08-29)
