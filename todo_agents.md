@@ -125,7 +125,46 @@ alta.
 `GetWindowRect` — `HasCaption=False` (sin barra de título), rect
 1920×1080 = pantalla completa. Fix del `settings.cfg` (reset a
 `fullscreen=true`) confirmado funcionando, no solo por lectura de
-código. Bug 1 cerrado del todo.
+código.
+
+**Incidente propio, arreglado en la misma sesión:** el primer intento
+de resetear `user://settings.cfg` con
+`(Get-Content $p) -replace ... | Set-Content -Encoding utf8 $p` en
+PowerShell 5.1 corrompió el archivo (`Get-Content` sin `-Encoding`
+explícito lee ANSI por defecto, re-escribir como UTF-8 duplica/mangla
+el BOM del archivo original — síntoma: `"Ã¯Â»Â¿[audio]master_db"=0.0"`
+como primera línea, sección `[audio]`/`[display]` duplicadas). Esto
+hizo que `cfg.load()` fallara en `home_screen.gd`, dejando el segundo
+lanzamiento **de vuelta en ventana** (falso positivo momentáneo: el
+primer lanzamiento parecía funcionar solo porque `cfg.load()` fallaba
+distinto esa vez y la función salía temprano sin tocar el modo,
+dejando el `mode=3` de `project.godot` intacto por accidente, no por
+el fix). Reescrito el archivo entero con
+`[System.IO.File]::WriteAllText(..., New-Object
+System.Text.UTF8Encoding($false))` (UTF-8 sin BOM, formato exacto de
+`ConfigFile`) — **gotcha para la próxima vez que haga falta editar un
+`.cfg`/`.ini` de Godot desde PowerShell 5.1: nunca `Get-Content` +
+`Set-Content -Encoding utf8` a pelo, usar `WriteAllText` con encoding
+explícito sin BOM.** Bug 1 cerrado del todo, confirmado limpio tras el
+segundo fix.
+
+**Intento de fix de Bug 2 (recorte), probado y descartado por el
+usuario:** esta sesión cambió `stretch_mode` de `KEEP_ASPECT_COVERED`
+(6) a `KEEP_ASPECT_CENTERED` (5) + un `ColorRect` de fondo
+(`PANEL_NAVY_DARK`) en las 3 escenas (`home_screen.tscn`,
+`credits_menu.tscn`, `loading_screen.tscn`) — elimina el recorte del
+todo pero deja barras de color sólido a los lados en aspect ratios
+anchos (pillarbox). 449/449 tests seguían en verde. **El usuario
+probó en vivo y lo rechazó explícitamente** ("salen espacios negros a
+los lados, tienes que hacerle un resize al diseño de la puerta") — no
+quiere barras, quiere que el arte se redimensione/recomponga para
+seguir cubriendo. Revertido a `stretch_mode=6` (COVER) sin `Backdrop`,
+las 3 escenas de vuelta a su estado previo, working tree limpio.
+**Bug 2 sigue abierto** — la solución real es de arte, no de motor: le
+toca a `CasinoArtDirector` con los 3 números ya calculados arriba
+(stretch=COVER sin cambios, rango 4:3–3.55:1, franja garantizada
+220×62px centrada). Regla `CLAUDE.md` master-first aplica: pilar no
+dibuja pixel art, solo entrega los parámetros.
 
 ---
 
