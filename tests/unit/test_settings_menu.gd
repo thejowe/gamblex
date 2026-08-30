@@ -29,13 +29,16 @@ func test_mute_checkbox_initializes_from_current_mute_state() -> void:
 	AudioManager.set_bus_mute("SFX", false)
 
 func test_fullscreen_preference_persists() -> void:
+	var cfg := ConfigFile.new()
+	cfg.load("user://settings.cfg")
+	var original_fullscreen: bool = cfg.get_value("display", "fullscreen", true)
+
 	var menu := preload("res://scenes/ui/casino/settings_menu.tscn").instantiate()
 	add_child_autofree(menu)
 	menu._on_fullscreen_toggled(true)
-	var cfg := ConfigFile.new()
 	cfg.load("user://settings.cfg")
 	assert_true(cfg.get_value("display", "fullscreen", false))
-	menu._on_fullscreen_toggled(false)
+	menu._on_fullscreen_toggled(original_fullscreen)
 
 func test_quit_button_requires_confirmation() -> void:
 	var menu := preload("res://scenes/ui/casino/settings_menu.tscn").instantiate()

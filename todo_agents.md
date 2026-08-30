@@ -195,6 +195,32 @@ depender del launcher):
 **Con esto, el triage completo (fullscreen + recorte de fondos) queda
 cerrado.**
 
+**Bug real nuevo, encontrado y arreglado al confirmar en vivo por
+tercera vez (2026-08-29, mismo día):** el usuario reportó que el
+fullscreen "se rompió otra vez" tras el cierre de arriba. No era
+regresión de arte ni de `home_screen.gd` — **la suite de GUT
+contaminaba el `user://settings.cfg` real de producción en cada
+corrida**: `tests/unit/test_settings_menu.gd::test_fullscreen_
+preference_persists()` llamaba `menu._on_fullscreen_toggled(true)`
+para el assert y luego `menu._on_fullscreen_toggled(false)` a pelo
+para "limpiar" — pero `SettingsMenu` escribe directo a
+`user://settings.cfg` (mismo path que usa el juego real, sin mock ni
+override de ruta para tests), así que cada `--gexit` dejaba el
+preference real del usuario en `false`. Cada vez que esta sesión
+corrió la suite completa para verificar algo (Bug 2, letterbox, fix
+de arte...) pisaba sin querer el fix de fullscreen. Arreglado
+(`tests/unit/test_settings_menu.gd`): el test ahora lee el valor
+original de `fullscreen` antes de tocar nada y restaura ESE valor al
+final en vez de hardcodear `false`. 449/449 tests siguen en verde,
+`settings.cfg` real confirmado intacto (`fullscreen=true`) tras correr
+la suite completa de nuevo. **Gotcha para cualquier test futuro que
+toque `SettingsMenu`/`AudioManager`: ambos escriben a la ruta real
+`user://settings.cfg`, no a un mock — cualquier test que cambie un
+valor tiene que restaurarlo al original, nunca a un valor fijo
+adivinado.** Confirmado en vivo una cuarta vez tras el fix: `HasCaption
+=False`, 1920×1080, puerta con detalle completo visible (dintel,
+letrero, columnas, tiradores) — captura real revisada.
+
 ---
 
 ## Ampliación v1.9: pantalla de inicio (2026-08-29)
