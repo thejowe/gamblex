@@ -739,6 +739,46 @@ vacío si se quisiera un letrero totalmente apagado) por falta de saldo
 de trial — si se recarga el trial y el usuario quiere iterar más sobre
 este asset, es la primera tarea pendiente de la próxima sesión.
 
+**Revisión 2 — recomposición para `stretch_mode=6` en ultra-wide
+(`CasinoArtDirector`, 2026-08-29):** el usuario reportó que en su
+monitor ultra-wide (fullscreen real) la puerta salía "ampliada". Causa:
+`home_screen.tscn` usa `TextureRect.stretch_mode=6`
+(`STRETCH_KEEP_ASPECT_COVERED`) — nunca recorta el ancho (220px
+siempre completo) pero sí recorta la altura según el aspect ratio real
+de la ventana. La Revisión 1 (arriba) tenía el letrero/arco en
+y:29-79 y el cuerpo de puerta hasta y~200 — en el peor caso (monitor
+3.55:1) solo se ve una franja de 62px centrada en y:132 (filas
+101-163), que con esa composición mostraba un trozo ciego de panel de
+puerta sin marco, letrero ni alfombra.
+
+Parámetros reales del recorte, confirmados por `pilar` (código, no
+adivinados): `stretch_mode` se queda igual (decisión de motor, fuera de
+mi dominio) — rango de aspect a soportar 4:3 (1.33:1, banda visible
+165px) a 3.55:1 (peor caso, banda visible 62px), banda siempre
+horizontal completa (220px, el lienzo portrait nunca pierde ancho),
+sangrado progresivo (no corte binario) entre ambos extremos.
+
+Recompuesto (1 generación PixelLab `create_image_pixflux`, coste 1 —
+saldo real confirmado con `get_balance` antes de generar: 17
+disponibles) con el marco/dintel/panel superior de las puertas
+centrado dentro de filas 101-163, arco/pedimento como sangrado hacia
+arriba, alfombra como sangrado hacia abajo. Sin texto horneado esta
+vez (prompt explícito "no text/letters/words" tras el gotcha de la
+Revisión 1). Validado por simulación de recorte real contra el archivo
+final (`PIL`, no memoria): crop `(0,101,220,163)` → marco, dintel,
+panel superior de ambas hojas y borde superior de los tiradores
+visibles y legibles como "puerta doble" incluso en el peor caso; crop
+`(0,49,220,214)` (banda 4:3) → composición completa (arco, letrero
+vacío, puerta con tiradores, arranque de alfombra) sin cambios
+respecto a la Revisión 1. Técnica: 220×264 confirmado, alfa constante
+255 (0% parcial), 27 colores únicos (más compacto que los 44 de la
+Revisión 1). Reimport headless sin errores.
+
+Reemplaza el archivo de la Revisión 1 en el mismo path — sigue sin
+requerir tocar `home_screen.tscn` ni `project.godot` (eso es tarea de
+`pilar`, ver `todo_agents.md` para el estado del fix de
+fullscreen/stretch en código, independiente de este cambio de arte).
+
 `lobby_bg` generado aparte con PixelLab (más rico: cartas/fichas
 insinuadas en las esquinas, pantalla de bienvenida). `loading_bg`
 reutiliza `BACKGROUND_MASTER` tal cual — es una pantalla de tránsito de
